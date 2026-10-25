@@ -7,5 +7,25 @@
 <body>
 <h1>Wann passt es?</h1>
 <p>Finde passende Zeitfenster für deine Outdoor-Aktivitäten.</p>
+<h2>Beispielwetter</h2>
+<p>Dies sind feste Beispieldaten, keine aktuelle Wettervorhersage.</p>
+
+<p>
+    Temperatur:
+    <span th:text="${weatherHour.temperatureCelsius}"></span> °C
+</p>
+<p>
+    Wind:
+    <span th:text="${weatherHour.windKmh}"></span> km/h
+</p>
+<p>
+    Niederschlag:
+    <span th:text="${weatherHour.precipitationMm}"></span> mm
+</p>
+
+<p th:text="${suitable
+        ? 'Passt zu den Beispielgrenzen.'
+        : 'Passt nicht zu den Beispielgrenzen.'}">
+</p>
 </body>
 </html>
