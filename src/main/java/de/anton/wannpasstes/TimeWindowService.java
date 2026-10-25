@@ -3,9 +3,9 @@ package de.anton.wannpasstes;
 import org.springframework.stereotype.Service;
 
 import java.sql.Time;
-import java.util.ArrayList
-import java.util.Comparator
-import java.util.List
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 @Service
 public class TimeWindowService {
@@ -17,7 +17,7 @@ public class TimeWindowService {
         sorted.sort(Comparator.comparing(window -> window.start().toInstant()));
 
         List<TimeWindow> merged = new ArrayList<>();
-        TimeWindow current = sorted.get(i);
+        TimeWindow current = sorted.getFirst();
 
         for (int i = 1; i < sorted.size(); i++) {
             TimeWindow next = sorted.get(i);
