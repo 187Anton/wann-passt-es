@@ -20,6 +20,7 @@ public class WeatherClient {
     public WeatherClient() {
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
 
+
         requestFactory.setConnectTimeout(Duration.ofSeconds(5));
         requestFactory.setReadTimeout(Duration.ofSeconds(10));
 
@@ -28,6 +29,8 @@ public class WeatherClient {
                 .requestFactory(requestFactory)
                 .build();
     }
+    WeatherClient(RestClient restclient) {
+        this.restClient = restclient; }
 
     public List<WeatherHour> fetchForecast(
             double latitude, double longitude, ZoneId zone) {

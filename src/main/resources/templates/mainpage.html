@@ -5,11 +5,21 @@
     <title>Wann passt es?</title>
 </head>
 <body>
-<h1>Wann passt es?</h1>
-<p>Finde passende Zeitfenster für deine Outdoor-Aktivitäten.</p>
-<h2>Beispielwetter</h2>
-<h2>Passende Beispielstunden</h2>
-<p>Dies sind feste Beispieldaten, keine aktuelle Wettervorhersage.</p>
+<h2>Wettervorhersage für Berlin</h2>
+
+<p>
+    Daten von <a href="https://open-meteo.com/">Open-Meteo</a>.
+    Die Bewertung verwendet vorläufige Beispielgrenzen.
+</p>
+
+<p th:if="${weatherError != null}"
+   th:text="${weatherError}">
+</p>
+
+<p th:if="${weatherError == null and #lists.isEmpty(suitableHours)}">
+    Für die abgefragten Stunden passt keine Vorhersage
+    zu den aktuellen Beispielgrenzen.
+</p>
 
 <table>
     <thead>
