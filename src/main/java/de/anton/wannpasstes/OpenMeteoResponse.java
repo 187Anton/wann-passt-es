@@ -7,8 +7,6 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record OpenMeteoResponse(Hourly hourly) {
 
-    public boolean horu() {
-    }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Hourly(

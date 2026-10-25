@@ -37,7 +37,7 @@ public class WeatherClient {
                         .path("/v1/forecast")
                         .queryParam("latitude", latitude)
                         .queryParam("longitude", longitude)
-                        .queryParam("hourly", "temperature_2m, wind_speed_10m," + "precipation, weather_code")
+                        .queryParam("hourly", "temperature_2m, wind_speed_10m," + "precipitation, weather_code")
                         .queryParam("temperature_unit", "celsius")
                         .queryParam("wind_speed_unit", "kmh")
                         .queryParam("precipitation_unit", "mm")
