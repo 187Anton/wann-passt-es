@@ -56,4 +56,21 @@ public class WeatherHour {
     public void setWeatherCode(int weatherCode) {
         this.weatherCode = weatherCode;
     }
+
+    public boolean matches(
+            double minTemperatureCelsius,
+            double maxTemperatureCelsius,
+            double maxWindKmh,
+            double maxPrecipitationMm) {
+
+        boolean temperatureMatches =
+                temperatureCelsius >=minTemperatureCelsius
+                    && temperatureCelsius <= maxTemperatureCelsius;
+
+        boolean windMatches = windKmh <= maxWindKmh;
+        boolean precipitationMatches = precipitationMm <= maxPrecipitationMm;
+
+        return temperatureMatches && windMatches && precipitationMatches;
+    }
+
 }
