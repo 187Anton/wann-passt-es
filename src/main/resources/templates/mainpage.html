@@ -15,10 +15,24 @@
 <p th:if="${weatherError != null}"
    th:text="${weatherError}">
 </p>
+<form th:action="@{/}" method="get">
+    <label for="minDurationMinutes">
+        Mindestens benötigte Zeit in Minuten:
+    </label>
 
+    <input type="number"
+           id="minDurationMinutes"
+           name="minDurationMinutes"
+           min="1"
+           step="1"
+           th:value="${minDurationMinutes}"
+           required>
+
+    <button type="submit">Zeitfenster suchen</button>
+</form>
 <p th:if="${weatherError == null and #lists.isEmpty(suitableWindows)}">
-    Im abgefragten Zeitraum gibt es keine passenden zukünftigen
-    Zeitfenster nach den aktuellen Beispielgrenzen.
+    Für die gewählte Mindestdauer und die aktuellen
+    Beispielgrenzen wurden keine passenden Zeitfenster gefunden.
 </p>
 
 <table>
