@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Ort suchen – Wann passt es?</title>
+</head>
+<body>
+<h1>Ort suchen</h1>
+
+<form th:action="@{/locations}" method="get">
+    <label for="query">Ortsname:</label>
+
+    <input type="text"
+           id="query"
+           name="query"
+           minlength="2"
+           th:value="${query}"
+           required>
+
+    <button type="submit">Suchen</button>
+</form>
+
+<p>Bitte mindestens zwei Zeichen eingeben.</p>
+
+<p th:if="${locationError != null}"
+   th:text="${locationError}">
+</p>
+
+<p th:if="${searchPerformed and locationError == null
+        and #lists.isEmpty(locations)}">
+    Keine passenden Orte gefunden.
+</p>
+
+<table th:if="${not #lists.isEmpty(locations)}">
+    <thead>
+    <tr>
+        <th>Ort</th>
+        <th>Region</th>
+        <th>Land</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="location : ${locations}">
+        <td th:text="${location.name()}"></td>
+        <td th:text="${location.region()}"></td>
+        <td th:text="${location.country()}"></td>
+    </tr>
+    </tbody>
+</table>
+
+<p>
+    Ortsdaten:
+    <a href="https://www.geonames.org/">GeoNames</a>
+    über <a href="https://open-meteo.com/">Open-Meteo</a>.
+</p>
+
+<p><a th:href="@{/}">Zur Wettervorhersage für Berlin</a></p>
+</body>
+</html>
