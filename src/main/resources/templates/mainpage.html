@@ -6,8 +6,7 @@
 </head>
 <body>
 <p><a th:href="@{/locations}">Ort suchen</a></p>
-<h2>Wettervorhersage für Berlin</h2>
-
+<h2 th:text="${'Wettervorhersage für ' + locationName}"></h2>
 <p>
     Daten von <a href="https://open-meteo.com/">Open-Meteo</a>.
     Die Bewertung verwendet vorläufige Beispielgrenzen.
@@ -31,6 +30,9 @@
 
     <button type="submit">Zeitfenster suchen</button>
 </form>
+<input type="hidden"
+       name="locationId"
+       th:value="${locationId}">
 <p th:if="${weatherError == null and #lists.isEmpty(suitableWindows)}">
     Für die gewählte Mindestdauer und die aktuellen
     Beispielgrenzen wurden keine passenden Zeitfenster gefunden.

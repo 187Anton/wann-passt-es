@@ -41,8 +41,11 @@
     </thead>
     <tbody>
     <tr th:each="location : ${locations}">
-        <td th:text="${location.name()}"></td>
-        <td th:text="${location.region()}"></td>
+        <td>
+            <a th:href="@{/(locationId=${location.id()})}"
+               th:text="${location.name()}">
+            </a>
+        </td>        <td th:text="${location.region()}"></td>
         <td th:text="${location.country()}"></td>
     </tr>
     </tbody>

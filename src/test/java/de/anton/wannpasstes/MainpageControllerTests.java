@@ -15,11 +15,22 @@ class MainpageControllerTests {
 
     @Test
     void keepsOnlyWindowsMeetingMinimumDuration() {
-        WeatherClient weatherClient = mock(WeatherClient.class);
+        GeocodingClient geocodingClient = mock(GeocodingClient.class);
+
+        when(geocodingClient.getLocation(2950159))
+                .thenReturn(new GeocodingResponse.Location(
+                        2950159,
+                        "Berlin",
+                        52.52,
+                        13.405,
+                        "Europe/Berlin",
+                        "Deutschland",
+                        "Berlin"));
 
         MainpageController controller = new MainpageController(
                 weatherClient,
-                new TimeWindowService());
+                new TimeWindowService(),
+                geocodingClient);
 
         ZoneId zone = ZoneId.of("Europe/Berlin");
         OffsetDateTime start = OffsetDateTime.now(zone).plusDays(1);
@@ -38,7 +49,7 @@ class MainpageControllerTests {
 
         ExtendedModelMap model = new ExtendedModelMap();
 
-        String view = controller.mainpage(120, model);
+        String view = controller.mainpage(2950159, 120, model);
 
         TimeWindow expected = new TimeWindow(
                 start.plusHours(3),
