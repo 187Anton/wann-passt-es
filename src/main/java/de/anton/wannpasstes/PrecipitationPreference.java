@@ -8,18 +8,18 @@ public enum PrecipitationPreference {
     ANY("Egal", Double.POSITIVE_INFINITY);
 
     private final String label;
-    private final double maxPrecipitation;
+    private final double maxPrecipitationMm;
 
-    PrecipitationPreference(String label, double maxPrecipitation) {
+    PrecipitationPreference(String label, double maxPrecipitationMm) {
         this.label = label;
-        this.maxPrecipitation = maxPrecipitation;
+        this.maxPrecipitationMm = maxPrecipitationMm;
     }
 
     public String getLabel() {
         return label;
     }
 
-    public double getMaxPrecipitation() {
-        return maxPrecipitation;
+    public double getMaxPrecipitationMm() {
+        return maxPrecipitationMm;
     }
 }
