@@ -43,18 +43,13 @@ class WeatherClientTests {
         server.expect(queryParam(
                         "hourly",
                         "temperature_2m,wind_speed_10m,precipitation,weather_code"))
+                .andExpect(queryParam("forecast_days", "7"))
                 .andRespond(withSuccess(json, MediaType.APPLICATION_JSON));
 
         List<WeatherHour> hours = client.fetchForecast(
                 52.52,
                 13.405,
                 ZoneId.of("Europe/Berlin"));
-
-        server.expect(queryParam(
-                        "hourly",
-                        "temperature_2m,wind_speed_10m,precipitation,weather_code"))
-                .andExpect(queryParam("forecast_days", "7"))
-                .andRespond(withSuccess(json, MediaType.APPLICATION_JSON));
 
         assertEquals(1, hours.size());
 
