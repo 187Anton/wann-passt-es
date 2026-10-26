@@ -50,6 +50,12 @@ class WeatherClientTests {
                 13.405,
                 ZoneId.of("Europe/Berlin"));
 
+        server.expect(queryParam(
+                        "hourly",
+                        "temperature_2m,wind_speed_10m,precipitation,weather_code"))
+                .andExpect(queryParam("forecast_days", "7"))
+                .andRespond(withSuccess(json, MediaType.APPLICATION_JSON));
+
         assertEquals(1, hours.size());
 
         WeatherHour hour = hours.get(0);

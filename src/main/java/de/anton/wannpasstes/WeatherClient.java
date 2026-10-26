@@ -45,7 +45,7 @@ public class WeatherClient {
                         .queryParam("precipitation_unit", "mm")
                         .queryParam("timeformat", "unixtime")
                         .queryParam("timezone", zone.getId())
-                        .queryParam("forecast_hours", 24)
+                        .queryParam("forecast_days", 7)
                         .build())
                 .retrieve()
                 .body(OpenMeteoResponse.class);
