@@ -15,8 +15,10 @@ public class TimeWindowService {
             double minTemperatureCelsius,
             double maxTemperatureCelsius,
             double maxWindKmh,
-            double maxPrecipitationMm) {
+            PrecipitationPreference precipitationPreference) {
 
+        double maxPrecipitationMm =
+                precipitationPreference.getMaxPrecipitationMm();
         List<WeatherHour> sorted = new ArrayList<>(hours);
         sorted.sort(Comparator.comparing(hour -> hour.getTime().toInstant()));
 

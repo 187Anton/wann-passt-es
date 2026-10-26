@@ -58,7 +58,7 @@ public class MainpageController {
 
             suitableWindows = new ArrayList<>(
                     timeWindowService.findSuitableWindows(
-                            hours, 10.0, 25.0, 20.0, 0.2));
+                            hours, 10.0, 25.0, 20.0, PrecipitationPreference.LIGHT_DRIZZLE));
 
             suitableWindows.removeIf(
                     window -> window.durationMinutes() < minDurationMinutes);
