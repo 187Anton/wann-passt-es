@@ -9,7 +9,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record GeocodingResponse(List<Location> results) {
 
-    pubblic GeocodingResponse {
+    public GeocodingResponse {
         results = results == null ? List.of() : List.copyOf(results);
     }
 
