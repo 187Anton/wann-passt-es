@@ -27,24 +27,20 @@ public class MainpageController {
         ZoneId zone = ZoneId.of("Europe/Berlin");
 
         try {
-            List<WeatherHour> suitableHours = new ArrayList<>(weatherClient.fetchForecast(52.52, 13.405, zone));
+            List<WeatherHour> hours = new ArrayList<>(weatherClient.fetchForecast(52.52, 13.405, zone));
 
             OffsetDateTime now = OffsetDateTime.now(zone);
             hours.removeIf(hour -> hour.getTime().isBefore(now));
 
-            suitableWindows = timeWindowService.findSuitableWindows(hours, 10.0,25.0,20.0,0.2)
-            for (WeatherHour hour : hours) {
-                if (hour.matches(10.0, 25.0, 20.0, 0.2)) {
-                    suitableHours.add(hour);
-                }
-            }
+            suitableWindows = timeWindowService.findSuitableWindows(hours, 10.0,25.0,20.0,0.2);
+
         } catch (RestClientException exception) {
             model.addAttribute(
                     "weatherError",
                     "Die Wetterdaten konnten nicht geladen werden. " + "Bitte versuche es später erneut.");
         }
 
-        model.addAttribute("suitableHours", suitableHours);
+        model.addAttribute("suitableWindows", suitableWindows);
 
         return "mainpage";
     }
