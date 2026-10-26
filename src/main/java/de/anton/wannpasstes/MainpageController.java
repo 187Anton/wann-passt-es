@@ -35,6 +35,7 @@ public class MainpageController {
             @Min(1) int locationId,
             @RequestParam(name = "minDurationMinutes", defaultValue = "60")
             @Min(1) int minDurationMinutes,
+            @RequestParam(name = "precipitationPreference", defaultValue = "LIGHT_DRIZZLE") PrecipitationPreference precipitationPreference,
             Model model) {
 
         List<TimeWindow> suitableWindows = List.of();
@@ -58,7 +59,7 @@ public class MainpageController {
 
             suitableWindows = new ArrayList<>(
                     timeWindowService.findSuitableWindows(
-                            hours, 10.0, 25.0, 20.0, PrecipitationPreference.LIGHT_DRIZZLE));
+                            hours, 10.0, 25.0, 20.0, precipitationPreference));
 
             suitableWindows.removeIf(
                     window -> window.durationMinutes() < minDurationMinutes);
@@ -74,6 +75,8 @@ public class MainpageController {
         model.addAttribute("minDurationMinutes", minDurationMinutes);
         model.addAttribute("locationId", locationId);
         model.addAttribute("locationName", locationName);
+        model.addAttribute("precipitationPreference", precipitationPreference);
+        model.addAttribute("precipitationPreferences", PrecipitationPreference.values());
 
         return "mainpage";
     }

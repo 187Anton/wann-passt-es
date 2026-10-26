@@ -51,7 +51,7 @@ class MainpageControllerTests {
 
         ExtendedModelMap model = new ExtendedModelMap();
 
-        String view = controller.mainpage(2950159, 120, model);
+        String view = controller.mainpage(2950159, 120, PrecipitationPreference.LIGHT_DRIZZLE, model);
 
         TimeWindow expected = new TimeWindow(
                 start.plusHours(3),
@@ -88,7 +88,7 @@ class MainpageControllerTests {
 
         ExtendedModelMap model = new ExtendedModelMap();
 
-        String view = controller.mainpage(123, 60, model);
+        String view = controller.mainpage(123, 60,PrecipitationPreference.LIGHT_DRIZZLE, model);
 
         verify(weatherClient).fetchForecast(40.7, -74.0, zone);
 

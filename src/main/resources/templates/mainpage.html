@@ -31,7 +31,16 @@
            step="1"
            th:value="${minDurationMinutes}"
            required>
+    <label for="precipitationPreference">Niederschlag:</label>
 
+    <select id="precipitationPreference"
+            name="precipitationPreference">
+        <option th:each="preference : ${precipitationPreferences}"
+                th:value="${preference.name()}"
+                th:text="${preference.label}"
+                th:selected="${preference == precipitationPreference}">
+        </option>
+    </select>
     <button type="submit">Zeitfenster suchen</button>
 </form>
 
