@@ -2,18 +2,24 @@ package de.anton.wannpasstes;
 
 public enum PrecipitationPreference {
 
-    DRY("Trocken"),
-    LIGHT_DRIZZLE("Höchstens leichter Nieselregen"),
-    LIGHT_RAIN("Höchstens leichter Regen"),
-    ANY("Egal");
+    DRY("Trocken", 0.0),
+    LIGHT_DRIZZLE("Höchstens leichter Nieselregen", 0.2),
+    LIGHT_RAIN("Höchstens leichter Regen", 1.0),
+    ANY("Egal", Double.POSITIVE_INFINITY);
 
     private final String label;
+    private final double maxPrecipitation;
 
-    PrecipitationPreference(String label) {
+    PrecipitationPreference(String label, double maxPrecipitation) {
         this.label = label;
+        this.maxPrecipitation = maxPrecipitation;
     }
 
     public String getLabel() {
         return label;
+    }
+
+    public double getMaxPrecipitation() {
+        return maxPrecipitation;
     }
 }
