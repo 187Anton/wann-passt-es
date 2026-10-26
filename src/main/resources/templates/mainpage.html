@@ -41,6 +41,25 @@
                 th:selected="${preference == precipitationPreference}">
         </option>
     </select>
+    <label for="temperaturePreference">Temperatur:</label>
+
+    <select id="temperaturePreference" name="temperaturePreference">
+        <option th:each="preference : ${temperaturePreferences}"
+                th:value="${preference.name()}"
+                th:text="${preference.label}"
+                th:selected="${preference == temperaturePreference}">
+        </option>
+    </select>
+
+    <label for="windPreference">Wind:</label>
+
+    <select id="windPreference" name="windPreference">
+        <option th:each="preference : ${windPreferences}"
+                th:value="${preference.name()}"
+                th:text="${preference.label}"
+                th:selected="${preference == windPreference}">
+        </option>
+    </select>
     <button type="submit">Zeitfenster suchen</button>
 </form>
 

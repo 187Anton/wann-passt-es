@@ -35,7 +35,15 @@ public class MainpageController {
             @Min(1) int locationId,
             @RequestParam(name = "minDurationMinutes", defaultValue = "60")
             @Min(1) int minDurationMinutes,
-            @RequestParam(name = "precipitationPreference", defaultValue = "LIGHT_DRIZZLE") PrecipitationPreference precipitationPreference,
+            @RequestParam(name = "precipitationPreference",
+                    defaultValue = "LIGHT_DRIZZLE")
+            PrecipitationPreference precipitationPreference,
+            @RequestParam(name = "temperaturePreference",
+                    defaultValue = "MILD")
+            TemperaturePreference temperaturePreference,
+            @RequestParam(name = "windPreference",
+                    defaultValue = "WEAK")
+            WindPreference windPreference,
             Model model) {
 
         List<TimeWindow> suitableWindows = List.of();
@@ -59,10 +67,7 @@ public class MainpageController {
 
             suitableWindows = new ArrayList<>(
                     timeWindowService.findSuitableWindows(
-                            hours, 10.0, 25.0, 20.0, precipitationPreference));
-
-            suitableWindows.removeIf(
-                    window -> window.durationMinutes() < minDurationMinutes);
+                            hours, temperaturePreference, windPreference, precipitationPreference));suitableWindows.removeIf(window -> window.durationMinutes() < minDurationMinutes);
 
         } catch (RestClientException exception) {
             model.addAttribute(
@@ -77,7 +82,10 @@ public class MainpageController {
         model.addAttribute("locationName", locationName);
         model.addAttribute("precipitationPreference", precipitationPreference);
         model.addAttribute("precipitationPreferences", PrecipitationPreference.values());
-
+        model.addAttribute("temperaturePreference", temperaturePreference);
+        model.addAttribute("temperaturePreferences", TemperaturePreference.values());
+        model.addAttribute("windPreference", windPreference);
+        model.addAttribute("windPreferences", WindPreference.values());
         return "mainpage";
     }
 }

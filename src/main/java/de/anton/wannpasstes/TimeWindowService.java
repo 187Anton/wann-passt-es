@@ -12,13 +12,19 @@ public class TimeWindowService {
 
     public List<TimeWindow> findSuitableWindows(
             List<WeatherHour> hours,
-            double minTemperatureCelsius,
-            double maxTemperatureCelsius,
-            double maxWindKmh,
+            TemperaturePreference temperaturePreference,
+            WindPreference windPreference,
             PrecipitationPreference precipitationPreference) {
 
+        double minTemperatureCelsius =
+                temperaturePreference.getMinTemperatureCelsius();
+        double maxTemperatureCelsius =
+                temperaturePreference.getMaxTemperatureCelsius();
+        double maxWindKmh =
+                windPreference.getMaxWindKmh();
         double maxPrecipitationMm =
                 precipitationPreference.getMaxPrecipitationMm();
+
         List<WeatherHour> sorted = new ArrayList<>(hours);
         sorted.sort(Comparator.comparing(hour -> hour.getTime().toInstant()));
 

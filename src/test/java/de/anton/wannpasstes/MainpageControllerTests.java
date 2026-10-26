@@ -51,7 +51,7 @@ class MainpageControllerTests {
 
         ExtendedModelMap model = new ExtendedModelMap();
 
-        String view = controller.mainpage(2950159, 120, PrecipitationPreference.LIGHT_DRIZZLE, model);
+        String view = controller.mainpage(2950159, 120, PrecipitationPreference.LIGHT_DRIZZLE, TemperaturePreference.MILD, WindPreference.WEAK, model);
 
         TimeWindow expected = new TimeWindow(
                 start.plusHours(3),
@@ -88,12 +88,15 @@ class MainpageControllerTests {
 
         ExtendedModelMap model = new ExtendedModelMap();
 
-        String view = controller.mainpage(123, 60,PrecipitationPreference.LIGHT_DRIZZLE, model);
+        String view = controller.mainpage(123, 60, PrecipitationPreference.LIGHT_DRIZZLE, TemperaturePreference.MILD, WindPreference.WEAK, model);
 
         verify(weatherClient).fetchForecast(40.7, -74.0, zone);
 
         assertEquals("mainpage", view);
         assertEquals(123, model.get("locationId"));
         assertEquals("Testort", model.get("locationName"));
+        assertEquals(TemperaturePreference.MILD, model.get("temperaturePreference"));
+        assertEquals(WindPreference.WEAK, model.get("windPreference"));
+        assertEquals(PrecipitationPreference.LIGHT_DRIZZLE, model.get("precipitationPreference"));
     }
 }
