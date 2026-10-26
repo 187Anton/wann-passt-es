@@ -16,6 +16,10 @@
    th:text="${weatherError}">
 </p>
 <form th:action="@{/}" method="get">
+    <input type="hidden"
+           name="locationId"
+           th:value="${locationId}">
+
     <label for="minDurationMinutes">
         Mindestens benötigte Zeit in Minuten:
     </label>
