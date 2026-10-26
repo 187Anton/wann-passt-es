@@ -22,7 +22,7 @@ public class LocationSearchController {
     public String locations(@RequestParam(name = "query", defaultValue = "") String query, Model model) {
 
         String searchTerm = query.strip();
-        boolean searchPerformed = searchTerm.length() > 2;
+        boolean searchPerformed = searchTerm.length() >= 2;
         List<GeocodingResponse.Location> locations = List.of();
 
         if (searchPerformed) {

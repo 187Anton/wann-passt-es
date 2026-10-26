@@ -40,4 +40,26 @@ public class GeocodingClient {
     }
     return response.results();
     }
+    public GeocodingResponse.Location getLocation(int id) {
+        if (id <= 0) {
+            throw new IllegalArgumentException(
+                    "Location ID must be positive");
+        }
+
+        GeocodingResponse.Location location = restClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/v1/get")
+                        .queryParam("id", id)
+                        .queryParam("language", "de")
+                        .build())
+                .retrieve()
+                .body(GeocodingResponse.Location.class);
+
+        if (location == null || location.id() != id) {
+            throw new RestClientException(
+                    "Geocoding API returned no matching location");
+        }
+
+        return location;
+    }
 }
