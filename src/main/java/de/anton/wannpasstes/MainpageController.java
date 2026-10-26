@@ -8,26 +8,31 @@ import org.springframework.web.client.RestClientException;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.OffsetDateTime;
 
 @Controller
 public class MainpageController {
 
     private final WeatherClient weatherClient;
+    private final TimeWindowService timeWindowService;
 
-    public MainpageController(WeatherClient weatherClient) {
+    public MainpageController(WeatherClient weatherClient, TimeWindowService timeWindowService) {
         this.weatherClient = weatherClient;
+        this.timeWindowService = timeWindowService;
     }
 
     @GetMapping("/")
     public String mainpage(Model model) {
-        List<WeatherHour> suitableHours = new ArrayList<>();
+        List<TimeWindow> suitableWindows = List.of();
+        ZoneId zone = ZoneId.of("Europe/Berlin");
 
         try {
-            List<WeatherHour> hours = weatherClient.fetchForecast(
-                    52.52,
-                    13.405,
-                    ZoneId.of("Europe/Berlin"));
+            List<WeatherHour> suitableHours = new ArrayList<>(weatherClient.fetchForecast(52.52, 13.405, zone));
 
+            OffsetDateTime now = OffsetDateTime.now(zone);
+            hours.removeIf(hour -> hour.getTime().isBefore(now));
+
+            suitableWindows = timeWindowService.findSuitableWindows(hours, 10.0,25.0,20.0,0.2)
             for (WeatherHour hour : hours) {
                 if (hour.matches(10.0, 25.0, 20.0, 0.2)) {
                     suitableHours.add(hour);

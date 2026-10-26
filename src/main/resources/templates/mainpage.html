@@ -16,26 +16,24 @@
    th:text="${weatherError}">
 </p>
 
-<p th:if="${weatherError == null and #lists.isEmpty(suitableHours)}">
-    Für die abgefragten Stunden passt keine Vorhersage
-    zu den aktuellen Beispielgrenzen.
+<p th:if="${weatherError == null and #lists.isEmpty(suitableWindows)}">
+    Im abgefragten Zeitraum gibt es keine passenden zukünftigen
+    Zeitfenster nach den aktuellen Beispielgrenzen.
 </p>
 
 <table>
     <thead>
     <tr>
-        <th>Zeitpunkt</th>
-        <th>Temperatur (°C)</th>
-        <th>Wind (km/h)</th>
-        <th>Niederschlag (mm)</th>
+        <th>Beginn</th>
+        <th>Ende</th>
+        <th>Dauer in Minuten</th>
     </tr>
     </thead>
     <tbody>
-    <tr th:each="hour : ${suitableHours}">
-        <td th:text="${hour.time}"></td>
-        <td th:text="${hour.temperatureCelsius}"></td>
-        <td th:text="${hour.windKmh}"></td>
-        <td th:text="${hour.precipitationMm}"></td>
+    <tr th:each="window : ${suitableWindows}">
+        <td th:text="${window.start()}"></td>
+        <td th:text="${window.end()}"></td>
+        <td th:text="${window.durationMinutes()}"></td>
     </tr>
     </tbody>
 </table>
