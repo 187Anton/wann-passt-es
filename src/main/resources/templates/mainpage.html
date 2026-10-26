@@ -34,9 +34,7 @@
 
     <button type="submit">Zeitfenster suchen</button>
 </form>
-<input type="hidden"
-       name="locationId"
-       th:value="${locationId}">
+
 <p th:if="${weatherError == null and #lists.isEmpty(suitableWindows)}">
     Für die gewählte Mindestdauer und die aktuellen
     Beispielgrenzen wurden keine passenden Zeitfenster gefunden.

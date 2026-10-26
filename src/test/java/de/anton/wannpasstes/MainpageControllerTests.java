@@ -10,6 +10,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 
 class MainpageControllerTests {
 
@@ -59,5 +60,40 @@ class MainpageControllerTests {
         assertEquals("mainpage", view);
         assertEquals(List.of(expected), model.get("suitableWindows"));
         assertEquals(120, model.get("minDurationMinutes"));
+    }
+    @Test
+    void usesCoordinatesAndTimezoneOfSelectedLocation() {
+        WeatherClient weatherClient = mock(WeatherClient.class);
+        GeocodingClient geocodingClient = mock(GeocodingClient.class);
+
+        ZoneId zone = ZoneId.of("America/New_York");
+
+        when(geocodingClient.getLocation(123))
+                .thenReturn(new GeocodingResponse.Location(
+                        123,
+                        "Testort",
+                        40.7,
+                        -74.0,
+                        zone.getId(),
+                        "Testland",
+                        "Testregion"));
+
+        when(weatherClient.fetchForecast(40.7, -74.0, zone))
+                .thenReturn(List.of());
+
+        MainpageController controller = new MainpageController(
+                weatherClient,
+                new TimeWindowService(),
+                geocodingClient);
+
+        ExtendedModelMap model = new ExtendedModelMap();
+
+        String view = controller.mainpage(123, 60, model);
+
+        verify(weatherClient).fetchForecast(40.7, -74.0, zone);
+
+        assertEquals("mainpage", view);
+        assertEquals(123, model.get("locationId"));
+        assertEquals("Testort", model.get("locationName"));
     }
 }
