@@ -2,13 +2,54 @@ package de.anton.wannpasstes;
 
 import org.springframework.stereotype.Service;
 
-import java.sql.Time;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
 @Service
 public class TimeWindowService {
+
+    public List<TimeWindow> findSuitableWindows(
+            List<WeatherHour> hours,
+            double minTemperatureCelsius,
+            double maxTemperatureCelsius,
+            double maxWindKmh,
+            double maxPrecipitationMm) {
+
+        List<WeatherHour> sorted = new ArrayList<>(hours);
+        sorted.sort(Comparator.comparing(hour -> hour.getTime().toInstant()));
+
+        List<TimeWindow> intervals = new ArrayList<>();
+
+        for (int i = 0; i + 1 < sorted.size(); i++) {
+            WeatherHour start = sorted.get(i);
+            WeatherHour end = sorted.get(i + 1);
+
+            Duration gap = Duration.between(start.getTime(), end.getTime());
+
+            if (!gap.equals(Duration.ofHours(1))) {
+                continue;
+            }
+
+            boolean temperatureMatches = start.getTemperatureCelsius() >= minTemperatureCelsius
+                    && start.getTemperatureCelsius() <= maxTemperatureCelsius
+                    && end.getTemperatureCelsius() >= minTemperatureCelsius
+                    && end.getTemperatureCelsius() <= maxTemperatureCelsius;
+
+            boolean windMatches = start.getWindKmh() <= maxWindKmh
+                    && end.getWindKmh() <= maxWindKmh;
+
+            boolean precipitationMatches = end.getPrecipitationMm() <= maxPrecipitationMm;
+
+            if (temperatureMatches && windMatches && precipitationMatches) {
+                intervals.add(new TimeWindow(start.getTime(), end.getTime()));
+            }
+        }
+
+        return mergeWindows(intervals);
+    }
+
     public List<TimeWindow> mergeWindows(List<TimeWindow> windows) {
         if (windows.isEmpty()) {
             return List.of();
