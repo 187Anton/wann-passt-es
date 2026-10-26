@@ -15,6 +15,7 @@ class MainpageControllerTests {
 
     @Test
     void keepsOnlyWindowsMeetingMinimumDuration() {
+        WeatherClient weatherClient = mock(WeatherClient.class);
         GeocodingClient geocodingClient = mock(GeocodingClient.class);
 
         when(geocodingClient.getLocation(2950159))
