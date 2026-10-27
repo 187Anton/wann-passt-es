@@ -67,7 +67,7 @@
     Für die gewählte Mindestdauer und die aktuellen
     Beispielgrenzen wurden keine passenden Zeitfenster gefunden.
 </p>
-
+<p th:text="${'Alle Uhrzeiten gelten für ' + locationName}"></p>
 <table>
     <thead>
     <tr>
@@ -78,9 +78,9 @@
     </thead>
     <tbody>
     <tr th:each="window : ${suitableWindows}">
-        <td th:text="${window.start()}"></td>
-        <td th:text="${window.end()}"></td>
-        <td th:text="${window.durationMinutes()}"></td>
+        <td th:text="${#temporals.format(window.start(), 'dd.MM.yyyy, HH:mm')}"></td>
+        <td th:text="${#temporals.format(window.end(), 'dd.MM.yyyy, HH:mm')}"></td>
+        <td th:text="${window.durationMinutes() + ' Min.'}"></td>
     </tr>
     </tbody>
 </table>
