@@ -44,6 +44,8 @@ public class MainpageController {
             @RequestParam(name = "windPreference",
                     defaultValue = "WEAK")
             WindPreference windPreference,
+            @RequestParam(name = "activity", defaultValue = "WALKING")
+            Activity activity,
             Model model) {
 
         List<TimeWindow> suitableWindows = List.of();
@@ -86,6 +88,9 @@ public class MainpageController {
         model.addAttribute("temperaturePreferences", TemperaturePreference.values());
         model.addAttribute("windPreference", windPreference);
         model.addAttribute("windPreferences", WindPreference.values());
+        model.addAttribute("activity", activity);
+        model.addAttribute("activities", Activity.values());
+
         return "mainpage";
     }
 }

@@ -20,6 +20,16 @@
            name="locationId"
            th:value="${locationId}">
 
+    <label for="activity">Aktivität:</label>
+
+    <select id="activity" name="activity">
+        <option th:each="option : ${activities}"
+                th:value="${option.name()}"
+                th:text="${option.label}"
+                th:selected="${option == activity}">
+        </option>
+    </select>
+
     <label for="minDurationMinutes">
         Mindestens benötigte Zeit in Minuten:
     </label>
@@ -62,6 +72,8 @@
     </select>
     <button type="submit">Zeitfenster suchen</button>
 </form>
+
+<h3 th:text="${'Zeitfenster für: ' + activity.label}"></h3>
 
 <p th:if="${weatherError == null and #lists.isEmpty(suitableWindows)}">
     Für die gewählte Mindestdauer und die aktuellen

@@ -4,7 +4,7 @@ public enum Activity {
 
     WALKING("Spazieren gehen"),
     RUNNING("Laufen"),
-    CYCLING("Fahren"),
+    CYCLING("Radfahren"),
     HIKING("Wandern");
 
     private final String label;
