@@ -26,6 +26,7 @@
         <th>Temperatur</th>
         <th>Wind</th>
         <th>Niederschlag</th>
+        <th>Aktion</th>
     </tr>
     </thead>
     <tbody>
@@ -37,6 +38,18 @@
         <td th:text="${profile.temperaturePreference.label}"></td>
         <td th:text="${profile.windPreference.label}"></td>
         <td th:text="${profile.precipitationPreference.label}"></td>
+        <td>
+            <a th:href="@{/(
+        locationId=${profile.locationId},
+        activity=${profile.activity.name()},
+        minDurationMinutes=${profile.minDurationMinutes},
+        temperaturePreference=${profile.temperaturePreference.name()},
+        windPreference=${profile.windPreference.name()},
+        precipitationPreference=${profile.precipitationPreference.name()}
+    )}">
+                Profil verwenden
+            </a>
+        </td>
     </tr>
     </tbody>
 </table>
