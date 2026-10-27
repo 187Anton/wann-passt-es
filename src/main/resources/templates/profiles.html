@@ -46,9 +46,16 @@
         temperaturePreference=${profile.temperaturePreference.name()},
         windPreference=${profile.windPreference.name()},
         precipitationPreference=${profile.precipitationPreference.name()}
-    )}">
-                Profil verwenden
-            </a>
+    )}"> Profil verwenden</a>
+            <form th:action="@{/profiles/delete}"
+                  method="post"
+                  onsubmit="return confirm('Dieses Profil wirklich löschen?');">
+                <input type="hidden"
+                       name="id"
+                       th:value="${profile.id}">
+
+                <button type="submit">Löschen</button>
+            </form>
         </td>
     </tr>
     </tbody>

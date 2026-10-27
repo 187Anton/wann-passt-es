@@ -91,4 +91,18 @@ public class SearchProfileController {
 
         return "redirect:/profiles";
     }
+
+    @PostMapping("/profiles/delete")
+    public String deleteProfile(
+            @RequestParam(name = "id") @Min(1) long id,
+            RedirectAttributes redirectAttributes) {
+
+        repository.deleteById(id);
+
+        redirectAttributes.addFlashAttribute(
+                "profileSuccess",
+                "Das Suchprofil wurde entfernt.");
+
+        return "redirect:/profiles";
+    }
 }
