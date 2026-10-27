@@ -29,7 +29,7 @@ public class SearchProfile {
 
     @Min(1)
     @Column(nullable = false)
-    private int locationID;
+    private int locationId;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -83,8 +83,8 @@ public class SearchProfile {
         return name;
     }
 
-    public int getLocationID() {
-        return locationID;
+    public int getLocationId() {
+        return locationId;
     }
 
     public Activity getActivity() {
