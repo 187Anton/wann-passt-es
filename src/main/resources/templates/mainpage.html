@@ -20,6 +20,16 @@
            name="locationId"
            th:value="${locationId}">
 
+    <label for="searchDate">Tag:</label>
+
+    <input type="date"
+           id="searchDate"
+           name="searchDate"
+           th:value="${searchDate}"
+           th:min="${minSearchDate}"
+           th:max="${maxSearchDate}"
+           required>
+
     <label for="activity">Aktivität:</label>
 
     <select id="activity" name="activity">

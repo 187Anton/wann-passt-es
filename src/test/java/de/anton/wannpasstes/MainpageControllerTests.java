@@ -35,7 +35,7 @@ class MainpageControllerTests {
                 geocodingClient);
 
         ZoneId zone = ZoneId.of("Europe/Berlin");
-        OffsetDateTime start = OffsetDateTime.now(zone).plusDays(1);
+        OffsetDateTime start = OffsetDateTime.now(zone).plusDays(1).withHour(10).withMinute(0).withSecond(0).withNano(0);
 
         List<WeatherHour> hours = List.of(
                 new WeatherHour(18.0, start, 12.0, 0.0, 0),
@@ -51,7 +51,7 @@ class MainpageControllerTests {
 
         ExtendedModelMap model = new ExtendedModelMap();
 
-        String view = controller.mainpage(2950159, 120, PrecipitationPreference.LIGHT_DRIZZLE, TemperaturePreference.MILD, WindPreference.WEAK, Activity.WALKING, model);
+        String view = controller.mainpage(2950159, 120, PrecipitationPreference.LIGHT_DRIZZLE, TemperaturePreference.MILD, WindPreference.WEAK, Activity.WALKING, start.toLocalDate(), model);
 
         TimeWindow expected = new TimeWindow(
                 start.plusHours(3),
@@ -88,7 +88,7 @@ class MainpageControllerTests {
 
         ExtendedModelMap model = new ExtendedModelMap();
 
-        String view = controller.mainpage(123, 60, PrecipitationPreference.LIGHT_DRIZZLE, TemperaturePreference.MILD, WindPreference.WEAK, Activity.CYCLING, model);
+        String view = controller.mainpage(123, 60, PrecipitationPreference.LIGHT_DRIZZLE, TemperaturePreference.MILD, WindPreference.WEAK, Activity.CYCLING, null, model);
 
         verify(weatherClient).fetchForecast(40.7, -74.0, zone);
 
