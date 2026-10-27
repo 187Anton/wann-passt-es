@@ -12,6 +12,9 @@
 <p th:if="${#lists.isEmpty(profiles)}">
     Noch keine Suchprofile gespeichert.
 </p>
+<p th:if="${profileSuccess != null}"
+   th:text="${profileSuccess}">
+</p>
 
 <table th:if="${not #lists.isEmpty(profiles)}">
     <thead>

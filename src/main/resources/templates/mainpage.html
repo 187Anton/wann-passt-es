@@ -16,6 +16,9 @@
 <p th:if="${weatherError != null}"
    th:text="${weatherError}">
 </p>
+<p th:if="${profileError != null}"
+   th:text="${profileError}">
+</p>
 <form th:action="@{/}" method="get">
     <input type="hidden"
            name="locationId"
@@ -82,6 +85,20 @@
         </option>
     </select>
     <button type="submit">Zeitfenster suchen</button>
+    <label for="profileName">Profilname – nur zum Speichern erforderlich:</label>
+
+    <input type="text"
+           id="profileName"
+           name="profileName"
+           maxlength="100"
+           th:value="${profileName}"
+           placeholder="Zum Beispiel: Meine Fahrradrunde">
+
+    <button type="submit"
+            th:formaction="@{/profiles}"
+            formmethod="post">
+        Suchprofil speichern
+    </button>
 </form>
 
 <h3 th:text="${'Zeitfenster für: ' + activity.label}"></h3>
