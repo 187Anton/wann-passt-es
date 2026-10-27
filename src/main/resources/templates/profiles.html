@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Gespeicherte Suchprofile</title>
+</head>
+<body>
+<h1>Gespeicherte Suchprofile</h1>
+
+<p><a th:href="@{/}">Zur Planung</a></p>
+
+<p th:if="${#lists.isEmpty(profiles)}">
+    Noch keine Suchprofile gespeichert.
+</p>
+
+<table th:if="${not #lists.isEmpty(profiles)}">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Aktivität</th>
+        <th>Orts-ID</th>
+        <th>Mindestdauer</th>
+        <th>Temperatur</th>
+        <th>Wind</th>
+        <th>Niederschlag</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="profile : ${profiles}">
+        <td th:text="${profile.name}"></td>
+        <td th:text="${profile.activity.label}"></td>
+        <td th:text="${profile.locationId}"></td>
+        <td th:text="${profile.minDurationMinutes + ' Min.'}"></td>
+        <td th:text="${profile.temperaturePreference.label}"></td>
+        <td th:text="${profile.windPreference.label}"></td>
+        <td th:text="${profile.precipitationPreference.label}"></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
