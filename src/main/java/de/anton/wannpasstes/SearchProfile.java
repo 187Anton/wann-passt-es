@@ -18,18 +18,29 @@ import jakarta.validation.constraints.Size;
 @Table(name = "search_profiles")
 public class SearchProfile {
 
+    public static final int NAME_MAX_LENGTH = 100;
+    public static final int LOCATION_NAME_MAX_LENGTH = 200;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank
-    @Size(max = 100)
-    @Column(nullable = false, length = 100)
+    @Size(max = NAME_MAX_LENGTH)
+    @Column(nullable = false, length = NAME_MAX_LENGTH)
     private String name;
 
     @Min(1)
     @Column(nullable = false)
     private int locationId;
+
+    /**
+     * Name of the location at the time of saving. Nullable because profiles
+     * saved before this column existed only know the location ID.
+     */
+    @Size(max = LOCATION_NAME_MAX_LENGTH)
+    @Column(length = LOCATION_NAME_MAX_LENGTH)
+    private String locationName;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -66,13 +77,51 @@ public class SearchProfile {
             TemperaturePreference temperaturePreference,
             WindPreference windPreference,
             PrecipitationPreference precipitationPreference) {
+        this(name, locationId, null, activity, minDurationMinutes,
+                temperaturePreference, windPreference, precipitationPreference);
+    }
+
+    public SearchProfile(
+            String name,
+            int locationId,
+            String locationName,
+            Activity activity,
+            int minDurationMinutes,
+            TemperaturePreference temperaturePreference,
+            WindPreference windPreference,
+            PrecipitationPreference precipitationPreference) {
+        update(name, locationId, locationName, activity, minDurationMinutes,
+                temperaturePreference, windPreference, precipitationPreference);
+    }
+
+    public final void update(
+            String name,
+            int locationId,
+            String locationName,
+            Activity activity,
+            int minDurationMinutes,
+            TemperaturePreference temperaturePreference,
+            WindPreference windPreference,
+            PrecipitationPreference precipitationPreference) {
         this.name = name;
         this.locationId = locationId;
+        this.locationName = normalizeLocationName(locationName);
         this.activity = activity;
         this.minDurationMinutes = minDurationMinutes;
         this.temperaturePreference = temperaturePreference;
         this.windPreference = windPreference;
         this.precipitationPreference = precipitationPreference;
+    }
+
+    /** Trims a location name, maps blank names to {@code null} and caps the length. */
+    static String normalizeLocationName(String locationName) {
+        if (locationName == null || locationName.isBlank()) {
+            return null;
+        }
+        String trimmed = locationName.strip();
+        return trimmed.length() > LOCATION_NAME_MAX_LENGTH
+                ? trimmed.substring(0, LOCATION_NAME_MAX_LENGTH)
+                : trimmed;
     }
 
     public Long getId() {
@@ -85,6 +134,19 @@ public class SearchProfile {
 
     public int getLocationId() {
         return locationId;
+    }
+
+    public String getLocationName() {
+        return locationName;
+    }
+
+    public boolean hasLocationName() {
+        return locationName != null && !locationName.isBlank();
+    }
+
+    /** Location name, or a placeholder for older profiles without a stored name. */
+    public String getLocationLabel() {
+        return hasLocationName() ? locationName : "Unbekannter Ort (ID " + locationId + ")";
     }
 
     public Activity getActivity() {

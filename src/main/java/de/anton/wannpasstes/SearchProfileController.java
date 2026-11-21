@@ -10,6 +10,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.validation.constraints.Min;
 
+import java.util.Optional;
+
 
 @Controller
 public class SearchProfileController {
@@ -24,9 +26,30 @@ public class SearchProfileController {
     public String listProfiles(Model model) {
         model.addAttribute(
                 "profiles",
-                repository.findAll(Sort.by("name", "id")));
+                repository.findAll(Sort.by(
+                        Sort.Order.asc("name").ignoreCase(),
+                        Sort.Order.asc("id"))));
 
         return "profiles";
+    }
+
+    /**
+     * Saves a profile without location name and date range (legacy single-day form).
+     */
+    public String saveProfile(
+            String profileName,
+            int locationId,
+            Activity activity,
+            int minDurationMinutes,
+            TemperaturePreference temperaturePreference,
+            WindPreference windPreference,
+            PrecipitationPreference precipitationPreference,
+            String searchDate,
+            RedirectAttributes redirectAttributes) {
+
+        return saveProfile(profileName, locationId, null, activity, minDurationMinutes,
+                temperaturePreference, windPreference, precipitationPreference,
+                searchDate, null, null, redirectAttributes);
     }
 
     @PostMapping("/profiles")
@@ -35,6 +58,8 @@ public class SearchProfileController {
             String profileName,
             @RequestParam(name = "locationId")
             @Min(1) int locationId,
+            @RequestParam(name = "locationName", required = false)
+            String locationName,
             @RequestParam(name = "activity")
             Activity activity,
             @RequestParam(name = "minDurationMinutes")
@@ -47,16 +72,19 @@ public class SearchProfileController {
             PrecipitationPreference precipitationPreference,
             @RequestParam(name = "searchDate", required = false)
             String searchDate,
+            @RequestParam(name = "startDate", required = false)
+            String startDate,
+            @RequestParam(name = "endDate", required = false)
+            String endDate,
             RedirectAttributes redirectAttributes) {
 
-        String name = profileName.strip();
+        Optional<String> nameError = ProfileNames.validate(profileName, repository, null);
 
-        if (name.isBlank() || name.length() > 100) {
-            redirectAttributes.addFlashAttribute(
-                    "profileError",
-                    "Bitte gib einen Profilnamen mit 1 bis 100 Zeichen ein.");
+        if (nameError.isPresent()) {
+            redirectAttributes.addFlashAttribute("profileError", nameError.get());
             redirectAttributes.addFlashAttribute("profileName", profileName);
 
+            // Keep the current selection so nothing has to be entered again.
             redirectAttributes.addAttribute("locationId", locationId);
             redirectAttributes.addAttribute("activity", activity);
             redirectAttributes.addAttribute(
@@ -67,16 +95,19 @@ public class SearchProfileController {
             redirectAttributes.addAttribute(
                     "precipitationPreference", precipitationPreference);
 
-            if (searchDate != null && !searchDate.isBlank()) {
-                redirectAttributes.addAttribute("searchDate", searchDate);
-            }
+            addIfPresent(redirectAttributes, "searchDate", searchDate);
+            addIfPresent(redirectAttributes, "startDate", startDate);
+            addIfPresent(redirectAttributes, "endDate", endDate);
 
             return "redirect:/";
         }
 
+        String name = ProfileNames.normalize(profileName);
+
         SearchProfile profile = new SearchProfile(
                 name,
                 locationId,
+                locationName,
                 activity,
                 minDurationMinutes,
                 temperaturePreference,
@@ -87,7 +118,7 @@ public class SearchProfileController {
 
         redirectAttributes.addFlashAttribute(
                 "profileSuccess",
-                "Das Suchprofil wurde gespeichert.");
+                "Das Suchprofil „" + name + "“ wurde gespeichert.");
 
         return "redirect:/profiles";
     }
@@ -97,12 +128,26 @@ public class SearchProfileController {
             @RequestParam(name = "id") @Min(1) long id,
             RedirectAttributes redirectAttributes) {
 
+        boolean existed = repository.existsById(id);
+        // deleteById is a no-op for unknown IDs, so a concurrent deletion is harmless.
         repository.deleteById(id);
 
-        redirectAttributes.addFlashAttribute(
-                "profileSuccess",
-                "Das Suchprofil wurde entfernt.");
+        if (existed) {
+            redirectAttributes.addFlashAttribute(
+                    "profileSuccess",
+                    "Das Suchprofil wurde entfernt.");
+        } else {
+            redirectAttributes.addFlashAttribute(
+                    "profileError",
+                    "Dieses Suchprofil gibt es nicht (mehr). Vielleicht wurde es bereits gelöscht.");
+        }
 
         return "redirect:/profiles";
+    }
+
+    private static void addIfPresent(RedirectAttributes redirectAttributes, String name, String value) {
+        if (value != null && !value.isBlank()) {
+            redirectAttributes.addAttribute(name, value);
+        }
     }
 }
