@@ -55,7 +55,7 @@ public class GeocodingClient {
                 .retrieve()
                 .body(GeocodingResponse.Location.class);
 
-        if (location == null || location.id() != id) {
+        if (location == null || location.id() != id || !location.hasName()) {
             throw new RestClientException(
                     "Geocoding API returned no matching location");
         }

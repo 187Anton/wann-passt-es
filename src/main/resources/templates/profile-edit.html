@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="de" th:replace="~{layout :: page('Profil bearbeiten', 'profiles', ~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <div class="page-intro compact">
+        <h1>Profil bearbeiten</h1>
+        <p th:text="${profile.name}"></p>
+    </div>
+    <form class="panel edit-form compact" th:action="@{/profiles/{id}/edit(id=${profile.id})}" method="post">
+        <p th:if="${profileError}" class="status error" role="alert" th:text="${profileError}"></p>
+        <div class="field">
+            <label for="profileName">Profilname</label>
+            <input type="text" id="profileName" name="profileName" th:value="${profileNameValue}" required>
+        </div>
+        <fieldset>
+            <legend>Ort</legend>
+            <div class="location-options">
+                <label class="location-option">
+                    <input type="radio" name="locationId" th:value="${profile.locationId}"
+                           th:checked="${selectedLocationId == profile.locationId}" required>
+                    <span th:text="${profile.locationName ?: 'Ort ' + profile.locationId}"></span>
+                </label>
+                <label class="location-option" th:if="${showSelectedLocation}">
+                    <input type="radio" name="locationId" th:value="${selectedLocationId}" checked>
+                    <span th:text="${'Ort ' + selectedLocationId}"></span>
+                </label>
+                <label class="location-option" th:each="location : ${locations}">
+                    <input type="radio" name="locationId" th:value="${location.id()}"
+                           th:checked="${selectedLocationId == location.id()}">
+                    <span>
+                        <strong th:text="${location.name()}"></strong>
+                        <small class="muted" th:text="${location.region() ?: location.country()}"></small>
+                    </span>
+                </label>
+            </div>
+            <div class="location-filter">
+                <div class="field">
+                    <label for="locationQuery">Anderen Ort suchen</label>
+                    <input type="search" id="locationQuery" name="locationQuery" th:value="${locationQuery}">
+                </div>
+                <button class="button secondary" type="submit" name="operation" value="search" formnovalidate
+                        data-loading="Orte werden gesucht …">Ort suchen</button>
+            </div>
+            <p class="status loading" data-form-status role="status"></p>
+            <p th:if="${locationError}" class="status error" role="alert" th:text="${locationError}"></p>
+            <p th:if="${locationQuery.length() >= 2 and locationError == null and #lists.isEmpty(locations)}"
+               class="status empty">Keine weiteren Orte gefunden.</p>
+        </fieldset>
+        <th:block th:replace="~{fields :: preferences(${activityValue}, ${durationValue},
+                  ${temperatureValue}, ${windValue}, ${precipitationValue})}"></th:block>
+        <div class="actions">
+            <button class="button primary" type="submit" name="operation" value="save">Änderungen speichern</button>
+            <a class="button secondary" th:href="@{/profiles}">Abbrechen</a>
+        </div>
+    </form>
+</th:block>
+</body>
+</html>

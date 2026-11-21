@@ -1,128 +1,90 @@
 <!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <title>Wann passt es?</title>
-</head>
+<html lang="de" th:replace="~{layout :: page('Planung', 'planning', ~{::content})}">
 <body>
-<p><a th:href="@{/locations}">Ort suchen</a></p>
-<p><a th:href="@{/profiles}">Gespeicherte Suchprofile</a></p>
-<h2 th:text="${'Wettervorhersage für ' + locationName}"></h2>
-<p>
-    Daten von <a href="https://open-meteo.com/">Open-Meteo</a>.
-    Die Bewertung verwendet vorläufige Beispielgrenzen.
-</p>
+<th:block th:fragment="content">
+    <div class="page-intro planning-intro">
+        <h1>Wann passt es draußen?</h1>
+        <p>Finde passende Wetter-Zeitfenster für deine nächste Outdoor-Aktivität.</p>
+    </div>
 
-<p th:if="${weatherError != null}"
-   th:text="${weatherError}">
-</p>
-<p th:if="${profileError != null}"
-   th:text="${profileError}">
-</p>
-<form th:action="@{/}" method="get">
-    <input type="hidden"
-           name="locationId"
-           th:value="${locationId}">
+    <div class="planner">
+        <form id="planning-form" class="panel planning-form" th:action="@{/}" method="get" aria-labelledby="planning-title">
+            <div class="panel-heading">
+                <h2 id="planning-title">Deine Planung</h2>
+                <div class="place">
+                    <div><span class="muted">Ort</span><strong th:text="${locationName}"></strong></div>
+                    <button class="button secondary" type="submit" th:formaction="@{/locations}" formnovalidate>Ort ändern</button>
+                </div>
+            </div>
 
-    <label for="searchDate">Tag:</label>
+            <input type="hidden" name="locationId" th:value="${selection.locationId()}">
 
-    <input type="date"
-           id="searchDate"
-           name="searchDate"
-           th:value="${searchDate}"
-           th:min="${minSearchDate}"
-           th:max="${maxSearchDate}"
-           required>
+            <p th:if="${dateError}" class="status error" id="date-error" role="alert" th:text="${dateError}"></p>
+            <div class="field-grid">
+                <div class="field">
+                    <label for="startDate">Startdatum</label>
+                    <input type="date" id="startDate" name="startDate"
+                           th:value="${startDate}" th:min="${minSearchDate}" th:max="${maxSearchDate}"
+                           th:attr="aria-invalid=${dateError != null ? 'true' : null},
+                                    aria-describedby=${dateError != null ? 'date-error' : null}">
+                </div>
+                <div class="field">
+                    <label for="endDate">Enddatum</label>
+                    <input type="date" id="endDate" name="endDate"
+                           th:value="${endDate}" th:min="${minSearchDate}" th:max="${maxSearchDate}"
+                           th:attr="aria-invalid=${dateError != null ? 'true' : null},
+                                    aria-describedby=${dateError != null ? 'date-error' : null}">
+                </div>
+            </div>
 
-    <label for="activity">Aktivität:</label>
+            <th:block th:replace="~{fields :: preferences(${selection.activity()}, ${selection.minDurationMinutes()},
+                      ${selection.temperaturePreference()}, ${selection.windPreference()}, ${selection.precipitationPreference()})}"></th:block>
 
-    <select id="activity" name="activity">
-        <option th:each="option : ${activities}"
-                th:value="${option.name()}"
-                th:text="${option.label}"
-                th:selected="${option == activity}">
-        </option>
-    </select>
+            <button class="button primary full-width" type="submit" data-loading="Zeitfenster werden gesucht …">Zeitfenster suchen</button>
+            <p class="status loading" data-form-status role="status"></p>
 
-    <label for="minDurationMinutes">
-        Mindestens benötigte Zeit in Minuten:
-    </label>
+            <fieldset class="save-profile">
+                <legend>Suchprofil speichern</legend>
+                <p th:if="${profileError}" class="status error" role="alert" th:text="${profileError}"></p>
+                <div class="field">
+                    <label for="profileName">Profilname</label>
+                    <input type="text" id="profileName" name="profileName" th:value="${profileName}"
+                           placeholder="Z. B. Meine Fahrradrunde">
+                </div>
+                <button class="button secondary" type="submit" th:formaction="@{/profiles}" formmethod="post">
+                    Suchprofil speichern
+                </button>
+            </fieldset>
+        </form>
 
-    <input type="number"
-           id="minDurationMinutes"
-           name="minDurationMinutes"
-           min="1"
-           step="1"
-           th:value="${minDurationMinutes}"
-           required>
-    <label for="precipitationPreference">Niederschlag:</label>
-
-    <select id="precipitationPreference"
-            name="precipitationPreference">
-        <option th:each="preference : ${precipitationPreferences}"
-                th:value="${preference.name()}"
-                th:text="${preference.label}"
-                th:selected="${preference == precipitationPreference}">
-        </option>
-    </select>
-    <label for="temperaturePreference">Temperatur:</label>
-
-    <select id="temperaturePreference" name="temperaturePreference">
-        <option th:each="preference : ${temperaturePreferences}"
-                th:value="${preference.name()}"
-                th:text="${preference.label}"
-                th:selected="${preference == temperaturePreference}">
-        </option>
-    </select>
-
-    <label for="windPreference">Wind:</label>
-
-    <select id="windPreference" name="windPreference">
-        <option th:each="preference : ${windPreferences}"
-                th:value="${preference.name()}"
-                th:text="${preference.label}"
-                th:selected="${preference == windPreference}">
-        </option>
-    </select>
-    <button type="submit">Zeitfenster suchen</button>
-    <label for="profileName">Profilname – nur zum Speichern erforderlich:</label>
-
-    <input type="text"
-           id="profileName"
-           name="profileName"
-           maxlength="100"
-           th:value="${profileName}"
-           placeholder="Zum Beispiel: Meine Fahrradrunde">
-
-    <button type="submit"
-            th:formaction="@{/profiles}"
-            formmethod="post">
-        Suchprofil speichern
-    </button>
-</form>
-
-<h3 th:text="${'Zeitfenster für: ' + activity.label}"></h3>
-
-<p th:if="${weatherError == null and #lists.isEmpty(suitableWindows)}">
-    Für die gewählte Mindestdauer und die aktuellen
-    Beispielgrenzen wurden keine passenden Zeitfenster gefunden.
-</p>
-<p th:text="${'Alle Uhrzeiten gelten für ' + locationName}"></p>
-<table>
-    <thead>
-    <tr>
-        <th>Beginn</th>
-        <th>Ende</th>
-        <th>Dauer in Minuten</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="window : ${suitableWindows}">
-        <td th:text="${#temporals.format(window.start(), 'dd.MM.yyyy, HH:mm')}"></td>
-        <td th:text="${#temporals.format(window.end(), 'dd.MM.yyyy, HH:mm')}"></td>
-        <td th:text="${window.durationMinutes() + ' Min.'}"></td>
-    </tr>
-    </tbody>
-</table>
+        <section class="results" aria-labelledby="results-title">
+            <div class="section-heading">
+                <h2 id="results-title">Passende Zeitfenster</h2>
+                <p class="muted" th:text="${selection.activity().label + ' · Uhrzeiten vor Ort'}"></p>
+            </div>
+            <p th:if="${weatherError}" class="status error" role="alert" th:text="${weatherError}"></p>
+            <div th:if="${weatherError == null and dateError == null and #lists.isEmpty(suitableWindows)}" class="status empty">
+                <h3>Keine passenden Zeitfenster</h3>
+                <p>In diesem Zeitraum passt kein verbleibendes Zeitfenster zu deiner Auswahl.
+                    Mit einer kürzeren Mindestdauer oder anderen Wetterwünschen findest du vielleicht ein passendes Fenster.</p>
+            </div>
+            <ul th:unless="${#lists.isEmpty(suitableWindows)}" class="card-list">
+                <li class="window-card" th:each="window : ${suitableWindows}">
+                    <div>
+                        <p class="window-date" th:text="${#temporals.format(window.start(), 'EEEE, dd.MM.yyyy')}"></p>
+                        <p class="window-time">
+                            <time th:datetime="${window.start()}" th:text="${#temporals.format(window.start(), 'HH:mm')}"></time>
+                            <span> bis </span>
+                            <time th:datetime="${window.end()}"
+                                  th:text="${#temporals.format(window.end(),
+                                  window.start().toLocalDate() == window.end().toLocalDate() ? 'HH:mm' : 'dd.MM.yyyy, HH:mm')}"></time>
+                        </p>
+                    </div>
+                    <span class="duration" th:text="${window.durationMinutes() + ' Min.'}"></span>
+                </li>
+            </ul>
+        </section>
+    </div>
+</th:block>
 </body>
 </html>

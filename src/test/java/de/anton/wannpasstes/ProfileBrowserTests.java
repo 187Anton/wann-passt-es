@@ -9,6 +9,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -35,17 +36,24 @@ class ProfileBrowserTests {
     @Test
     void savesReusesAndDeletesProfileInChromium() throws Exception {
         // External APIs are outside this browser scenario's test boundary.
-        when(geocodingClient.getLocation(anyInt())).thenReturn(
-                new GeocodingResponse.Location(123, "Demo town", 52.5, 13.4,
-                        "Europe/Berlin", "Demo country", "Demo region"));
+        var harbor = location(123, "Testhafen");
+        var mountain = location(456, "Testberg");
+        when(geocodingClient.getLocation(2950159)).thenReturn(location(2950159, "Teststadt"));
+        when(geocodingClient.getLocation(harbor.id())).thenReturn(harbor);
+        when(geocodingClient.getLocation(mountain.id())).thenReturn(mountain);
+        when(geocodingClient.search("Testhafen")).thenReturn(List.of(harbor));
+        when(geocodingClient.search("Testberg")).thenReturn(List.of(mountain));
+        ZoneId zone = ZoneId.of("Europe/Berlin");
+        LocalDate searchDate = LocalDate.now(zone).plusDays(1);
+        OffsetDateTime start = searchDate.atTime(22, 0).atZone(zone).toOffsetDateTime();
         when(weatherClient.fetchForecast(anyDouble(), anyDouble(), any(ZoneId.class)))
-                .thenReturn(List.of());
+                .thenReturn(List.of(hour(start), hour(start.plusHours(1)), hour(start.plusHours(2)), hour(start.plusHours(3))));
 
         ProcessBuilder command = new ProcessBuilder(
                 System.getProperty("demo.node", "node"),
                 Path.of("src/test/browser/profile-flow.mjs").toAbsolutePath().toString(),
                 "http://localhost:" + port,
-                LocalDate.now(ZoneId.of("Europe/Berlin")).plusDays(1).toString());
+                searchDate.toString());
         command.redirectErrorStream(true);
         Process browser = command.start();
         try {
@@ -55,5 +63,12 @@ class ProfileBrowserTests {
         } finally {
             browser.destroyForcibly();
         }
+    }
+    private GeocodingResponse.Location location(int id, String name) {
+        return new GeocodingResponse.Location(id, name, 52.5, 13.4, "Europe/Berlin", "Testland", "Testregion");
+    }
+
+    private WeatherHour hour(OffsetDateTime time) {
+        return new WeatherHour(22, time, 12, 0, 0);
     }
 }

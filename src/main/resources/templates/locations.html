@@ -1,62 +1,49 @@
 <!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <title>Ort suchen – Wann passt es?</title>
-</head>
+<html lang="de" th:replace="~{layout :: page('Ort suchen', 'locations', ~{::content})}">
 <body>
-<h1>Ort suchen</h1>
-
-<form th:action="@{/locations}" method="get">
-    <label for="query">Ortsname:</label>
-
-    <input type="text"
-           id="query"
-           name="query"
-           minlength="2"
-           th:value="${query}"
-           required>
-
-    <button type="submit">Suchen</button>
-</form>
-
-<p>Bitte mindestens zwei Zeichen eingeben.</p>
-
-<p th:if="${locationError != null}"
-   th:text="${locationError}">
-</p>
-
-<p th:if="${searchPerformed and locationError == null
-        and #lists.isEmpty(locations)}">
-    Keine passenden Orte gefunden.
-</p>
-
-<table th:if="${not #lists.isEmpty(locations)}">
-    <thead>
-    <tr>
-        <th>Ort</th>
-        <th>Region</th>
-        <th>Land</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="location : ${locations}">
-        <td>
-            <a th:href="@{/(locationId=${location.id()})}"
-               th:text="${location.name()}">
-            </a>
-        </td>        <td th:text="${location.region()}"></td>
-        <td th:text="${location.country()}"></td>
-    </tr>
-    </tbody>
-</table>
-
-<p>
-    Ortsdaten:
-    <a href="https://www.geonames.org/">GeoNames</a>
-    über <a href="https://open-meteo.com/">Open-Meteo</a>.
-</p>
-
-<p><a th:href="@{/}">Zur Wettervorhersage für Berlin</a></p>
+<th:block th:fragment="content">
+    <div class="page-intro compact">
+        <h1>Ort suchen</h1>
+        <p>Wähle den Ort, für den du das Wetter prüfen möchtest.</p>
+    </div>
+    <div class="compact">
+        <form class="panel search-form" th:action="@{/locations}" method="get">
+            <th:block th:replace="~{fields :: hiddenSelection(${selectionParameters}, ${selection.locationId()})}"></th:block>
+            <div class="field">
+                <label for="query">Ortsname</label>
+                <input type="search" id="query" name="query" minlength="2" th:value="${query}"
+                       aria-describedby="search-hint" required>
+                <small id="search-hint" class="muted">Mindestens zwei Zeichen</small>
+            </div>
+            <button class="button primary" type="submit" data-loading="Orte werden gesucht …">Suchen</button>
+            <p class="status loading" data-form-status role="status"></p>
+        </form>
+        <p th:if="${locationError}" class="status error" role="alert" th:text="${locationError}"></p>
+        <p th:if="${searchPerformed and locationError == null and #lists.isEmpty(locations)}" class="status empty">
+            Keine passenden Orte gefunden. Versuche es mit einer anderen Schreibweise.
+        </p>
+        <ul th:unless="${#lists.isEmpty(locations)}" class="card-list location-list" aria-label="Gefundene Orte">
+            <li class="panel location-result" th:each="location : ${locations}">
+                <div>
+                    <h2 th:text="${location.name()}"></h2>
+                    <p class="muted">
+                        <span th:if="${location.region()}" th:text="${location.region()}"></span>
+                        <span th:if="${location.region() != null and location.country() != null}"> · </span>
+                        <span th:text="${location.country()}"></span>
+                    </p>
+                </div>
+                <form th:action="@{/}" method="get">
+                    <th:block th:replace="~{fields :: hiddenSelection(${selectionParameters}, ${location.id()})}"></th:block>
+                    <button class="button secondary" type="submit"
+                            th:attr="aria-label=${'Ort übernehmen: ' + location.name()}">Ort übernehmen</button>
+                </form>
+            </li>
+        </ul>
+        <form id="back-to-planning" class="back-form" th:action="@{/}" method="get">
+            <th:block th:replace="~{fields :: hiddenSelection(${selectionParameters}, ${selection.locationId()})}"></th:block>
+            <button class="text-button" type="submit">Zurück zur Planung</button>
+        </form>
+    </div>
+</th:block>
 </body>
 </html>

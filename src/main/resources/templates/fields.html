@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="de">
+<body>
+<th:block th:fragment="preferences(activity, duration, temperature, wind, precipitation)">
+    <div class="field-grid activity-fields">
+        <div class="field">
+            <label for="activity">Aktivität</label>
+            <select id="activity" name="activity" required
+                        th:attr="aria-invalid=${invalidFields != null and invalidFields.contains('activity') ? 'true' : null}">
+                <option value="" th:if="${!(activity instanceof T(de.anton.wannpasstes.Activity))}" selected>Bitte wählen</option>
+                <option th:each="option : ${T(de.anton.wannpasstes.Activity).values()}"
+                        th:value="${option.name()}" th:text="${option.label}"
+                        th:selected="${option.name() == activity?.toString()}"></option>
+            </select>
+        </div>
+        <div class="field">
+            <label for="minDurationMinutes">Mindestdauer in Minuten</label>
+            <input id="minDurationMinutes" name="minDurationMinutes" type="number"
+                   min="1" step="1" th:value="${duration}" required
+                   th:attr="aria-invalid=${invalidFields != null and invalidFields.contains('minDurationMinutes') ? 'true' : null}">
+        </div>
+    </div>
+    <fieldset>
+        <legend>Wetterwünsche</legend>
+        <div class="field-grid weather-fields">
+            <div class="field">
+                <label for="temperaturePreference">Temperatur</label>
+                <select id="temperaturePreference" name="temperaturePreference" required
+                        th:attr="aria-invalid=${invalidFields != null and invalidFields.contains('temperaturePreference') ? 'true' : null}">
+                    <option value="" th:if="${!(temperature instanceof T(de.anton.wannpasstes.TemperaturePreference))}" selected>Bitte wählen</option>
+                    <option th:each="option : ${T(de.anton.wannpasstes.TemperaturePreference).values()}"
+                            th:value="${option.name()}" th:text="${option.label}"
+                            th:selected="${option.name() == temperature?.toString()}"></option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="windPreference">Wind</label>
+                <select id="windPreference" name="windPreference" required
+                        th:attr="aria-invalid=${invalidFields != null and invalidFields.contains('windPreference') ? 'true' : null}">
+                    <option value="" th:if="${!(wind instanceof T(de.anton.wannpasstes.WindPreference))}" selected>Bitte wählen</option>
+                    <option th:each="option : ${T(de.anton.wannpasstes.WindPreference).values()}"
+                            th:value="${option.name()}" th:text="${option.label}"
+                            th:selected="${option.name() == wind?.toString()}"></option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="precipitationPreference">Niederschlag</label>
+                <select id="precipitationPreference" name="precipitationPreference" required
+                        th:attr="aria-invalid=${invalidFields != null and invalidFields.contains('precipitationPreference') ? 'true' : null}">
+                    <option value="" th:if="${!(precipitation instanceof T(de.anton.wannpasstes.PrecipitationPreference))}" selected>Bitte wählen</option>
+                    <option th:each="option : ${T(de.anton.wannpasstes.PrecipitationPreference).values()}"
+                            th:value="${option.name()}" th:text="${option.label}"
+                            th:selected="${option.name() == precipitation?.toString()}"></option>
+                </select>
+            </div>
+        </div>
+    </fieldset>
+</th:block>
+<th:block th:fragment="hiddenSelection(parameters, locationId)">
+    <input type="hidden" name="locationId" th:value="${locationId}">
+    <th:block th:each="parameter : ${parameters}">
+        <input th:if="${parameter.key != 'locationId'}" type="hidden"
+               th:name="${parameter.key}" th:value="${parameter.value}">
+    </th:block>
+</th:block>
+</body>
+</html>

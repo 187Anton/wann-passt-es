@@ -27,6 +27,12 @@ public class SearchProfile {
     @Column(nullable = false, length = 100)
     private String name;
 
+    @Column(length = 300, unique = true)
+    private String nameKey;
+
+    @Column(length = 255)
+    private String locationName;
+
     @Min(1)
     @Column(nullable = false)
     private int locationId;
@@ -73,6 +79,30 @@ public class SearchProfile {
         this.temperaturePreference = temperaturePreference;
         this.windPreference = windPreference;
         this.precipitationPreference = precipitationPreference;
+    }
+
+    void update(String name, String nameKey, String locationName, ProfileForm form) {
+        assignName(name, nameKey);
+        this.locationName = locationName;
+        locationId = form.locationId();
+        activity = form.activity();
+        minDurationMinutes = form.minDurationMinutes();
+        temperaturePreference = form.temperaturePreference();
+        windPreference = form.windPreference();
+        precipitationPreference = form.precipitationPreference();
+    }
+
+    void assignName(String name, String nameKey) {
+        this.name = name;
+        this.nameKey = nameKey;
+    }
+
+    String nameKey() {
+        return nameKey;
+    }
+
+    public String getLocationName() {
+        return locationName;
     }
 
     public Long getId() {

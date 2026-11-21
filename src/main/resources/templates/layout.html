@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="de" th:fragment="page(title, section, content)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f4f7f2">
+    <title th:text="${title == 'Planung' ? 'Wann passt es?' : title + ' – Wann passt es?'}">Wann passt es?</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <script defer th:src="@{/js/form-status.js}"></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Zum Inhalt</a>
+<header class="site-header">
+    <div class="shell header-inner">
+        <a class="brand" th:href="@{/}">
+            <span class="brand-mark" aria-hidden="true"></span>
+            Wann passt es?
+        </a>
+        <nav aria-label="Hauptnavigation">
+            <a th:unless="${section == 'locations'}" th:href="@{/}"
+               th:attr="aria-current=${section == 'planning' ? 'page' : null}">Planung</a>
+            <button th:if="${section == 'locations'}" form="back-to-planning" type="submit">Planung</button>
+            <a th:unless="${section == 'planning'}" th:href="@{/locations}"
+               th:attr="aria-current=${section == 'locations' ? 'page' : null}">Ortssuche</a>
+            <button th:if="${section == 'planning'}" form="planning-form" type="submit"
+                    th:formaction="@{/locations}" formnovalidate>Ortssuche</button>
+            <a th:href="@{/profiles}" th:attr="aria-current=${section == 'profiles' ? 'page' : null}">Suchprofile</a>
+        </nav>
+    </div>
+</header>
+<main class="shell site-main" id="main" tabindex="-1" th:insert="${content}"></main>
+<footer class="site-footer">
+    <div class="shell">
+        Wetterdaten von <a href="https://open-meteo.com/">Open-Meteo</a>.
+        Ortsdaten von <a href="https://www.geonames.org/">GeoNames</a> über Open-Meteo.
+    </div>
+</footer>
+</body>
+</html>

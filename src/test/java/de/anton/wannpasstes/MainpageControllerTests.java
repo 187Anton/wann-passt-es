@@ -1,6 +1,7 @@
 package de.anton.wannpasstes;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.ui.ExtendedModelMap;
 
 import java.time.OffsetDateTime;
@@ -51,7 +52,9 @@ class MainpageControllerTests {
 
         ExtendedModelMap model = new ExtendedModelMap();
 
-        String view = controller.mainpage(2950159, 120, PrecipitationPreference.LIGHT_DRIZZLE, TemperaturePreference.MILD, WindPreference.WEAK, Activity.WALKING, start.toLocalDate(), model);
+        String view = controller.mainpage(new PlanningSelection(2950159, Activity.WALKING, 120,
+                TemperaturePreference.MILD, WindPreference.WEAK, PrecipitationPreference.LIGHT_DRIZZLE,
+                null, null, start.toLocalDate()), new MockHttpServletResponse(), model);
 
         TimeWindow expected = new TimeWindow(
                 start.plusHours(3),
@@ -59,7 +62,6 @@ class MainpageControllerTests {
 
         assertEquals("mainpage", view);
         assertEquals(List.of(expected), model.get("suitableWindows"));
-        assertEquals(120, model.get("minDurationMinutes"));
     }
     @Test
     void usesCoordinatesAndTimezoneOfSelectedLocation() {
@@ -88,17 +90,13 @@ class MainpageControllerTests {
 
         ExtendedModelMap model = new ExtendedModelMap();
 
-        String view = controller.mainpage(123, 60, PrecipitationPreference.LIGHT_DRIZZLE, TemperaturePreference.MILD, WindPreference.WEAK, Activity.CYCLING, null, model);
+        String view = controller.mainpage(new PlanningSelection(123, Activity.CYCLING, 60,
+                TemperaturePreference.MILD, WindPreference.WEAK, PrecipitationPreference.LIGHT_DRIZZLE,
+                null, null, null), new MockHttpServletResponse(), model);
 
         verify(weatherClient).fetchForecast(40.7, -74.0, zone);
 
         assertEquals("mainpage", view);
-        assertEquals(123, model.get("locationId"));
         assertEquals("Testort", model.get("locationName"));
-        assertEquals(TemperaturePreference.MILD, model.get("temperaturePreference"));
-        assertEquals(WindPreference.WEAK, model.get("windPreference"));
-        assertEquals(PrecipitationPreference.LIGHT_DRIZZLE, model.get("precipitationPreference"));
-        assertEquals(Activity.CYCLING, model.get("activity"));
-        assertEquals(List.of(Activity.values()), List.of((Activity[]) model.get("activities")));
     }
 }

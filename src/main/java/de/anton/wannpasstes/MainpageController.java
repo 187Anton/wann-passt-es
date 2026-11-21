@@ -1,18 +1,18 @@
 package de.anton.wannpasstes;
 
-import jakarta.validation.constraints.Min;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.client.RestClientException;
-import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.DateTimeException;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.List;
-import java.time.LocalDate;
 
 @Controller
 public class MainpageController {
@@ -25,97 +25,70 @@ public class MainpageController {
             WeatherClient weatherClient,
             TimeWindowService timeWindowService,
             GeocodingClient geocodingClient) {
-
         this.weatherClient = weatherClient;
         this.timeWindowService = timeWindowService;
         this.geocodingClient = geocodingClient;
     }
 
     @GetMapping("/")
-    public String mainpage(
-            @RequestParam(name = "locationId", defaultValue = "2950159")
-            @Min(1) int locationId,
-            @RequestParam(name = "minDurationMinutes", defaultValue = "60")
-            @Min(1) int minDurationMinutes,
-            @RequestParam(name = "precipitationPreference",
-                    defaultValue = "LIGHT_DRIZZLE")
-            PrecipitationPreference precipitationPreference,
-            @RequestParam(name = "temperaturePreference",
-                    defaultValue = "MILD")
-            TemperaturePreference temperaturePreference,
-            @RequestParam(name = "windPreference",
-                    defaultValue = "WEAK")
-            WindPreference windPreference,
-            @RequestParam(name = "activity", defaultValue = "WALKING")
-            Activity activity,
-            @RequestParam(name = "searchDate", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            LocalDate searchDate,
-            Model model) {
+    public String mainpage(@Valid @ModelAttribute("selection") PlanningSelection selection,
+                           HttpServletResponse response, Model model) {
+        model.addAttribute("suitableWindows", List.of());
+        model.addAttribute("locationName", "Ausgewählter Ort");
+        LocalDate start = selection.startDate();
+        LocalDate end = selection.endDate();
 
-        List<TimeWindow> suitableWindows = List.of();
-        String locationName = "den ausgewählten Ort";
-        LocalDate selectedDate = searchDate;
+        if (start == null && end == null) {
+            start = selection.searchDate();
+            end = selection.searchDate();
+        }
+
+        model.addAttribute("startDate", start);
+        model.addAttribute("endDate", end);
 
         try {
-            GeocodingResponse.Location location =
-                    geocodingClient.getLocation(locationId);
-
-            locationName = location.name();
+            GeocodingResponse.Location location = geocodingClient.getLocation(selection.locationId());
+            model.addAttribute("locationName", location.name());
+            if (location.timezone() == null) {
+                throw new RestClientException("Geocoding API returned no timezone");
+            }
             ZoneId zone = ZoneId.of(location.timezone());
-
             OffsetDateTime now = OffsetDateTime.now(zone);
             LocalDate today = now.toLocalDate();
             LocalDate lastDate = today.plusDays(6);
+            start = start == null ? today : start;
+            end = end == null ? start : end;
 
-            if (selectedDate == null) {
-                selectedDate = today;
+            model.addAttribute("minSearchDate", today);
+            model.addAttribute("maxSearchDate", lastDate);
+            model.addAttribute("startDate", start);
+            model.addAttribute("endDate", end);
+
+            if (start.isBefore(today) || end.isAfter(lastDate) || end.isBefore(start)) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                model.addAttribute("dateError", "Bitte wähle einen Zeitraum von heute bis in sechs Tagen. "
+                        + "Das Enddatum darf nicht vor dem Startdatum liegen.");
+                return "mainpage";
             }
 
-            model.addAttribute("minSearchDate", today.toString());
-            model.addAttribute("maxSearchDate", lastDate.toString());
+            OffsetDateTime rangeStart = start.atStartOfDay(zone).toOffsetDateTime();
+            OffsetDateTime rangeEnd = end.plusDays(1).atStartOfDay(zone).toOffsetDateTime();
+            List<WeatherHour> hours = weatherClient.fetchForecast(location.latitude(), location.longitude(), zone)
+                    .stream()
+                    .filter(hour -> !hour.getTime().isBefore(now)
+                            && !hour.getTime().isBefore(rangeStart) && !hour.getTime().isAfter(rangeEnd))
+                    .toList();
 
-            if (selectedDate.isBefore(today) || selectedDate.isAfter(lastDate)) {
-                model.addAttribute("weatherError", "Bitte wähle ein Datum zwischen " + today + " und " + lastDate);
-            } else {
-                OffsetDateTime dayStart = selectedDate.atStartOfDay(zone).toOffsetDateTime();
-                OffsetDateTime dayEnd = selectedDate.plusDays(1).atStartOfDay(zone).toOffsetDateTime();
-
-                List<WeatherHour> hours = new ArrayList<>(
-                        weatherClient.fetchForecast(
-                                location.latitude(),
-                                location.longitude(),
-                                zone));
-
-                hours.removeIf(hour -> hour.getTime().isBefore(now) || hour.getTime().isAfter(dayEnd) || hour.getTime().isBefore(dayStart));
-
-                suitableWindows = new ArrayList<>(
-                        timeWindowService.findSuitableWindows(
-                                hours, temperaturePreference, windPreference, precipitationPreference));
-
-                suitableWindows.removeIf(window -> window.durationMinutes() < minDurationMinutes);
-            }
-
-        } catch (RestClientException exception) {
-            model.addAttribute(
-                    "weatherError",
-                    "Der Ort oder die Wetterdaten konnten nicht geladen werden. "
-                            + "Bitte versuche es später erneut.");
+            List<TimeWindow> suitableWindows = timeWindowService.findSuitableWindows(hours,
+                            selection.temperaturePreference(), selection.windPreference(), selection.precipitationPreference())
+                    .stream()
+                    .filter(window -> window.durationMinutes() >= selection.minDurationMinutes())
+                    .toList();
+            model.addAttribute("suitableWindows", suitableWindows);
+        } catch (RestClientException | DateTimeException exception) {
+            model.addAttribute("weatherError", "Der Ort oder die Wetterdaten konnten nicht geladen werden. "
+                    + "Bitte versuche es später erneut.");
         }
-
-        model.addAttribute("suitableWindows", suitableWindows);
-        model.addAttribute("minDurationMinutes", minDurationMinutes);
-        model.addAttribute("locationId", locationId);
-        model.addAttribute("locationName", locationName);
-        model.addAttribute("precipitationPreference", precipitationPreference);
-        model.addAttribute("precipitationPreferences", PrecipitationPreference.values());
-        model.addAttribute("temperaturePreference", temperaturePreference);
-        model.addAttribute("temperaturePreferences", TemperaturePreference.values());
-        model.addAttribute("windPreference", windPreference);
-        model.addAttribute("windPreferences", WindPreference.values());
-        model.addAttribute("activity", activity);
-        model.addAttribute("activities", Activity.values());
-        model.addAttribute("searchDate", selectedDate == null ? "" : selectedDate.toString());
 
         return "mainpage";
     }

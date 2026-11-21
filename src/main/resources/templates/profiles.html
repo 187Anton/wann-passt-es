@@ -1,64 +1,45 @@
 <!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <title>Gespeicherte Suchprofile</title>
-</head>
+<html lang="de" th:replace="~{layout :: page('Suchprofile', 'profiles', ~{::content})}">
 <body>
-<h1>Gespeicherte Suchprofile</h1>
-
-<p><a th:href="@{/}">Zur Planung</a></p>
-
-<p th:if="${#lists.isEmpty(profiles)}">
-    Noch keine Suchprofile gespeichert.
-</p>
-<p th:if="${profileSuccess != null}"
-   th:text="${profileSuccess}">
-</p>
-
-<table th:if="${not #lists.isEmpty(profiles)}">
-    <thead>
-    <tr>
-        <th>Name</th>
-        <th>Aktivität</th>
-        <th>Orts-ID</th>
-        <th>Mindestdauer</th>
-        <th>Temperatur</th>
-        <th>Wind</th>
-        <th>Niederschlag</th>
-        <th>Aktion</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="profile : ${profiles}">
-        <td th:text="${profile.name}"></td>
-        <td th:text="${profile.activity.label}"></td>
-        <td th:text="${profile.locationId}"></td>
-        <td th:text="${profile.minDurationMinutes + ' Min.'}"></td>
-        <td th:text="${profile.temperaturePreference.label}"></td>
-        <td th:text="${profile.windPreference.label}"></td>
-        <td th:text="${profile.precipitationPreference.label}"></td>
-        <td>
-            <a th:href="@{/(
-        locationId=${profile.locationId},
-        activity=${profile.activity.name()},
-        minDurationMinutes=${profile.minDurationMinutes},
-        temperaturePreference=${profile.temperaturePreference.name()},
-        windPreference=${profile.windPreference.name()},
-        precipitationPreference=${profile.precipitationPreference.name()}
-    )}"> Profil verwenden</a>
-            <form th:action="@{/profiles/delete}"
-                  method="post"
-                  onsubmit="return confirm('Dieses Profil wirklich löschen?');">
-                <input type="hidden"
-                       name="id"
-                       th:value="${profile.id}">
-
-                <button type="submit">Löschen</button>
-            </form>
-        </td>
-    </tr>
-    </tbody>
-</table>
+<th:block th:fragment="content">
+    <div class="page-intro">
+        <h1>Gespeicherte Suchprofile</h1>
+        <p>Verwende deine bevorzugten Orte und Wetterwünsche erneut.</p>
+    </div>
+    <p th:if="${profileSuccess}" class="status success" role="status" th:text="${profileSuccess}"></p>
+    <p th:if="${profileError}" class="status error" role="alert" th:text="${profileError}"></p>
+    <div th:if="${#lists.isEmpty(profiles)}" class="status empty">
+        <h2>Noch keine Suchprofile gespeichert</h2>
+        <p>Gib deiner Auswahl in der Planung einen Profilnamen, um sie später wiederzuverwenden.</p>
+        <a class="button secondary" th:href="@{/}">Zur Planung</a>
+    </div>
+    <ul th:unless="${#lists.isEmpty(profiles)}" class="card-list profile-list">
+        <li class="panel profile-card" th:each="profile : ${profiles}">
+            <div>
+                <p class="profile-place" th:text="${profile.locationName ?: 'Ort ' + profile.locationId}"></p>
+                <h2 th:text="${profile.name}"></h2>
+                <p class="muted" th:text="${profile.activity.label + ' · ab ' + profile.minDurationMinutes + ' Min.'}"></p>
+            </div>
+            <dl class="profile-preferences">
+                <div><dt>Temperatur</dt><dd th:text="${profile.temperaturePreference.label}"></dd></div>
+                <div><dt>Wind</dt><dd th:text="${profile.windPreference.label}"></dd></div>
+                <div><dt>Niederschlag</dt><dd th:text="${profile.precipitationPreference.label}"></dd></div>
+            </dl>
+            <div class="actions">
+                <a class="button primary" th:href="@{/(
+                    locationId=${profile.locationId}, activity=${profile.activity.name()},
+                    minDurationMinutes=${profile.minDurationMinutes},
+                    temperaturePreference=${profile.temperaturePreference.name()},
+                    windPreference=${profile.windPreference.name()},
+                    precipitationPreference=${profile.precipitationPreference.name()})}">Profil verwenden</a>
+                <a class="button secondary" th:href="@{/profiles/{id}/edit(id=${profile.id})}">Bearbeiten</a>
+                <form th:action="@{/profiles/delete}" method="post" data-confirm="Dieses Profil wirklich löschen?">
+                    <input type="hidden" name="id" th:value="${profile.id}">
+                    <button class="button danger" type="submit">Löschen</button>
+                </form>
+            </div>
+        </li>
+    </ul>
+</th:block>
 </body>
 </html>

@@ -4,12 +4,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
@@ -19,7 +21,8 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(SearchProfileController.class)  //lädt Webschicht
+@WebMvcTest(SearchProfileController.class)
+@Import(SearchProfileService.class)
 class SearchProfileWebMvcTests {
 
     @Autowired //stellt dem Test das vorbereitete MockMvc-Objekt bereit
@@ -29,26 +32,31 @@ class SearchProfileWebMvcTests {
     private SearchProfileRepository repository;
 
 
+    @MockitoBean
+    private GeocodingClient geocodingClient;
+
     @Test //Leerzeichen entfernt
     void bindsFormValuesAndSavesProfile() throws Exception {
+        stubLocation();
         mvc.perform(validForm().param("profileName", "  Demo walk  ")) //Anfrage durch Spring MVC ausführen
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/profiles"));
 
         ArgumentCaptor<SearchProfile> saved = ArgumentCaptor.forClass(SearchProfile.class);
-        verify(repository).save(saved.capture());
+        verify(repository).saveAndFlush(saved.capture());
         assertEquals("Demo walk", saved.getValue().getName());
         assertEquals(Activity.WALKING, saved.getValue().getActivity());
     }
 
     @Test //Mindestdauer prüfen
     void acceptsMinimumDurationOfOneMinute() throws Exception {
+        stubLocation();
         mvc.perform(validForm("WALKING", "1").param("profileName", "Boundary walk"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/profiles"));
 
         ArgumentCaptor<SearchProfile> saved = ArgumentCaptor.forClass(SearchProfile.class);
-        verify(repository).save(saved.capture());
+        verify(repository).saveAndFlush(saved.capture());
         assertEquals(1, saved.getValue().getMinDurationMinutes());
     }
 
@@ -81,10 +89,28 @@ class SearchProfileWebMvcTests {
 
     @Test
     void deletesProfileViaPost() throws Exception {
+        SearchProfile profile = new SearchProfile();
+        when(repository.findForUpdate(42L)).thenReturn(Optional.of(profile));
         mvc.perform(post("/profiles/delete").param("id", "42"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/profiles"));
-        verify(repository).deleteById(42L);
+        verify(repository).delete(profile);
+    }
+
+    @Test
+    void reportsMissingProfilesOnEditAndDelete() throws Exception {
+        mvc.perform(get("/profiles/42/edit"))
+                .andExpect(redirectedUrl("/profiles"))
+                .andExpect(flash().attribute("profileError", "Dieses Suchprofil wurde nicht gefunden."));
+        mvc.perform(post("/profiles/delete").param("id", "42"))
+                .andExpect(redirectedUrl("/profiles"))
+                .andExpect(flash().attribute("profileError", "Dieses Suchprofil wurde nicht gefunden."));
+        verify(repository, never()).delete(any(SearchProfile.class));
+    }
+
+    private void stubLocation() {
+        when(geocodingClient.getLocation(123)).thenReturn(new GeocodingResponse.Location(
+                123, "Testort", 52.5, 13.4, "Europe/Berlin", null, null));
     }
 
     //Formularanfrage
