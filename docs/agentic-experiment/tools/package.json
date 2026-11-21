@@ -1,0 +1,12 @@
+{
+  "name": "wpe-experiment-tools",
+  "private": true,
+  "type": "module",
+  "description": "Screenshot tool for the agentic engineering experiment",
+  "scripts": {
+    "screenshots": "node screenshots.mjs"
+  },
+  "dependencies": {
+    "playwright": "1.65.0"
+  }
+}
