@@ -181,7 +181,9 @@ class MainpageWebMvcTests {
 
         mvc.perform(get("/").param("startDate", today.plusDays(1).toString()))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("Leider keine passenden Zeitfenster")));
+                .andExpect(content().string(allOf(
+                        containsString("Kein passendes Zeitfenster"),
+                        containsString("Mindestdauer verkürzen"))));
     }
 
     @Test
@@ -259,5 +261,36 @@ class MainpageWebMvcTests {
                         containsString("<input type=\"hidden\" name=\"precipitationPreference\" value=\"LIGHT_RAIN\">"),
                         containsString("<input type=\"hidden\" name=\"startDate\" value=\"" + start + "\">"),
                         containsString("<input type=\"hidden\" name=\"endDate\" value=\"" + end + "\">"))));
+    }
+
+    @Test
+    void showsWeatherWishesAsCheckedRadioGroupsWithUnchangedParameterNames() throws Exception {
+        when(weatherClient.fetchForecast(anyDouble(), anyDouble(), any())).thenReturn(List.of());
+
+        String html = mvc.perform(get("/")
+                        .param("temperaturePreference", "COOL")
+                        .param("windPreference", "ANY")
+                        .param("precipitationPreference", "LIGHT_RAIN"))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        assertEquals(List.of("COOL", "MILD", "WARM", "ANY"), RadioMarkup.values(html, "temperaturePreference"));
+        assertEquals(List.of("COOL"), RadioMarkup.checked(html, "temperaturePreference"));
+        assertEquals(List.of("ANY"), RadioMarkup.checked(html, "windPreference"));
+        assertEquals(List.of("LIGHT_RAIN"), RadioMarkup.checked(html, "precipitationPreference"));
+    }
+
+    @Test
+    void showsWindowBandAndSummaryForFoundWindows() throws Exception {
+        when(weatherClient.fetchForecast(anyDouble(), anyDouble(), any())).thenReturn(forecast(Set.of(10, 11, 12)));
+
+        mvc.perform(get("/").param("startDate", today.plusDays(1).toString()))
+                .andExpect(status().isOk())
+                .andExpect(content().string(allOf(
+                        containsString("class=\"band\""),
+                        containsString("class=\"band__window\""),
+                        containsString("Passende Zeitfenster"),
+                        containsString("10:00"),
+                        containsString("12:00"))));
     }
 }

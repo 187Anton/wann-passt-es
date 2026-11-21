@@ -32,6 +32,8 @@ try {
   await page.waitForURL(url => url.pathname === '/');
   assert.equal(await page.getByLabel('Aktivität').inputValue(), 'WALKING');
   assert.equal(await page.getByLabel(/Mindestdauer/).inputValue(), '60');
+  // Weather wishes are visible radio groups; the stored choice is checked.
+  assert.ok(await page.getByRole('radio', { name: /^Mild/ }).isChecked());
 
   // Edit the profile.
   await page.getByRole('navigation').getByRole('link', { name: 'Suchprofile' }).click();
@@ -39,10 +41,12 @@ try {
   await card.getByRole('link', { name: 'Bearbeiten' }).click();
   await page.waitForURL(url => /\/profiles\/\d+\/edit$/.test(url.pathname));
   await page.getByLabel(/Mindestdauer/).fill('90');
+  await page.getByRole('radio', { name: /^Kühl/ }).check();
   await page.getByRole('button', { name: 'Änderungen speichern' }).click();
   await page.waitForURL(url => url.pathname.split(';')[0] === '/profiles');
   card = profileCard(page);
   assert.match(await card.innerText(), /90 Min\./);
+  assert.match(await card.innerText(), /Kühl/);
 
   // Cancel the deletion first, then confirm it.
   page.once('dialog', dialog => dialog.dismiss());

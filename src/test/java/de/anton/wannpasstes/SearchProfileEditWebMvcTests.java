@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.client.ResourceAccessException;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.Matchers.allOf;
@@ -84,6 +85,17 @@ class SearchProfileEditWebMvcTests {
                         containsString("value=\"90\""))));
 
         verifyNoInteractions(geocodingClient);
+    }
+
+    @Test
+    void showsStoredWeatherWishesAsCheckedRadioButtons() throws Exception {
+        String html = mvc.perform(get("/profiles/7/edit"))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        assertEquals(List.of("MILD"), RadioMarkup.checked(html, "temperaturePreference"));
+        assertEquals(List.of("WEAK"), RadioMarkup.checked(html, "windPreference"));
+        assertEquals(List.of("DRY"), RadioMarkup.checked(html, "precipitationPreference"));
     }
 
     @Test
