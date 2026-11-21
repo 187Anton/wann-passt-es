@@ -1,5 +1,7 @@
 package de.anton.wannpasstes;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -14,6 +16,11 @@ import java.util.List;
 
 @Component
 public class WeatherClient {
+
+    /** Marker for a missing weather code; the code is loaded but not evaluated. */
+    static final int UNKNOWN_WEATHER_CODE = -1;
+
+    private static final Logger log = LoggerFactory.getLogger(WeatherClient.class);
 
     private final RestClient restClient;
 
@@ -53,26 +60,66 @@ public class WeatherClient {
         if (response == null ||response.hourly() == null) {
             throw new RestClientException("Weather API returned no hourly data");
         }
-        OpenMeteoResponse.Hourly hourly = response.hourly();
-        List<WeatherHour> hours = new ArrayList<>();
+        return toWeatherHours(response.hourly(), zone);
+    }
 
-        for (int i = 0; i < hourly.time().size(); i++) {
+    /**
+     * Converts the column-oriented hourly data into weather hours.
+     * Hours with a missing time, temperature, wind or precipitation value are
+     * skipped instead of failing the whole request. Lists of different length
+     * are tolerated: indexes beyond a list's end count as missing values.
+     */
+    static List<WeatherHour> toWeatherHours(OpenMeteoResponse.Hourly hourly, ZoneId zone) {
+        List<Long> times = hourly.time();
+        if (times == null) {
+            log.warn("Weather API response contains no time list");
+            return List.of();
+        }
+
+        List<WeatherHour> hours = new ArrayList<>();
+        int skipped = 0;
+
+        for (int i = 0; i < times.size(); i++) {
+            Long epochSecond = times.get(i);
+            Double temperature = valueAt(hourly.temperatureCelsius(), i);
+            Double wind = valueAt(hourly.windKmh(), i);
+            Double precipitation = valueAt(hourly.precipitationMm(), i);
+
+            if (epochSecond == null || !isUsable(temperature) || !isUsable(wind) || !isUsable(precipitation)) {
+                skipped++;
+                continue;
+            }
+
             OffsetDateTime time = Instant
-                    .ofEpochSecond(hourly.time().get(i))  //Eindeutiger Zeitpunkt
+                    .ofEpochSecond(epochSecond)  //Eindeutiger Zeitpunkt
                     .atZone(zone) //Ortszeit einschließlich Zeitumstellung
                     .toOffsetDateTime(); //Typ des WeatherHour Feldes
 
-            WeatherHour hour = new WeatherHour(
-                    hourly.temperatureCelsius().get(i),
-                    time,
-                    hourly.windKmh().get(i),
-                    hourly.precipitationMm().get(i),
-                    hourly.weatherCode().get(i));
+            Integer weatherCode = valueAt(hourly.weatherCode(), i);
 
-            hours.add(hour);
+            hours.add(new WeatherHour(
+                    temperature,
+                    time,
+                    wind,
+                    precipitation,
+                    weatherCode == null ? UNKNOWN_WEATHER_CODE : weatherCode));
+        }
+
+        if (skipped > 0) {
+            log.warn("Skipped {} of {} hourly weather entries with missing values", skipped, times.size());
         }
         return hours;
+    }
 
+    private static <T> T valueAt(List<T> values, int index) {
+        if (values == null || index >= values.size()) {
+            return null;
+        }
+        return values.get(index);
+    }
+
+    private static boolean isUsable(Double value) {
+        return value != null && Double.isFinite(value);
     }
 
 }
