@@ -31,4 +31,12 @@ public enum TemperaturePreference {
     public double getMaxTemperatureCelsius() {
         return maxTemperatureCelsius;
     }
+
+    /** Human-readable range derived from the limits, e.g. "15–25 °C". */
+    public String getDescription() {
+        if (Double.isInfinite(minTemperatureCelsius) && Double.isInfinite(maxTemperatureCelsius)) {
+            return "keine Vorgabe";
+        }
+        return "%.0f–%.0f °C".formatted(minTemperatureCelsius, maxTemperatureCelsius);
+    }
 }

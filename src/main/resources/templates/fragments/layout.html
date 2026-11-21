@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title}">Wann passt es?</title>
+    <link rel="icon" th:href="@{/favicon.svg}" type="image/svg+xml">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <script th:src="@{/js/app.js}" defer></script>
+</head>
+<body>
+
+<th:block th:fragment="header(active)">
+    <a class="skip-link" href="#inhalt">Zum Inhalt springen</a>
+    <header class="site-header">
+        <div class="container site-header__inner">
+            <a class="brand" th:href="@{/}">
+                <svg class="brand__icon" aria-hidden="true" viewBox="0 0 32 32" width="28" height="28">
+                    <circle cx="12" cy="13" r="6" fill="#f2b233"/>
+                    <path d="M10 25h14a5 5 0 0 0 0-10 7 7 0 0 0-13.3 2.2A4 4 0 0 0 10 25z" fill="#1a56a8"/>
+                </svg>
+                <span>Wann passt es?</span>
+            </a>
+            <nav class="site-nav" aria-label="Hauptnavigation">
+                <ul>
+                    <li><a th:href="@{/}" th:attr="aria-current=${active == 'planning'} ? 'page' : null">Planung</a></li>
+                    <li><a th:href="@{/locations}" th:attr="aria-current=${active == 'locations'} ? 'page' : null">Ort suchen</a></li>
+                    <li><a th:href="@{/profiles}" th:attr="aria-current=${active == 'profiles'} ? 'page' : null">Suchprofile</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+</th:block>
+
+<footer th:fragment="footer" class="site-footer">
+    <div class="container">
+        <p>
+            Wetterdaten: <a href="https://open-meteo.com/">Open-Meteo</a>.
+            Ortsdaten: <a href="https://www.geonames.org/">GeoNames</a>
+            über <a href="https://open-meteo.com/">Open-Meteo</a>.
+        </p>
+        <p>
+            Die Bewertung nutzt vorläufige Beispielgrenzen und stündliche Vorhersagewerte.
+            Sie ist keine Wettergarantie und keine Sicherheitsaussage für Outdoor-Aktivitäten.
+        </p>
+    </div>
+</footer>
+
+</body>
+</html>

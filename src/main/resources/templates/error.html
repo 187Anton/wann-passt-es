@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Fehler – Wann passt es?')}">
+    <title>Fehler – Wann passt es?</title>
+</head>
+<body>
+<th:block th:replace="~{fragments/layout :: header('')}"></th:block>
+
+<main id="inhalt" class="container container--narrow" tabindex="-1"
+      th:with="code=${status != null ? status : 500},
+               title=${errorTitle != null ? errorTitle
+                    : (code == 404 ? 'Seite nicht gefunden'
+                    : (code >= 500 ? 'Da ist etwas schiefgelaufen' : 'Ungültige Anfrage'))},
+               text=${errorMessage != null ? errorMessage
+                    : (code == 404 ? 'Die aufgerufene Seite gibt es nicht. Vielleicht hat sich ein Tippfehler in die Adresse eingeschlichen.'
+                    : (code >= 500 ? 'Beim Verarbeiten deiner Anfrage ist ein unerwarteter Fehler aufgetreten. Bitte versuche es später noch einmal.'
+                    : 'Die Anfrage konnte nicht verarbeitet werden. Bitte prüfe deine Angaben.'))}">
+    <div class="error-page card">
+        <p class="error-page__code" th:text="${'Fehler ' + code}">Fehler 404</p>
+        <h1 th:text="${title}">Seite nicht gefunden</h1>
+        <p th:text="${text}">Die aufgerufene Seite gibt es nicht.</p>
+        <p class="error-page__actions">
+            <a class="button button--primary"
+               th:href="@{${backHref != null ? backHref : '/'}}"
+               th:text="${backLabel != null ? backLabel : 'Zur Planung'}">Zur Planung</a>
+            <a class="button button--ghost" th:href="@{/}" th:if="${backHref != null}">Zur Planung</a>
+        </p>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

@@ -1,64 +1,85 @@
 <!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <title>Gespeicherte Suchprofile</title>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Suchprofile – Wann passt es?')}">
+    <title>Suchprofile – Wann passt es?</title>
 </head>
 <body>
-<h1>Gespeicherte Suchprofile</h1>
+<th:block th:replace="~{fragments/layout :: header('profiles')}"></th:block>
 
-<p><a th:href="@{/}">Zur Planung</a></p>
+<main id="inhalt" class="container" tabindex="-1">
+    <div class="page-intro">
+        <h1>Gespeicherte Suchprofile</h1>
+        <p class="lead">Wiederkehrende Suchen mit einem Klick starten, anpassen oder entfernen.</p>
+    </div>
 
-<p th:if="${#lists.isEmpty(profiles)}">
-    Noch keine Suchprofile gespeichert.
-</p>
-<p th:if="${profileSuccess != null}"
-   th:text="${profileSuccess}">
-</p>
+    <div class="alert alert--success" th:if="${profileSuccess != null}" role="status">
+        <p th:text="${profileSuccess}">Das Suchprofil wurde gespeichert.</p>
+    </div>
+    <div class="alert alert--error" th:if="${profileError != null}" role="alert">
+        <p th:text="${profileError}">Fehler</p>
+    </div>
 
-<table th:if="${not #lists.isEmpty(profiles)}">
-    <thead>
-    <tr>
-        <th>Name</th>
-        <th>Aktivität</th>
-        <th>Orts-ID</th>
-        <th>Mindestdauer</th>
-        <th>Temperatur</th>
-        <th>Wind</th>
-        <th>Niederschlag</th>
-        <th>Aktion</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="profile : ${profiles}">
-        <td th:text="${profile.name}"></td>
-        <td th:text="${profile.activity.label}"></td>
-        <td th:text="${profile.locationId}"></td>
-        <td th:text="${profile.minDurationMinutes + ' Min.'}"></td>
-        <td th:text="${profile.temperaturePreference.label}"></td>
-        <td th:text="${profile.windPreference.label}"></td>
-        <td th:text="${profile.precipitationPreference.label}"></td>
-        <td>
-            <a th:href="@{/(
-        locationId=${profile.locationId},
-        activity=${profile.activity.name()},
-        minDurationMinutes=${profile.minDurationMinutes},
-        temperaturePreference=${profile.temperaturePreference.name()},
-        windPreference=${profile.windPreference.name()},
-        precipitationPreference=${profile.precipitationPreference.name()}
-    )}"> Profil verwenden</a>
-            <form th:action="@{/profiles/delete}"
-                  method="post"
-                  onsubmit="return confirm('Dieses Profil wirklich löschen?');">
-                <input type="hidden"
-                       name="id"
-                       th:value="${profile.id}">
+    <div class="empty-state card" th:if="${#lists.isEmpty(profiles)}">
+        <h2>Noch keine Suchprofile gespeichert</h2>
+        <p>
+            Stelle auf der Planungsseite Ort, Aktivität, Mindestdauer und Wetterwünsche ein
+            und speichere die Auswahl unter einem Namen.
+        </p>
+        <p><a class="button button--primary" th:href="@{/}">Zur Planung</a></p>
+    </div>
 
-                <button type="submit">Löschen</button>
-            </form>
-        </td>
-    </tr>
-    </tbody>
-</table>
+    <ul class="profile-list" th:if="${not #lists.isEmpty(profiles)}">
+        <li class="profile card" th:each="profile : ${profiles}">
+            <h2 class="profile__name" th:text="${profile.name}">Abendrunde</h2>
+            <p class="profile__location">
+                <span class="visually-hidden">Ort: </span>
+                <span th:text="${profile.locationLabel}"
+                      th:classappend="${profile.hasLocationName()} ? '' : 'muted'">Berlin</span>
+            </p>
+            <dl class="profile__details">
+                <div>
+                    <dt>Aktivität</dt>
+                    <dd th:text="${profile.activity.label}">Radfahren</dd>
+                </div>
+                <div>
+                    <dt>Mindestdauer</dt>
+                    <dd th:text="${profile.minDurationMinutes + ' Min.'}">90 Min.</dd>
+                </div>
+                <div>
+                    <dt>Temperatur</dt>
+                    <dd th:text="${profile.temperaturePreference.label}">Mild</dd>
+                </div>
+                <div>
+                    <dt>Wind</dt>
+                    <dd th:text="${profile.windPreference.label}">Schwach</dd>
+                </div>
+                <div>
+                    <dt>Niederschlag</dt>
+                    <dd th:text="${profile.precipitationPreference.label}">Trocken</dd>
+                </div>
+            </dl>
+            <div class="profile__actions">
+                <a class="button button--primary"
+                   th:href="@{/(
+                        locationId=${profile.locationId},
+                        activity=${profile.activity.name()},
+                        minDurationMinutes=${profile.minDurationMinutes},
+                        temperaturePreference=${profile.temperaturePreference.name()},
+                        windPreference=${profile.windPreference.name()},
+                        precipitationPreference=${profile.precipitationPreference.name()}
+                   )}">Profil verwenden<span class="visually-hidden" th:text="${': ' + profile.name}"></span></a>
+                <a class="button button--secondary"
+                   th:href="@{/profiles/{id}/edit(id=${profile.id})}">Bearbeiten<span class="visually-hidden" th:text="${': ' + profile.name}"></span></a>
+                <form class="profile__delete" th:action="@{/profiles/delete}" method="post"
+                      data-confirm="Dieses Profil wirklich löschen?">
+                    <input type="hidden" name="id" th:value="${profile.id}">
+                    <button type="submit" class="button button--danger">Löschen<span class="visually-hidden" th:text="${': ' + profile.name}"></span></button>
+                </form>
+            </div>
+        </li>
+    </ul>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
 </body>
 </html>

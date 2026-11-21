@@ -22,4 +22,12 @@ public enum PrecipitationPreference {
     public double getMaxPrecipitationMm() {
         return maxPrecipitationMm;
     }
+
+    /** Human-readable limit derived from the configured value, e.g. "bis 0,2 mm/h". */
+    public String getDescription() {
+        if (Double.isInfinite(maxPrecipitationMm)) {
+            return "keine Vorgabe";
+        }
+        return String.format(java.util.Locale.GERMAN, "bis %.1f mm/h", maxPrecipitationMm);
+    }
 }

@@ -1,128 +1,266 @@
 <!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <title>Wann passt es?</title>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Planung – Wann passt es?')}">
+    <title>Planung – Wann passt es?</title>
 </head>
 <body>
-<p><a th:href="@{/locations}">Ort suchen</a></p>
-<p><a th:href="@{/profiles}">Gespeicherte Suchprofile</a></p>
-<h2 th:text="${'Wettervorhersage für ' + locationName}"></h2>
-<p>
-    Daten von <a href="https://open-meteo.com/">Open-Meteo</a>.
-    Die Bewertung verwendet vorläufige Beispielgrenzen.
-</p>
+<th:block th:replace="~{fragments/layout :: header('planning')}"></th:block>
 
-<p th:if="${weatherError != null}"
-   th:text="${weatherError}">
-</p>
-<p th:if="${profileError != null}"
-   th:text="${profileError}">
-</p>
-<form th:action="@{/}" method="get">
-    <input type="hidden"
-           name="locationId"
-           th:value="${locationId}">
+<main id="inhalt" class="container" tabindex="-1">
+    <div class="page-intro">
+        <h1>Wann passt es?</h1>
+        <p class="lead">Finde Zeitfenster, in denen das Wetter zu deiner Outdoor-Aktivität passt.</p>
+    </div>
 
-    <label for="searchDate">Tag:</label>
+    <div class="planner">
+        <div class="planner__form">
 
-    <input type="date"
-           id="searchDate"
-           name="searchDate"
-           th:value="${searchDate}"
-           th:min="${minSearchDate}"
-           th:max="${maxSearchDate}"
-           required>
+            <section class="card" aria-labelledby="location-heading">
+                <h2 id="location-heading" class="card__title">Ort</h2>
+                <p class="current-location">
+                    <strong th:text="${locationName}">Berlin</strong>
+                    <span class="muted" th:if="${!#strings.isEmpty(locationDetails)}"
+                          th:text="${locationDetails}">Land Berlin, Deutschland</span>
+                </p>
+                <form id="location-form" class="inline-search" role="search"
+                      th:action="@{/locations}" method="get"
+                      data-carry-from="plan-form">
+                    <label for="location-query">Anderen Ort suchen</label>
+                    <div class="input-row">
+                        <input type="text" id="location-query" name="query"
+                               minlength="2" required autocomplete="off"
+                               aria-describedby="location-query-hint"
+                               placeholder="z. B. Potsdam">
+                        <button type="submit" class="button button--secondary">Ort suchen</button>
+                    </div>
+                    <p id="location-query-hint" class="hint">Deine übrigen Angaben bleiben beim Ortswechsel erhalten.</p>
+                    <input type="hidden" name="locationId" th:value="${locationId}">
+                    <input type="hidden" name="activity" th:value="${activity.name()}">
+                    <input type="hidden" name="minDurationMinutes" th:value="${minDurationMinutes}">
+                    <input type="hidden" name="temperaturePreference" th:value="${temperaturePreference.name()}">
+                    <input type="hidden" name="windPreference" th:value="${windPreference.name()}">
+                    <input type="hidden" name="precipitationPreference" th:value="${precipitationPreference.name()}">
+                    <input type="hidden" name="startDate" th:value="${startDate}">
+                    <input type="hidden" name="endDate" th:value="${endDate}">
+                </form>
+            </section>
 
-    <label for="activity">Aktivität:</label>
+            <form id="plan-form" class="card" th:action="@{/}" method="get" data-loading-form>
+                <h2 class="card__title">Planung</h2>
+                <input type="hidden" name="locationId" th:value="${locationId}">
+                <input type="hidden" name="locationName" th:value="${locationName}">
 
-    <select id="activity" name="activity">
-        <option th:each="option : ${activities}"
-                th:value="${option.name()}"
-                th:text="${option.label}"
-                th:selected="${option == activity}">
-        </option>
-    </select>
+                <fieldset class="fieldset">
+                    <legend>Zeitraum</legend>
+                    <div class="field-grid">
+                        <div class="field">
+                            <label for="startDate">Von</label>
+                            <input type="date" id="startDate" name="startDate"
+                                   th:value="${startDate}"
+                                   th:min="${minSearchDate}" th:max="${maxSearchDate}"
+                                   th:attr="aria-invalid=${dateError != null} ? 'true' : null"
+                                   aria-describedby="date-hint">
+                        </div>
+                        <div class="field">
+                            <label for="endDate">Bis</label>
+                            <input type="date" id="endDate" name="endDate"
+                                   th:value="${endDate}"
+                                   th:min="${minSearchDate}" th:max="${maxSearchDate}"
+                                   th:attr="aria-invalid=${dateError != null} ? 'true' : null"
+                                   aria-describedby="date-hint">
+                        </div>
+                    </div>
+                    <p id="date-hint" class="hint">
+                        Möglich sind heute und die folgenden sechs Tage. Ohne Angabe wird nur heute durchsucht.
+                    </p>
+                    <p class="field-error" th:if="${dateError != null}" th:text="${dateError}" role="alert"></p>
+                </fieldset>
 
-    <label for="minDurationMinutes">
-        Mindestens benötigte Zeit in Minuten:
-    </label>
+                <div class="field-grid">
+                    <div class="field">
+                        <label for="activity">Aktivität</label>
+                        <select id="activity" name="activity">
+                            <option th:each="option : ${activities}"
+                                    th:value="${option.name()}"
+                                    th:text="${option.label}"
+                                    th:selected="${option == activity}">Spazieren gehen</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="minDurationMinutes">Mindestdauer (Minuten)</label>
+                        <input type="number" id="minDurationMinutes" name="minDurationMinutes"
+                               min="1" step="1" inputmode="numeric" required
+                               th:value="${minDurationMinutes}">
+                    </div>
+                </div>
 
-    <input type="number"
-           id="minDurationMinutes"
-           name="minDurationMinutes"
-           min="1"
-           step="1"
-           th:value="${minDurationMinutes}"
-           required>
-    <label for="precipitationPreference">Niederschlag:</label>
+                <fieldset class="fieldset">
+                    <legend>Wetterwünsche</legend>
+                    <div class="field">
+                        <label for="temperaturePreference">Temperatur</label>
+                        <select id="temperaturePreference" name="temperaturePreference">
+                            <option th:each="preference : ${temperaturePreferences}"
+                                    th:value="${preference.name()}"
+                                    th:text="|${preference.label} (${preference.description})|"
+                                    th:selected="${preference == temperaturePreference}">Mild</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="windPreference">Wind</label>
+                        <select id="windPreference" name="windPreference">
+                            <option th:each="preference : ${windPreferences}"
+                                    th:value="${preference.name()}"
+                                    th:text="|${preference.label} (${preference.description})|"
+                                    th:selected="${preference == windPreference}">Schwach</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="precipitationPreference">Niederschlag</label>
+                        <select id="precipitationPreference" name="precipitationPreference">
+                            <option th:each="preference : ${precipitationPreferences}"
+                                    th:value="${preference.name()}"
+                                    th:text="|${preference.label} (${preference.description})|"
+                                    th:selected="${preference == precipitationPreference}">Trocken</option>
+                        </select>
+                    </div>
+                </fieldset>
 
-    <select id="precipitationPreference"
-            name="precipitationPreference">
-        <option th:each="preference : ${precipitationPreferences}"
-                th:value="${preference.name()}"
-                th:text="${preference.label}"
-                th:selected="${preference == precipitationPreference}">
-        </option>
-    </select>
-    <label for="temperaturePreference">Temperatur:</label>
+                <button type="submit" class="button button--primary button--block" data-loading-text="Suche läuft …">
+                    Zeitfenster suchen
+                </button>
 
-    <select id="temperaturePreference" name="temperaturePreference">
-        <option th:each="preference : ${temperaturePreferences}"
-                th:value="${preference.name()}"
-                th:text="${preference.label}"
-                th:selected="${preference == temperaturePreference}">
-        </option>
-    </select>
+                <div class="save-profile">
+                    <h3 class="save-profile__title">Auswahl als Suchprofil speichern</h3>
+                    <div class="field">
+                        <label for="profileName">Profilname (nur zum Speichern)</label>
+                        <input type="text" id="profileName" name="profileName" maxlength="100"
+                               th:value="${profileName}"
+                               th:attr="aria-invalid=${profileError != null} ? 'true' : null,
+                                        aria-describedby=${profileError != null} ? 'profile-error' : null"
+                               placeholder="z. B. Meine Fahrradrunde">
+                        <p id="profile-error" class="field-error" th:if="${profileError != null}"
+                           th:text="${profileError}" role="alert"></p>
+                    </div>
+                    <button type="submit" class="button button--secondary"
+                            th:formaction="@{/profiles}" formmethod="post">
+                        Suchprofil speichern
+                    </button>
+                </div>
+            </form>
+        </div>
 
-    <label for="windPreference">Wind:</label>
+        <section id="ergebnisse" class="planner__results" aria-labelledby="results-heading">
+            <div class="results-header">
+                <h2 id="results-heading">
+                    <span th:text="${'Zeitfenster für ' + activity.label}">Zeitfenster für Spazieren gehen</span>
+                    <span class="results-header__period" th:if="${periodLabel != null}" th:text="${periodLabel}">am 22.11.2026</span>
+                </h2>
+                <p class="muted" th:text="${'Alle Uhrzeiten gelten in Ortszeit für ' + locationName + '.'}">
+                    Alle Uhrzeiten gelten in Ortszeit für Berlin.
+                </p>
+            </div>
 
-    <select id="windPreference" name="windPreference">
-        <option th:each="preference : ${windPreferences}"
-                th:value="${preference.name()}"
-                th:text="${preference.label}"
-                th:selected="${preference == windPreference}">
-        </option>
-    </select>
-    <button type="submit">Zeitfenster suchen</button>
-    <label for="profileName">Profilname – nur zum Speichern erforderlich:</label>
+            <div class="alert alert--error" th:if="${weatherError != null}" role="alert">
+                <p class="alert__title">Wetterdaten nicht verfügbar</p>
+                <p th:text="${weatherError}">Fehler</p>
+            </div>
 
-    <input type="text"
-           id="profileName"
-           name="profileName"
-           maxlength="100"
-           th:value="${profileName}"
-           placeholder="Zum Beispiel: Meine Fahrradrunde">
+            <div class="alert alert--error" th:if="${dateError != null}" role="alert">
+                <p class="alert__title">Zeitraum prüfen</p>
+                <p th:text="${dateError}">Fehler</p>
+                <p>Es wurde keine Wetterabfrage ausgeführt.</p>
+            </div>
 
-    <button type="submit"
-            th:formaction="@{/profiles}"
-            formmethod="post">
-        Suchprofil speichern
-    </button>
-</form>
+            <div class="alert alert--warning" th:if="${weatherNotice != null}" role="status">
+                <p th:text="${weatherNotice}">Hinweis</p>
+            </div>
 
-<h3 th:text="${'Zeitfenster für: ' + activity.label}"></h3>
+            <th:block th:if="${searchPerformed and result != null and result.windowCount() > 0}">
+                <dl class="stats">
+                    <div class="stats__item">
+                        <dt>Passende Zeitfenster</dt>
+                        <dd th:text="${result.windowCount()}">3</dd>
+                    </div>
+                    <div class="stats__item">
+                        <dt>Längstes Fenster</dt>
+                        <dd th:text="${result.longestDurationLabel()}">4 Std.</dd>
+                    </div>
+                    <div class="stats__item">
+                        <dt>Insgesamt</dt>
+                        <dd th:text="${result.totalDurationLabel()}">7 Std.</dd>
+                    </div>
+                </dl>
 
-<p th:if="${weatherError == null and #lists.isEmpty(suitableWindows)}">
-    Für die gewählte Mindestdauer und die aktuellen
-    Beispielgrenzen wurden keine passenden Zeitfenster gefunden.
-</p>
-<p th:text="${'Alle Uhrzeiten gelten für ' + locationName}"></p>
-<table>
-    <thead>
-    <tr>
-        <th>Beginn</th>
-        <th>Ende</th>
-        <th>Dauer in Minuten</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="window : ${suitableWindows}">
-        <td th:text="${#temporals.format(window.start(), 'dd.MM.yyyy, HH:mm')}"></td>
-        <td th:text="${#temporals.format(window.end(), 'dd.MM.yyyy, HH:mm')}"></td>
-        <td th:text="${window.durationMinutes() + ' Min.'}"></td>
-    </tr>
-    </tbody>
-</table>
+                <figure class="timeline card" aria-hidden="true">
+                    <div class="timeline__track">
+                        <div class="timeline__past" th:style="|width: ${result.timeline().pastWidthPercent()}%|"></div>
+                        <div class="timeline__day" th:each="day : ${result.timeline().days()}"
+                             th:style="|left: ${day.offsetPercent()}%; width: ${day.widthPercent()}%|"></div>
+                        <div class="timeline__segment" th:each="segment : ${result.timeline().segments()}"
+                             th:style="|left: ${segment.offsetPercent()}%; width: ${segment.widthPercent()}%|"
+                             th:title="${segment.accessibleLabel()}"></div>
+                    </div>
+                    <div class="timeline__labels">
+                        <span class="timeline__label" th:each="day : ${result.timeline().days()}"
+                              th:style="|left: ${day.offsetPercent()}%; width: ${day.widthPercent()}%|">
+                            <strong th:text="${day.weekday()}">Sa.</strong>
+                            <span th:text="${day.date()}">22.11.</span>
+                        </span>
+                    </div>
+                    <figcaption class="timeline__legend">
+                        <span class="legend legend--window">passendes Zeitfenster</span>
+                        <span class="legend legend--past">vergangen</span>
+                    </figcaption>
+                </figure>
+
+                <div class="day-group" th:each="group : ${result.groups()}">
+                    <h3 class="day-group__title" th:text="${group.label()}">Samstag, 22. November</h3>
+                    <ul class="window-list">
+                        <li class="window" th:each="window : ${group.windows()}">
+                            <p class="window__time">
+                                <time th:datetime="${window.startIso()}" th:text="${window.startTime()}">10:00</time>
+                                <span aria-hidden="true">–</span><span class="visually-hidden">bis</span>
+                                <span th:if="${window.spansMidnight()}" class="window__endday" th:text="${window.endDayLabel()}">So., 23.11.</span>
+                                <time th:datetime="${window.endIso()}" th:text="${window.endTime()}">14:00</time>
+                                <span class="window__unit">Uhr</span>
+                            </p>
+                            <p class="window__meta">
+                                <span class="badge" th:text="${window.durationLabel()}">4 Std.</span>
+                                <span class="badge badge--night" th:if="${window.spansMidnight()}">über Mitternacht</span>
+                            </p>
+                        </li>
+                    </ul>
+                </div>
+            </th:block>
+
+            <div class="empty-state card"
+                 th:if="${searchPerformed and weatherNotice == null and (result == null or result.windowCount() == 0)}">
+                <svg class="empty-state__icon" aria-hidden="true" viewBox="0 0 48 48" width="48" height="48">
+                    <path d="M14 34h22a8 8 0 0 0 0-16 11 11 0 0 0-21 3.5A6.3 6.3 0 0 0 14 34z" fill="#dbe4f0"/>
+                    <path d="M18 38l-2 4M26 38l-2 4M34 38l-2 4" stroke="#1a56a8" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+                <h3>Leider keine passenden Zeitfenster</h3>
+                <p>
+                    Im gewählten Zeitraum gibt es keinen Abschnitt von mindestens
+                    <strong th:text="${minDurationMinutes + ' Minuten'}">60 Minuten</strong>,
+                    in dem alle deine Wetterwünsche erfüllt sind.
+                </p>
+                <p>Das kannst du versuchen:</p>
+                <ul>
+                    <li>einen längeren Zeitraum wählen,</li>
+                    <li>die Mindestdauer verringern,</li>
+                    <li>bei Temperatur, Wind oder Niederschlag großzügigere Wünsche wählen.</li>
+                </ul>
+            </div>
+
+            <p class="hint">
+                Bewertet werden stündliche Vorhersagewerte mit vorläufigen Beispielgrenzen.
+                Bereits vergangene Stunden werden nicht berücksichtigt.
+            </p>
+        </section>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
 </body>
 </html>

@@ -21,4 +21,12 @@ public enum WindPreference {
     public double getMaxWindKmh() {
         return maxWindKmh;
     }
+
+    /** Human-readable limit derived from the configured value, e.g. "bis 15 km/h". */
+    public String getDescription() {
+        if (Double.isInfinite(maxWindKmh)) {
+            return "keine Vorgabe";
+        }
+        return "bis %.0f km/h".formatted(maxWindKmh);
+    }
 }

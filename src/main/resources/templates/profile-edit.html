@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Suchprofil bearbeiten – Wann passt es?')}">
+    <title>Suchprofil bearbeiten – Wann passt es?</title>
+</head>
+<body>
+<th:block th:replace="~{fragments/layout :: header('profiles')}"></th:block>
+
+<main id="inhalt" class="container container--narrow" tabindex="-1">
+    <p class="breadcrumb"><a th:href="@{/profiles}">← Zurück zu den Suchprofilen</a></p>
+    <div class="page-intro">
+        <h1>Suchprofil bearbeiten</h1>
+        <p class="lead" th:text="${'„' + storedProfileName + '“'}">„Abendrunde“</p>
+    </div>
+
+    <div class="alert alert--error" th:if="${formHasErrors}" role="alert">
+        <p class="alert__title">Das Profil wurde noch nicht gespeichert.</p>
+        <p>Bitte prüfe die markierten Angaben. Deine Eingaben bleiben erhalten.</p>
+    </div>
+
+    <section class="card" aria-labelledby="location-heading">
+        <h2 id="location-heading" class="card__title">Ort</h2>
+        <p class="current-location">
+            <strong th:text="${profileForm.locationLabel}"
+                    th:classappend="${profileForm.hasLocationName()} ? '' : 'muted'">Berlin</strong>
+        </p>
+        <p class="field-error" th:if="${locationIdError != null}" th:text="${locationIdError}"></p>
+        <form id="location-form" class="inline-search" role="search"
+              th:action="@{/locations}" method="get" data-carry-from="profile-form">
+            <label for="location-query">Anderen Ort suchen</label>
+            <div class="input-row">
+                <input type="text" id="location-query" name="query"
+                       minlength="2" required autocomplete="off"
+                       aria-describedby="location-query-hint" placeholder="z. B. Potsdam">
+                <button type="submit" class="button button--secondary">Ort suchen</button>
+            </div>
+            <p id="location-query-hint" class="hint">
+                Nach der Auswahl kehrst du hierher zurück. Das Profil wird erst mit „Änderungen speichern“ gespeichert.
+            </p>
+            <input type="hidden" name="profileId" th:value="${profileId}">
+            <input type="hidden" name="profileName" th:value="${profileForm.profileName}">
+            <input type="hidden" name="locationId" th:value="${profileForm.locationId}">
+            <input type="hidden" name="locationName" th:value="${profileForm.locationName}">
+            <input type="hidden" name="activity" th:value="${profileForm.activity}">
+            <input type="hidden" name="minDurationMinutes" th:value="${profileForm.minDurationMinutes}">
+            <input type="hidden" name="temperaturePreference" th:value="${profileForm.temperaturePreference}">
+            <input type="hidden" name="windPreference" th:value="${profileForm.windPreference}">
+            <input type="hidden" name="precipitationPreference" th:value="${profileForm.precipitationPreference}">
+        </form>
+    </section>
+
+    <form id="profile-form" class="card" th:action="@{/profiles/{id}/edit(id=${profileId})}"
+          th:object="${profileForm}" method="post" novalidate>
+        <h2 class="card__title">Einstellungen</h2>
+        <input type="hidden" th:field="*{locationId}">
+        <input type="hidden" th:field="*{locationName}">
+
+        <div class="field">
+            <label for="profileName">Profilname</label>
+            <input type="text" th:field="*{profileName}" maxlength="100" required
+                   th:attr="aria-invalid=${#fields.hasErrors('profileName')} ? 'true' : null,
+                            aria-describedby=${#fields.hasErrors('profileName')} ? 'profileName-hint profileName-error' : 'profileName-hint'">
+            <p id="profileName-hint" class="hint">1 bis 100 Zeichen. Der Name muss eindeutig sein.</p>
+            <p id="profileName-error" class="field-error" th:if="${#fields.hasErrors('profileName')}"
+               th:errors="*{profileName}"></p>
+        </div>
+
+        <div class="field-grid">
+            <div class="field">
+                <label for="activity">Aktivität</label>
+                <select th:field="*{activity}"
+                        th:attr="aria-invalid=${#fields.hasErrors('activity')} ? 'true' : null">
+                    <option th:each="option : ${activities}" th:value="${option.name()}"
+                            th:text="${option.label}">Spazieren gehen</option>
+                </select>
+                <p class="field-error" th:if="${#fields.hasErrors('activity')}" th:errors="*{activity}"></p>
+            </div>
+            <div class="field">
+                <label for="minDurationMinutes">Mindestdauer (Minuten)</label>
+                <input type="number" th:field="*{minDurationMinutes}" min="1" step="1" inputmode="numeric" required
+                       th:attr="aria-invalid=${#fields.hasErrors('minDurationMinutes')} ? 'true' : null,
+                                aria-describedby=${#fields.hasErrors('minDurationMinutes')} ? 'minDurationMinutes-error' : null">
+                <p id="minDurationMinutes-error" class="field-error"
+                   th:if="${#fields.hasErrors('minDurationMinutes')}" th:errors="*{minDurationMinutes}"></p>
+            </div>
+        </div>
+
+        <fieldset class="fieldset">
+            <legend>Wetterwünsche</legend>
+            <div class="field">
+                <label for="temperaturePreference">Temperatur</label>
+                <select th:field="*{temperaturePreference}">
+                    <option th:each="preference : ${temperaturePreferences}" th:value="${preference.name()}"
+                            th:text="|${preference.label} (${preference.description})|">Mild</option>
+                </select>
+                <p class="field-error" th:if="${#fields.hasErrors('temperaturePreference')}"
+                   th:errors="*{temperaturePreference}"></p>
+            </div>
+            <div class="field">
+                <label for="windPreference">Wind</label>
+                <select th:field="*{windPreference}">
+                    <option th:each="preference : ${windPreferences}" th:value="${preference.name()}"
+                            th:text="|${preference.label} (${preference.description})|">Schwach</option>
+                </select>
+                <p class="field-error" th:if="${#fields.hasErrors('windPreference')}"
+                   th:errors="*{windPreference}"></p>
+            </div>
+            <div class="field">
+                <label for="precipitationPreference">Niederschlag</label>
+                <select th:field="*{precipitationPreference}">
+                    <option th:each="preference : ${precipitationPreferences}" th:value="${preference.name()}"
+                            th:text="|${preference.label} (${preference.description})|">Trocken</option>
+                </select>
+                <p class="field-error" th:if="${#fields.hasErrors('precipitationPreference')}"
+                   th:errors="*{precipitationPreference}"></p>
+            </div>
+        </fieldset>
+
+        <div class="form-actions">
+            <button type="submit" class="button button--primary">Änderungen speichern</button>
+            <a class="button button--ghost" th:href="@{/profiles}">Abbrechen</a>
+        </div>
+    </form>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
