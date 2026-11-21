@@ -16,7 +16,7 @@ class SearchProfileControllerTests {
             mock(SearchProfileRepository.class);
 
     private final SearchProfileController controller =
-            new SearchProfileController(repository);
+            new SearchProfileController(repository); //Controller selbst wird erzeugt
 
     @Test
     void savesProfileAndRedirectsToOverview() {
