@@ -33,7 +33,7 @@ Zwei Demo-Testklassen sind standardmäßig deaktiviert und werden nur über Syst
 | `ProfileBrowserTests` | `-Ddemo.browser=true` | Benötigt Node.js und Playwright (Chromium); führt `src/test/browser/profile-flow.mjs` aus |
 | `ProfilePerformanceTests` | `-Ddemo.performance=true` | Grenzwert über `-Ddemo.maxP95Millis` (Standard 1000) |
 
-Das Browser-Szenario prüft Speichern, Bearbeiten, Verwenden und Löschen eines Profils, denselben Ablauf ohne JavaScript sowie in einer 360 px breiten Ansicht, dass keine Seite horizontal scrollt. Liegt Playwright nicht im Projektverzeichnis, kann der Pfad über `PLAYWRIGHT_MODULE` gesetzt werden.
+Das Browser-Szenario prüft Speichern, Bearbeiten, Verwenden und Löschen eines Profils, denselben Ablauf ohne JavaScript sowie bei 360 px und 1280 px Breite, dass keine Seite horizontal scrollt und das Ergebnis im 800 px hohen Fenster sichtbar ist. Liegt Playwright nicht im Projektverzeichnis, kann der Pfad über `PLAYWRIGHT_MODULE` gesetzt werden.
 
 ## Funktionen
 
@@ -70,6 +70,16 @@ Der gesamte gewählte Zeitraum wird als eine durchgehende Stundenreihe bewertet.
 | `GET/POST /profiles` | Übersicht bzw. Speichern der aktuellen Auswahl |
 | `GET/POST /profiles/{id}/edit` | Profil bearbeiten |
 | `POST /profiles/delete` | Profil löschen |
+
+## Gestaltung
+
+Das Erscheinungsbild ist in `DESIGN.md` festgehalten: weiße Seite, eine
+Akzentfarbe (gebranntes Orange), Serifen-Überschriften, Gliederung über
+Typografie und Haarlinien. Die Planungsseite ist ab 900 px zweispaltig: links
+das Formular, rechts das dunkle Ergebnisband. Dort sitzt jedes passende
+Zeitfenster als Balken an seiner Stelle im 24-Stunden-Tag, seine Breite ist die
+Dauer. Auf schmalen Bildschirmen steht das Band über dem Formular. Das übrige
+Layout ist einspaltig und funktioniert ab 360 px ohne horizontales Scrollen.
 
 ## Technik
 
