@@ -1,6 +1,8 @@
 # Wann passt es?
 
-Lokale Webanwendung, die für einen Ort, eine Outdoor-Aktivität, einen Tag, eine Mindestdauer und persönliche Wetterwünsche passende Zeitfenster berechnet. Wiederverwendbare Suchprofile lassen sich speichern, verwenden und löschen.
+Lokale Webanwendung, die für einen Ort, eine Outdoor-Aktivität, einen Zeitraum, eine
+Mindestdauer und persönliche Wetterwünsche passende Zeitfenster berechnet.
+Wiederverwendbare Suchprofile lassen sich speichern, verwenden, bearbeiten und löschen.
 
 Wetter- und Ortsdaten stammen von [Open-Meteo](https://open-meteo.com/) (Ortsdaten basierend auf GeoNames). Für die Nutzung ist daher eine Internetverbindung nötig.
 
@@ -31,11 +33,14 @@ Zwei Demo-Testklassen sind standardmäßig deaktiviert und werden nur über Syst
 | `ProfileBrowserTests` | `-Ddemo.browser=true` | Benötigt Node.js und Playwright (Chromium); führt `src/test/browser/profile-flow.mjs` aus |
 | `ProfilePerformanceTests` | `-Ddemo.performance=true` | Grenzwert über `-Ddemo.maxP95Millis` (Standard 1000) |
 
+Das Browser-Szenario prüft Speichern, Bearbeiten, Verwenden und Löschen eines Profils, denselben Ablauf ohne JavaScript sowie in einer 360 px breiten Ansicht, dass keine Seite horizontal scrollt. Liegt Playwright nicht im Projektverzeichnis, kann der Pfad über `PLAYWRIGHT_MODULE` gesetzt werden.
+
 ## Funktionen
 
-- **Ortssuche** (`/locations`): Suche ab zwei Zeichen, bis zu fünf Treffer, deutsche Ortsnamen.
-- **Planung** (`/`): Datum (heute bis heute + 6 Tage), Aktivität, Mindestdauer sowie Wünsche zu Temperatur, Wind und Niederschlag. Ergebnis sind zusammenhängende passende Zeitfenster in Ortszeit.
-- **Suchprofile** (`/profiles`): aktuelle Auswahl unter einem Namen speichern, gespeichertes Profil verwenden, Profil löschen.
+- **Ortssuche** (`/locations`): Suche ab zwei Zeichen, bis zu fünf Treffer, deutsche Ortsnamen. Die Suche lässt sich aus der Planung oder aus einem Profil starten; der gewählte Ort übernimmt Zeitraum, Aktivität, Mindestdauer und Wetterwünsche.
+- **Planung** (`/`): Zeitraum von heute bis heute + 6 Tage (in der Zeitzone des Ortes), Aktivität, Mindestdauer sowie Wünsche zu Temperatur, Wind und Niederschlag. Ergebnis sind zusammenhängende passende Zeitfenster in Ortszeit, chronologisch sortiert und jeweils mit Datum, Uhrzeit und Dauer. Ohne Datumsangabe wird der heutige Tag geprüft.
+- **Suchprofile** (`/profiles`): aktuelle Auswahl unter einem eindeutigen Namen speichern, gespeichertes Profil verwenden, bearbeiten (Name, Ort, Aktivität, Mindestdauer, alle Wetterwünsche) und löschen. Die Übersicht zeigt den Ortsnamen; bei älteren Profilen ohne gespeicherten Namen die Orts-ID.
+- **Fehlerseiten**: ungültige Parameter, unbekannte Adressen und unerwartete Fehler enden auf einer gestalteten deutschsprachigen Seite mit Weg zurück zur Planung (HTTP 400, 404, 405 bzw. 500).
 
 ### Wetterwünsche (vorläufige Produktparameter)
 
@@ -51,7 +56,20 @@ Die Aktivität (Spazieren, Laufen, Radfahren, Wandern) ist eine Bezeichnung und 
 
 ### Zeitfensterberechnung
 
-`TimeWindowService` betrachtet benachbarte Stundenwerte im Abstand von genau einer Stunde. Temperatur und Wind müssen an beiden Intervall-Endpunkten passen; der Niederschlag wird vom Endpunkt genommen, weil dieser Wert die vorausgegangene Stunde beschreibt. Passende Intervalle werden zu Zeitfenstern zusammengefasst. Das ist eine stündliche Näherung, keine Garantie für die Bedingungen zwischen den Messpunkten.
+`TimeWindowService` betrachtet benachbarte Stundenwerte im Abstand von genau einer Stunde. Temperatur und Wind müssen an beiden Intervall-Endpunkten passen; der Niederschlag wird vom Endpunkt genommen, weil dieser Wert die vorausgegangene Stunde beschreibt. Passende Intervalle werden zu Zeitfenstern zusammengefasst.
+
+Der gesamte gewählte Zeitraum wird als eine durchgehende Stundenreihe bewertet. Ein Fenster, das ohne Lücke über Mitternacht reicht, bleibt deshalb ein Fenster; die Mindestdauer bezieht sich auf dieses zusammenhängende Fenster. Vergangene Stunden werden ignoriert. Das ist eine stündliche Näherung, keine Garantie für die Bedingungen zwischen den Messpunkten.
+
+### URL-Parameter
+
+| Seite | Parameter |
+| --- | --- |
+| `GET /` | `locationId`, `startDate`, `endDate` (ISO, `jjjj-mm-tt`), `activity`, `minDurationMinutes`, `temperaturePreference`, `windPreference`, `precipitationPreference` |
+| `GET /` (alt) | `searchDate` durchsucht weiterhin genau diesen einen Tag, wenn kein `startDate` angegeben ist |
+| `GET /locations` | `query` sowie optional `profileId` und die Planungsparameter, die beim Ortwechsel erhalten bleiben |
+| `GET/POST /profiles` | Übersicht bzw. Speichern der aktuellen Auswahl |
+| `GET/POST /profiles/{id}/edit` | Profil bearbeiten |
+| `POST /profiles/delete` | Profil löschen |
 
 ## Technik
 
@@ -59,16 +77,18 @@ Die Aktivität (Spazieren, Laufen, Radfahren, Wandern) ist eine Bezeichnung und 
 - Spring MVC mit Thymeleaf, Bean Validation, Spring Data JPA/Hibernate
 - H2 als Datei-Datenbank (`./data/`, per `.gitignore` ausgeschlossen); Schema über `ddl-auto=update`
 - Externe APIs über `RestClient` mit 5 s Verbindungs- und 10 s Lese-Timeout
+- Frontend mit gemeinsamem Thymeleaf-Layout, eigenem CSS und einem kleinen Vanilla-JavaScript (`static/`), ohne externe Bibliotheken, CDNs oder Build-Schritt; alle Kernfunktionen funktionieren auch ohne JavaScript
+- Oberfläche und Datumsformatierung auf Deutsch (`spring.web.locale=de`)
 - Package: `de.anton.wannpasstes`
 
 ## Bekannte Grenzen
 
-- Erste lokale Version, **nicht für eine öffentliche Bereitstellung gedacht**: keine Anmeldung, keine Benutzertrennung, keine explizite CSRF-Absicherung; leeres Datenbankpasswort nur für lokale Entwicklung.
-- Suchzeitraum ist ein einzelner Tag innerhalb der sieben Vorhersagetage.
+- Erste lokale Version, **nicht für eine öffentliche Bereitstellung gedacht**: keine Anmeldung, keine Benutzertrennung, keine CSRF-Absicherung; leeres Datenbankpasswort nur für lokale Entwicklung.
+- Suchzeitraum ist auf die sieben Vorhersagetage beschränkt; mehr als ein Zeitraum gleichzeitig ist nicht möglich.
 - Am letzten Vorhersagetag kann der Messpunkt um Mitternacht fehlen, dann wird das letzte Stundenintervall nicht bewertet.
-- Unvollständige oder inkonsistente API-Daten werden noch nicht robust abgefangen; ungültige Parameter führen nicht durchgängig zu einer freundlichen Fehlerseite.
-- Beim Ortswechsel über die Ortssuche gehen gewählte Wetterwünsche und Datum verloren.
-- Profile zeigen die Orts-ID statt eines Ortsnamens, Profilnamen sind nicht eindeutig, Profile lassen sich nicht bearbeiten.
+- Profilnamen werden in der Anwendung eindeutig geprüft (ohne Beachtung von Groß-/Kleinschreibung und Leerzeichen am Rand), aber nicht durch eine Datenbank-Constraint abgesichert. Grund: vorhandene Datenbanken können bereits doppelte Namen enthalten und dürfen den Start nicht verhindern.
+- Der Ortsname wird beim Speichern eines Profils mitgeschrieben und danach nicht aktualisiert. Fehlt er (ältere Profile), zeigt die Übersicht die Orts-ID.
+- Unvollständige Wetterdaten werden übersprungen; fehlt ein Messpunkt, kann dadurch ein Zeitfenster kürzer ausfallen.
 - Keine Wettergarantie und keine Sicherheitsaussage für Outdoor-Aktivitäten.
 
 ## Lizenz
