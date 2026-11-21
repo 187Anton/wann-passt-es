@@ -6,30 +6,36 @@
 <body>
 <th:block th:replace="~{fragments/layout :: header('profiles')}"></th:block>
 
-<main id="inhalt" class="container" tabindex="-1">
-    <div class="page-intro">
-        <h1>Gespeicherte Suchprofile</h1>
+<main id="inhalt" class="container container--narrow" tabindex="-1">
+    <header class="page-head">
+        <h1>Suchprofile</h1>
         <p class="lead">Wiederkehrende Suchen mit einem Klick starten, anpassen oder entfernen.</p>
-    </div>
+    </header>
 
     <div class="alert alert--success" th:if="${profileSuccess != null}" role="status">
-        <p th:text="${profileSuccess}">Das Suchprofil wurde gespeichert.</p>
+        <svg th:replace="~{fragments/layout :: icon-success}"></svg>
+        <div>
+            <p th:text="${profileSuccess}">Das Suchprofil wurde gespeichert.</p>
+        </div>
     </div>
     <div class="alert alert--error" th:if="${profileError != null}" role="alert">
-        <p th:text="${profileError}">Fehler</p>
+        <svg th:replace="~{fragments/layout :: icon-error}"></svg>
+        <div>
+            <p th:text="${profileError}">Fehler</p>
+        </div>
     </div>
 
-    <div class="empty-state card" th:if="${#lists.isEmpty(profiles)}">
+    <div class="empty-state" th:if="${#lists.isEmpty(profiles)}">
         <h2>Noch keine Suchprofile gespeichert</h2>
         <p>
             Stelle auf der Planungsseite Ort, Aktivität, Mindestdauer und Wetterwünsche ein
-            und speichere die Auswahl unter einem Namen.
+            und speichere die Auswahl unter einem Namen. Danach startest du dieselbe Suche hier mit einem Klick.
         </p>
         <p><a class="button button--primary" th:href="@{/}">Zur Planung</a></p>
     </div>
 
     <ul class="profile-list" th:if="${not #lists.isEmpty(profiles)}">
-        <li class="profile card" th:each="profile : ${profiles}">
+        <li class="profile" th:each="profile : ${profiles}">
             <h2 class="profile__name" th:text="${profile.name}">Abendrunde</h2>
             <p class="profile__location">
                 <span class="visually-hidden">Ort: </span>
@@ -43,7 +49,7 @@
                 </div>
                 <div>
                     <dt>Mindestdauer</dt>
-                    <dd th:text="${profile.minDurationMinutes + ' Min.'}">90 Min.</dd>
+                    <dd class="nums" th:text="${profile.minDurationMinutes + ' Min.'}">90 Min.</dd>
                 </div>
                 <div>
                     <dt>Temperatur</dt>
@@ -51,7 +57,7 @@
                 </div>
                 <div>
                     <dt>Wind</dt>
-                    <dd th:text="${profile.windPreference.label}">Schwach</dd>
+                    <dd th:text="${profile.windPreference.label}">Höchstens schwacher Wind</dd>
                 </div>
                 <div>
                     <dt>Niederschlag</dt>

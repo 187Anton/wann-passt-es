@@ -18,6 +18,7 @@
         form.addEventListener('submit', function () {
             var hiddenFields = form.querySelectorAll('input[type="hidden"]');
             hiddenFields.forEach(function (hidden) {
+                // For radio groups this is a RadioNodeList whose value is the checked option.
                 var field = source.elements.namedItem(hidden.name);
                 if (field && typeof field.value === 'string') {
                     hidden.value = field.value;

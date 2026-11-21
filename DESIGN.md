@@ -69,7 +69,7 @@ Gemeinsamer Rahmen: weiße Kopfzeile mit Markenname in Serifenschrift und Naviga
 | Berlin, am 22.11.2026          |
 | Suche anpassen                 |
 |                                |
-| 3 Fenster  7 Std.  längstes 4  |
+| Passende Fenster 3  Längstes 4 |
 | ██████▒▒▒▒▒▒▒▓▓▓▓▓▒▒▒▒▓▓▓▒▒▒▒▒ |   <- Fensterband (dunkel,
 | 0     6     12     18     24   |      Fenster leuchten)
 |                                |
@@ -100,7 +100,7 @@ Gemeinsamer Rahmen: weiße Kopfzeile mit Markenname in Serifenschrift und Naviga
 | Zeitfenster für Spazieren gehen              | Suche anpassen             |
 | Berlin, Land Berlin, am 22.11.2026           | Ort  Berlin                |
 |                                              | [Ort eingeben   ][Suchen]  |
-| Passende Fenster 3  Zusammen 7 Std.  …       |                            |
+| Passende Zeitfenster 3  Längstes 4 Std.      |                            |
 | ████████▒▒▒▒▒▒▒▒▒▓▓▓▓▓▓▓▒▒▒▒▒▒▓▓▓▓▒▒▒▒▒▒▒▒▒ | Von [     ]  Bis [     ]   |
 | 0 Uhr     6        12        18        24    | Aktivität [            ]   |
 |                                              | Mindestdauer [   ]         |
@@ -113,7 +113,7 @@ Gemeinsamer Rahmen: weiße Kopfzeile mit Markenname in Serifenschrift und Naviga
 +---------------------------------------------------------------------------+
 ```
 
-**Ortssuche, Profil bearbeiten, Fehlerseiten:** eine schmale Spalte (max. 44rem), links ausgerichtet. **Suchprofile:** Liste ohne Karten; jedes Profil ist eine Zeile mit Name (Serif), Ort, Einstellungen als kurzer Satz und Aktionen, getrennt durch Linien.
+**Ortssuche, Profil bearbeiten, Fehlerseiten:** eine schmale Spalte (max. 46rem), links ausgerichtet. **Suchprofile:** Liste ohne Karten; jedes Profil ist ein Abschnitt mit Name (Serif), Ort, Einstellungen als ausgerichtetes Begriffsraster (2 Spalten mobil, 3 Spalten breit) und Aktionen, getrennt durch Linien.
 
 ## Das eine prägende Element: das Fensterband
 
@@ -136,11 +136,11 @@ Erster Entwurf, ehrlich betrachtet – was würde ich genauso für jede andere A
 | Pillen-Badges für Dauer und „über Mitternacht“ | Badge-Kit aus jeder UI-Bibliothek | Dauer als rechtsbündige Zahl, Mitternacht als Klartext mit Folgetag |
 | Auswahllisten für die Wetterwünsche | Lange Optionstexte werden abgeschnitten, Wahl unsichtbar | Sichtbare Optionsgruppen (Radio-Buttons) mit Grenzwert in zweiter Zeile |
 | Lade-Spinner (runder Kreis) | Generisch, bräuchte einen dritten Eckenradius | Buttontext „Suche läuft …“ und abgedunkelte Ergebnisse |
-| Profile als Karten-Raster | Einheitliches Karten-Kit | Linierte Liste, Einstellungen als lesbarer Satz |
+| Profile als Karten-Raster | Einheitliches Karten-Kit | Linierte Liste, Einstellungen als ausgerichtetes Begriffsraster ohne Kästen |
 | „Fehler 404“ als Versal-Label über der Überschrift | Eyebrow-Muster | Normale Schreibweise, kleine Zeile unter der Überschrift |
 | Pfeile „←“ vor Zurück-Links | Pfeil-Deko | Gestrichen, der Linktext sagt, wohin es geht |
 
-Entfernt vor Abschluss: die Kennzahl-Kacheln und der Einleitungstext (sie trugen nichts bei, was Band und Liste nicht schon zeigen).
+Entfernt vor Abschluss (nach der ersten Sichtprüfung): der Wert „Zusammen“ (Gesamtdauer aller Fenster) in der Zusammenfassung. Die Gesamtmenge zeigt das Band auf einen Blick, und „Längstes“ beantwortet „wie lange?“ direkter.
 
 ## Formen
 

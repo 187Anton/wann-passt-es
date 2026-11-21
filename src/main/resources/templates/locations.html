@@ -7,7 +7,7 @@
 <th:block th:replace="~{fragments/layout :: header('locations')}"></th:block>
 
 <main id="inhalt" class="container container--narrow" tabindex="-1">
-    <div class="page-intro">
+    <header class="page-head">
         <h1>Ort suchen</h1>
         <p class="lead" th:if="${editingProfile}">
             Wähle einen neuen Ort für das Suchprofil. Deine übrigen Angaben im Profil bleiben erhalten.
@@ -16,26 +16,29 @@
             Wähle einen Ort. Aktivität, Mindestdauer, Wetterwünsche und Zeitraum bleiben erhalten.
         </p>
         <p class="lead" th:if="${!editingProfile and !hasContext}">
-            Wähle den Ort, für den du passende Zeitfenster finden möchtest.
+            Für welchen Ort suchst du ein passendes Zeitfenster?
         </p>
-    </div>
+    </header>
 
-    <form class="card inline-search" role="search" th:action="@{/locations}" method="get">
+    <form class="search-form" role="search" th:action="@{/locations}" method="get">
         <label for="query">Ortsname</label>
         <div class="input-row">
             <input type="text" id="query" name="query" minlength="2" required autocomplete="off"
                    th:value="${query}" aria-describedby="query-hint" placeholder="z. B. Potsdam">
             <button type="submit" class="button button--primary">Suchen</button>
         </div>
-        <p id="query-hint" class="hint">Bitte mindestens zwei Zeichen eingeben. Es werden bis zu fünf Treffer angezeigt.</p>
+        <p id="query-hint" class="hint">Ab zwei Zeichen. Es werden bis zu fünf Treffer angezeigt.</p>
         <input type="hidden" th:each="field : ${hiddenFields}" th:name="${field.key}" th:value="${field.value}">
     </form>
 
     <div class="alert alert--error" th:if="${locationError != null}" role="alert">
-        <p th:text="${locationError}">Die Ortssuche ist gerade nicht verfügbar.</p>
+        <svg th:replace="~{fragments/layout :: icon-error}"></svg>
+        <div>
+            <p th:text="${locationError}">Die Ortssuche ist gerade nicht verfügbar.</p>
+        </div>
     </div>
 
-    <div class="empty-state card"
+    <div class="empty-state"
          th:if="${searchPerformed and locationError == null and #lists.isEmpty(choices)}" role="status">
         <h2>Keine passenden Orte gefunden</h2>
         <p>Prüfe die Schreibweise oder versuche es mit einem größeren Ort in der Nähe.</p>
@@ -55,7 +58,7 @@
     </section>
 
     <p class="back-link" th:if="${hasContext}">
-        <a th:href="@{${backHref}}" th:text="${editingProfile} ? '← Zurück zum Profil, ohne den Ort zu ändern' : '← Zurück zur Planung, ohne den Ort zu ändern'">Zurück</a>
+        <a th:href="@{${backHref}}" th:text="${editingProfile} ? 'Zurück zum Profil, ohne den Ort zu ändern' : 'Zurück zur Planung, ohne den Ort zu ändern'">Zurück</a>
     </p>
 </main>
 

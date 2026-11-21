@@ -15,15 +15,15 @@
                     : (code == 404 ? 'Die aufgerufene Seite gibt es nicht. Vielleicht hat sich ein Tippfehler in die Adresse eingeschlichen.'
                     : (code >= 500 ? 'Beim Verarbeiten deiner Anfrage ist ein unerwarteter Fehler aufgetreten. Bitte versuche es später noch einmal.'
                     : 'Die Anfrage konnte nicht verarbeitet werden. Bitte prüfe deine Angaben.'))}">
-    <div class="error-page card">
-        <p class="error-page__code" th:text="${'Fehler ' + code}">Fehler 404</p>
+    <div class="error-page">
         <h1 th:text="${title}">Seite nicht gefunden</h1>
-        <p th:text="${text}">Die aufgerufene Seite gibt es nicht.</p>
+        <p class="error-page__code nums" th:text="${'Fehler ' + code}">Fehler 404</p>
+        <p class="error-page__text" th:text="${text}">Die aufgerufene Seite gibt es nicht.</p>
         <p class="error-page__actions">
             <a class="button button--primary"
                th:href="@{${backHref != null ? backHref : '/'}}"
                th:text="${backLabel != null ? backLabel : 'Zur Planung'}">Zur Planung</a>
-            <a class="button button--ghost" th:href="@{/}" th:if="${backHref != null}">Zur Planung</a>
+            <a class="button button--secondary" th:href="@{/}" th:if="${backHref != null}">Zur Planung</a>
         </p>
     </div>
 </main>
