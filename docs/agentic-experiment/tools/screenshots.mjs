@@ -50,11 +50,15 @@ for (const [agent, port] of targets) {
     const context = await browser.newContext({ viewport: { width, height: 800 }, locale: 'de-DE', timezoneId: zone });
     const page = await context.newPage();
 
-    // Ensure a profile named "Testprofil" exists (a duplicate on reruns is fine).
-    await page.request.post(`${origin}/profiles`, {
-      form: { ...base, ...loose, profileName: 'Testprofil' },
-      maxRedirects: 0,
-    }).catch(() => {});
+    // Create the profile "Testprofil" only once; a duplicate would leave an error message in the session.
+    const existing = await page.request.get(`${origin}/profiles`).then((r) => r.text()).catch(() => '');
+    if (!existing.includes('Testprofil')) {
+      await page.request.post(`${origin}/profiles`, {
+        form: { ...base, ...loose, profileName: 'Testprofil' },
+        maxRedirects: 0,
+      }).catch(() => {});
+      await page.request.get(`${origin}/profiles`).catch(() => {});
+    }
 
     for (const entry of pages) {
       const file = `${agent}-${entry.name}-${width}.png`;

@@ -200,3 +200,97 @@ Zwei Erweiterungen bieten sich an, die direkt an die Schwächen aus Runde 1 ankn
 
 - **Design-Skill gegen den Einheitslook:** Allen drei Agenten denselben Skill mit Gestaltungsrichtlinien mitgeben und prüfen, ob die Frontends dadurch eigenständiger werden und sich stärker unterscheiden.
 - **Visuelle Selbstkontrolle über einen Browser-MCP-Server:** Besonders für Hermes interessant. Prüfen, ob abgeschnittene Auswahlfelder, die Position der Ergebnisse und der Kontrast (D4) dann selbst erkannt und behoben werden, und wie sich Zeit und Kosten dabei verändern.
+
+---
+
+# Runde 2: Design-Skill und visuelle Selbstkontrolle
+
+Durchgeführt am 21.11.2026, Aufbau in [`RUNDE-2.md`](RUNDE-2.md). Jeder Agent hat auf seinem eigenen Ergebnis aus Runde 1 nur das Frontend neu gestaltet. Alle drei hatten denselben Design-Skill (`.agents/skills/wpe-design/SKILL.md`), dieselbe Aufgabe (`TASK-R2.md`), denselben Prompt und dasselbe Playwright-MCP. Die globale Codex-`AGENTS.md` war diesmal ausgeblendet. Screenshots vorher und nachher, mit identischen Eingaben automatisch erzeugt: [`screenshots/r1/`](screenshots/r1/) und [`screenshots/r2/`](screenshots/r2/), jeweils mit `index.html`. Gegenüberstellungen liegen in [`screenshots/vergleich-r2/`](screenshots/vergleich-r2/).
+
+## R2.1 Messwerte
+
+| Messgröße | Codex | Claude Code | Hermes + DeepSeek |
+| --- | --- | --- | --- |
+| Modell | gpt-6.2-sol, reasoning high | claude-opus-5-5 | deepseek-flash |
+| Arbeitszeit | 24:00 min (R1: 22:14) | 19:02 min (R1: 25:06) | 15:20 min (R1: 15:56) |
+| Input-Tokens | 124.737 | 138 | 141.166 |
+| Cache-Read / Cache-Write | 4.391.168 / – | 11,9 Mio. / 226,1k | (im Prompt enthalten, 19.036.142 Prompt-Tokens) |
+| Output-Tokens (davon Reasoning) | 27.523 (6.943) | 101,3k | 113.474 (53.621) |
+| Tokens gesamt | 4.543.428 | ca. 12,2 Mio. | 19.149.616 |
+| API-Aufrufe | – | 67 | 124 |
+| Kosten | 0,96 $ (Schätzung ccusage; R1: 1,39 $) | 6,22 $ (Schätzung Claude Code; R1: 7,64 $) | 0,16 $ (echte Abrechnung; R1: 0,16 $) |
+| Eingriffe / Freigaben | 0 / 0 | 0 / 0 | 0 / 0 |
+| Commits (ohne Aufgaben-Commit) | 3 (R1: 1) | 4 | 6 |
+| Geänderte Zeilen | +657 / −247 | +1.367 / −686 | +1.555 / −847 |
+| Tests laut Report | 64 (61 bestanden, 3 übersprungen) | 122 mit aktiviertem Browser-Test (2 übersprungen) | 80 (77 bestanden, 3 übersprungen) |
+
+Hinweis: Bei Claude zeigte `/usage`, dass der Skill `wpe-design` 41 % des Verbrauchs ausmachte. Das 5-Stunden-Kontingent des Abos stand nach dem Lauf bei 96 %. Die Testzahlen der Runde 2 sind Selbstauskünfte und nicht unabhängig gegengeprüft.
+
+## R2.2 Das Playwright-MCP ist bei allen drei nicht gestartet
+
+Der MCP-Server erwartet standardmäßig Google Chrome. Auf dem Rechner war nur das Chromium von Playwright installiert. Das ist ein Fehler im Versuchsaufbau: Beim Eintragen hätte `--browser chromium` mitgegeben werden müssen.
+
+Bemerkenswert ist, dass **alle drei Agenten das Problem selbstständig erkannt und umgangen haben**:
+
+- **Codex** hat ein eigenes Playwright-MCP mit dem installierten Chromium gestartet und darüber Screenshots und DOM-Messungen erzeugt.
+- **Claude** hat die Playwright-Bibliothek in einem temporären Ordner installiert (nicht im Projekt), damit Screenshots aufgenommen und sie sich angesehen.
+- **Hermes** hat die Playwright-Node-API genutzt. Weil `deepseek-flash` vermutlich keine Bilder verarbeiten kann, hat es die Screenshots zusätzlich in eine **Helligkeitskarte als Text** umgerechnet, um Lage und Größe von Elementen „sehen“ zu können. Es räumt offen ein, dass feine ästhetische Fragen damit nur eingeschränkt beurteilbar sind.
+
+Gemessen wurde damit weniger die MCP-Nutzung als die Fähigkeit zur **visuellen Selbstkontrolle**. Die hatten am Ende alle drei.
+
+## R2.3 Kriterien R1–R12
+
+| ID | Kriterium | Codex | Claude | Hermes |
+| --- | --- | --- | --- | --- |
+| R1 | `DESIGN.md` vollständig, mit Selbstprüfung | ✅ | ✅ | ✅ |
+| R2 | Schriften nach Vorgabe | ✅ | ✅ | ✅ |
+| R3 | Hintergrund reines Weiß | ✅ | ✅ | ✅ |
+| R4 | eine Akzentfarbe, außerhalb 90–200°, ≥ 40° Abstand | ✅ Kobaltblau `#243ca6` (229°, 71° Abstand) | ✅ gebranntes Orange `#b54708` (22°, 167° Abstand) | ✅ gebranntes Orange `#c2410c` (17°, 157° Abstand) |
+| R5 | keine verbotenen Muster | ✅ | ✅ | ✅ |
+| R6 | erstes Ergebnis bei 1280 × 800 ohne Scrollen sichtbar | ✅ | ✅ | ✅ (R1: ❌) |
+| R7 | kein horizontales Scrollen, kein abgeschnittener Text | ✅ | ✅ | ✅ (R1: abgeschnittene Felder) |
+| R8 | Kontraste inkl. Bedienelemente ≥ 3:1 | ✅ | ✅ | ✅ (R1: 2,19:1, jetzt ca. 3,9:1) |
+| R9 | visuelle Selbstkontrolle dokumentiert | ✅ | ✅ | ✅ |
+| R10 | Runde-1-Kriterien weiter erfüllt, Tests grün | ✅ laut Report | ✅ laut Report | ✅ laut Report |
+| R11 | `AGENT_REPORT_R2.md` vollständig | ✅ | ✅ | ✅ |
+| R12 | nachvollziehbare Commits, nicht gepusht | ✅ | ✅ | ✅ |
+
+Geprüft: R2–R5 im CSS der Branches (Eckenradien, Verläufe, Versalien, Schriftfamilien, Mittelpunkte und Pfeile in den Templates), R4 und die Hauptkontraste nachgerechnet, R6 und R7 über die automatischen Screenshots bei 1280 × 800 und die Überlauf-Messung des Skripts (0 von 42 Seiten mit horizontalem Scrollen). R10 beruht auf den Reports.
+
+## R2.4 Ergebnis der Gestaltung
+
+**Der generische Look ist bei allen drei verschwunden.** Statt getöntem Hintergrund mit weißen Karten und Grün haben jetzt alle reines Weiß, Serifen-Überschriften, Linien statt Karten und eine eigene Akzentfarbe. Die Ergebnisse stehen überall ganz oben bzw. neben dem Formular.
+
+- **Codex:** Leitidee „Stundenplan fürs Draußensein“. Ein kräftig kobaltblaues Ergebnisfeld zeigt Beginn und Ende sehr groß. Die Dauer wird weiterhin in Minuten angegeben („1740 Min.“). Mobil stehen die Ergebnisse vor dem Formular. Das Design ist das schlichteste, aber jetzt klar eigenständig. Nebenbei: Codex hat diesmal in drei nachvollziehbaren Commits gearbeitet statt in einem.
+- **Claude:** Leitidee „dunkle Wand aus Stunden, in der Fenster aufgehen“. Ein dunkles Zeitband mit orange leuchtenden Fenstern, Kennzahlen und eine Formularspalte rechts mit Radiobuttons samt Grenzwerten („bis 30 km/h“). Das ist das ausgearbeitetste Ergebnis, mobil allerdings eine lange Seite. Selbst gefunden und behoben hat Claude unter anderem eine abgeschnittene Auswahlliste, ein umbrechendes Mitternachtsfenster und fehlende Fokusringe an Datumsfeldern.
+- **Hermes:** Leitidee „Nachtfenster“. Ein dunkles Ergebnisfeld mit 24-Stunden-Band, in dem das Fenster als oranger Balken sitzt. **Alle drei Mängel aus Runde 1 sind behoben**: Ergebnisse sichtbar ohne Scrollen, keine abgeschnittenen Auswahlfelder, ausreichender Rahmenkontrast. Schwäche: Das Band zeigt nur einen Tag, ein Fenster über Mitternacht ist dort nur bis 24 Uhr zu sehen.
+
+**Unerwartet: Claude und Hermes sind konzeptionell zusammengelaufen.** Beide haben unabhängig voneinander ein dunkles Zeitband mit warm-orangen „Fenstern“ und fast dieselbe Akzentfarbe gewählt (`#b54708` und `#c2410c`). Wahrscheinlich hat die Formulierung im Skill das gefördert: „Zeit lässt sich räumlich darstellen“, „das richtige Zeitfenster finden“. Claude hatte außerdem schon in Runde 1 eine Zeitleiste. Codex hat als einziger eine andere Richtung gewählt. **Ein Skill verhindert also den Standard-Look, erzeugt aber eine neue, skill-bedingte Ähnlichkeit.** Wer verschiedene Ergebnisse will, sollte im Skill keine Bilder oder Metaphern vorgeben.
+
+Bewertung 1–5 (Runde 1 in Klammern):
+
+| Kriterium | Codex | Claude | Hermes |
+| --- | --- | --- | --- |
+| Gesamteindruck | 4 (3) | 5 (5) | 4 (4) |
+| Eigenständigkeit gegenüber Standard-KI-Look | 4 (2) | 5 (3) | 4 (2) |
+| Darstellung der Ergebnisse | 4 (3) | 5 (5) | 4 (3) |
+| Mobilansicht | 4 (4) | 4 (4) | 4 (4) |
+| Konsistenz über alle Seiten | 4 (4) | 5 (5) | 4 (4) |
+
+Diese Noten sind wie in Runde 1 subjektiv und von einem Modell aus derselben Familie wie einer der Kandidaten vergeben (siehe Abschnitt 8).
+
+**Artefakte in den Screenshots:** Die roten Meldungen „Profilname gibt es bereits“ auf den Planungsseiten stammen vom Screenshot-Skript, das bei jedem Lauf erneut ein „Testprofil“ angelegt hat. Das ist kein Fehler der Agenten, zeigt aber nebenbei, dass alle drei Duplikate sauber abfangen. Das Skript ist inzwischen korrigiert. In der 360-px-Aufnahme von Codex zeigt das Formular außerdem andere Wetterwünsche als die tatsächlich abgefragten Ergebnisse. Ob das ein Darstellungsfehler oder ebenfalls ein Skript-Artefakt ist, ist ungeklärt und sollte manuell geprüft werden.
+
+## R2.5 Fazit Runde 2
+
+1. **Ein Design-Skill wirkt stark.** Alle festen Vorgaben wurden von allen drei eingehalten, und der Einheitslook war weg.
+2. **Visuelle Selbstkontrolle verbessert Ergebnisse messbar.** Am deutlichsten bei Hermes: Alle in Runde 1 gefundenen Gestaltungsfehler sind behoben.
+3. **Robuste Agenten umgehen Werkzeugprobleme selbst.** Das fehlerhaft eingerichtete MCP hat keinen Lauf verhindert.
+4. **Skills können Ergebnisse angleichen.** Bildhafte Formulierungen im Skill werden offenbar wörtlich genommen.
+5. **Kosten blieben stabil:** Hermes erneut 0,16 $, Codex rund 1 $, Claude rund 6 $. Hermes war erneut der schnellste Lauf.
+
+## R2.6 Lessons Learned für den Aufbau
+
+- Playwright-MCP immer mit `--browser chromium` eintragen oder Google Chrome installieren, und vorher mit einem echten Werkzeugaufruf testen, nicht nur mit der Werkzeugliste.
+- Das Screenshot-Skript darf keine Zustände (wie doppelte Profile) erzeugen, die auf den Bildern sichtbar werden.
+- Laufende Anwendungen der Agenten nach dem Lauf beenden, sonst blockiert die H2-Datei den nächsten Start.
