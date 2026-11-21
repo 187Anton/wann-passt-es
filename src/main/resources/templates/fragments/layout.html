@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(pageTitle)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0f5f57">
+    <title th:text="${pageTitle} + ' – Wann passt es?'">Wann passt es?</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <script th:src="@{/js/app.js}" defer></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Zum Inhalt springen</a>
+
+<header th:fragment="header(active)" class="site-header">
+    <div class="site-header__inner">
+        <a class="brand" th:href="@{/}">
+            <svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+                <circle cx="21" cy="11" r="6" fill="#e8b84b"/>
+                <path d="M8.5 25h15a5 5 0 0 0 .4-10 7.5 7.5 0 0 0-14.2-1.6A5.8 5.8 0 0 0 8.5 25Z"
+                      fill="#ffffff" stroke="#0f5f57" stroke-width="2" stroke-linejoin="round"/>
+            </svg>
+            <span class="brand__name">Wann passt es?</span>
+        </a>
+        <nav class="site-nav" aria-label="Hauptnavigation">
+            <ul>
+                <li>
+                    <a th:href="@{/}"
+                       th:classappend="${active == 'plan'} ? 'is-active'"
+                       th:attr="aria-current=${active == 'plan'} ? 'page' : null">Planung</a>
+                </li>
+                <li>
+                    <a th:href="@{/locations}"
+                       th:classappend="${active == 'locations'} ? 'is-active'"
+                       th:attr="aria-current=${active == 'locations'} ? 'page' : null">Ort suchen</a>
+                </li>
+                <li>
+                    <a th:href="@{/profiles}"
+                       th:classappend="${active == 'profiles'} ? 'is-active'"
+                       th:attr="aria-current=${active == 'profiles'} ? 'page' : null">Suchprofile</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<footer th:fragment="footer" class="site-footer">
+    <div class="site-footer__inner">
+        <p>
+            Wetterdaten von
+            <a href="https://open-meteo.com/">Open-Meteo</a>,
+            Ortsdaten von <a href="https://www.geonames.org/">GeoNames</a>
+            über <a href="https://open-meteo.com/">Open-Meteo</a>.
+        </p>
+        <p>
+            Die Bewertung verwendet vorläufige Beispielgrenzen und ist keine
+            Wettergarantie für deine Outdoor-Aktivität.
+        </p>
+    </div>
+</footer>
+
+<th:block th:fragment="flash">
+    <p class="alert alert--success" role="status" th:if="${profileSuccess}">
+        <span class="alert__icon" aria-hidden="true">✓</span>
+        <span th:text="${profileSuccess}">Das Suchprofil wurde gespeichert.</span>
+    </p>
+    <p class="alert alert--error" role="alert" th:if="${profileError}">
+        <span class="alert__icon" aria-hidden="true">!</span>
+        <span th:text="${profileError}">Bitte prüfe deine Eingaben.</span>
+    </p>
+</th:block>
+
+</body>
+</html>

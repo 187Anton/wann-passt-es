@@ -31,6 +31,14 @@ public class SearchProfile {
     @Column(nullable = false)
     private int locationId;
 
+    /**
+     * Display name of the chosen location. Nullable on purpose: rows created
+     * before this column existed have no name, and older clients may not send
+     * one at all.
+     */
+    @Column(length = 200)
+    private String locationName;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -66,8 +74,35 @@ public class SearchProfile {
             TemperaturePreference temperaturePreference,
             WindPreference windPreference,
             PrecipitationPreference precipitationPreference) {
+        this(name, locationId, null, activity, minDurationMinutes,
+                temperaturePreference, windPreference, precipitationPreference);
+    }
+
+    public SearchProfile(
+            String name,
+            int locationId,
+            String locationName,
+            Activity activity,
+            int minDurationMinutes,
+            TemperaturePreference temperaturePreference,
+            WindPreference windPreference,
+            PrecipitationPreference precipitationPreference) {
+        update(name, locationId, locationName, activity, minDurationMinutes,
+                temperaturePreference, windPreference, precipitationPreference);
+    }
+
+    public void update(
+            String name,
+            int locationId,
+            String locationName,
+            Activity activity,
+            int minDurationMinutes,
+            TemperaturePreference temperaturePreference,
+            WindPreference windPreference,
+            PrecipitationPreference precipitationPreference) {
         this.name = name;
         this.locationId = locationId;
+        this.locationName = locationName;
         this.activity = activity;
         this.minDurationMinutes = minDurationMinutes;
         this.temperaturePreference = temperaturePreference;
@@ -85,6 +120,10 @@ public class SearchProfile {
 
     public int getLocationId() {
         return locationId;
+    }
+
+    public String getLocationName() {
+        return locationName;
     }
 
     public Activity getActivity() {

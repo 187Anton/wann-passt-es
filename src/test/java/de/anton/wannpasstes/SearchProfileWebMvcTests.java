@@ -80,11 +80,82 @@ class SearchProfileWebMvcTests {
     }
 
     @Test
-    void deletesProfileViaPost() throws Exception {
+    void deletesExistingProfileViaPost() throws Exception {
+        SearchProfile profile = new SearchProfile("Demo walk", 123,
+                Activity.WALKING, 60, TemperaturePreference.MILD,
+                WindPreference.WEAK, PrecipitationPreference.DRY);
+        when(repository.findById(42L)).thenReturn(java.util.Optional.of(profile));
+
         mvc.perform(post("/profiles/delete").param("id", "42"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/profiles"));
-        verify(repository).deleteById(42L);
+        verify(repository).delete(profile);
+    }
+
+    @Test
+    void explainsMissingProfileInsteadOfFailing() throws Exception {
+        when(repository.findById(42L)).thenReturn(java.util.Optional.empty());
+
+        mvc.perform(post("/profiles/delete").param("id", "42"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/profiles"))
+                .andExpect(flash().attribute("profileError",
+                        containsString("nicht gefunden")));
+    }
+
+    @Test
+    void showsLocationNameAndEditLinkOnOverview() throws Exception {
+        SearchProfile profile = new SearchProfile("Abendrunde", 123,
+                "Freiburg", Activity.CYCLING, 90, TemperaturePreference.MILD,
+                WindPreference.WEAK, PrecipitationPreference.DRY);
+        when(repository.findAll(any(Sort.class))).thenReturn(List.of(profile));
+
+        mvc.perform(get("/profiles"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Freiburg")))
+                .andExpect(content().string(containsString("/edit")));
+    }
+
+    @Test
+    void showsPlaceholderWhenOlderProfileHasNoLocationName() throws Exception {
+        SearchProfile profile = new SearchProfile("Altes Profil", 123,
+                Activity.WALKING, 60, TemperaturePreference.MILD,
+                WindPreference.WEAK, PrecipitationPreference.DRY);
+        when(repository.findAll(any(Sort.class))).thenReturn(List.of(profile));
+
+        mvc.perform(get("/profiles"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Ort-ID 123")))
+                .andExpect(content().string(containsString("Altes Profil")));
+    }
+
+    @Test
+    void rendersEditFormForExistingProfile() throws Exception {
+        SearchProfile profile = new SearchProfile("Abendrunde", 123,
+                "Freiburg", Activity.CYCLING, 90, TemperaturePreference.MILD,
+                WindPreference.WEAK, PrecipitationPreference.DRY);
+        when(repository.findById(7L)).thenReturn(java.util.Optional.of(profile));
+
+        mvc.perform(get("/profiles/7/edit"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("profile-edit"))
+                .andExpect(content().string(containsString("Profil bearbeiten")))
+                .andExpect(content().string(containsString("Abendrunde")))
+                .andExpect(content().string(containsString("Freiburg")));
+    }
+
+    @Test
+    void reportsDuplicateNameOnSave() throws Exception {
+        when(repository.existsByNameIgnoreCase("demo walk")).thenReturn(true);
+
+        mvc.perform(validForm().param("profileName", "  demo walk "))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/?locationId=123&activity=WALKING"
+                        + "&minDurationMinutes=60&temperaturePreference=MILD"
+                        + "&windPreference=WEAK&precipitationPreference=DRY"))
+                .andExpect(flash().attribute("profileError",
+                        containsString("gibt es bereits")));
+        verify(repository, never()).save(any());
     }
 
     //Formularanfrage
