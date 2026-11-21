@@ -14,8 +14,8 @@
             </select>
         </div>
         <div class="field">
-            <label for="minDurationMinutes">Mindestdauer in Minuten</label>
-            <input id="minDurationMinutes" name="minDurationMinutes" type="number"
+            <label for="minDurationMinutes">Mindestdauer (Min.)</label>
+            <input id="minDurationMinutes" class="numeric" name="minDurationMinutes" type="number"
                    min="1" step="1" th:value="${duration}" required
                    th:attr="aria-invalid=${invalidFields != null and invalidFields.contains('minDurationMinutes') ? 'true' : null}">
         </div>

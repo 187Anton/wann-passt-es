@@ -4,10 +4,9 @@
 <th:block th:fragment="content">
     <div class="page-intro compact">
         <h1>Ort suchen</h1>
-        <p>Wähle den Ort, für den du das Wetter prüfen möchtest.</p>
     </div>
     <div class="compact">
-        <form class="panel search-form" th:action="@{/locations}" method="get">
+        <form class="search-form" th:action="@{/locations}" method="get">
             <th:block th:replace="~{fields :: hiddenSelection(${selectionParameters}, ${selection.locationId()})}"></th:block>
             <div class="field">
                 <label for="query">Ortsname</label>
@@ -22,15 +21,12 @@
         <p th:if="${searchPerformed and locationError == null and #lists.isEmpty(locations)}" class="status empty">
             Keine passenden Orte gefunden. Versuche es mit einer anderen Schreibweise.
         </p>
-        <ul th:unless="${#lists.isEmpty(locations)}" class="card-list location-list" aria-label="Gefundene Orte">
-            <li class="panel location-result" th:each="location : ${locations}">
+        <ul th:unless="${#lists.isEmpty(locations)}" class="ruled-list" role="list" aria-label="Gefundene Orte">
+            <li class="location-result" th:each="location : ${locations}">
                 <div>
                     <h2 th:text="${location.name()}"></h2>
-                    <p class="muted">
-                        <span th:if="${location.region()}" th:text="${location.region()}"></span>
-                        <span th:if="${location.region() != null and location.country() != null}"> · </span>
-                        <span th:text="${location.country()}"></span>
-                    </p>
+                    <p class="muted" th:with="region=${location.region()}, country=${location.country()}"
+                       th:text="${region != null and country != null ? region + ', ' + country : (region ?: country)}"></p>
                 </div>
                 <form th:action="@{/}" method="get">
                     <th:block th:replace="~{fields :: hiddenSelection(${selectionParameters}, ${location.id()})}"></th:block>

@@ -145,15 +145,16 @@ class PlanningWebTests {
                         .param("precipitationPreference", "DRY"))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
-        var resultForm = Pattern.compile("(?s)<li class=\"panel location-result\">.*?<form[^>]*>(.*?)</form>")
-                .matcher(html);
-        assertTrue(resultForm.find());
+        String resultForm = Pattern.compile("(?s)<form\\b[^>]*>(.*?)</form>").matcher(html).results()
+                .map(match -> match.group(1))
+                .filter(form -> form.contains("Ort übernehmen: "))
+                .findFirst().orElseThrow();
         var expected = Map.of("locationId", "2950159", "startDate", first.toString(), "endDate", last.toString(),
                 "activity", "CYCLING", "minDurationMinutes", "120", "temperaturePreference", "WARM",
                 "windPreference", "MODERATE", "precipitationPreference", "DRY");
         expected.forEach((name, value) -> {
             String input = "<input(?=[^>]*name=\"" + name + "\")(?=[^>]*value=\"" + value + "\")[^>]*>";
-            assertTrue(Pattern.compile(input).matcher(resultForm.group(1)).find(), name);
+            assertTrue(Pattern.compile(input).matcher(resultForm).find(), name);
         });
     }
 

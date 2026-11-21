@@ -3,8 +3,7 @@
 <body>
 <th:block th:fragment="content">
     <div class="page-intro">
-        <h1>Gespeicherte Suchprofile</h1>
-        <p>Verwende deine bevorzugten Orte und Wetterwünsche erneut.</p>
+        <h1>Suchprofile</h1>
     </div>
     <p th:if="${profileSuccess}" class="status success" role="status" th:text="${profileSuccess}"></p>
     <p th:if="${profileError}" class="status error" role="alert" th:text="${profileError}"></p>
@@ -13,12 +12,12 @@
         <p>Gib deiner Auswahl in der Planung einen Profilnamen, um sie später wiederzuverwenden.</p>
         <a class="button secondary" th:href="@{/}">Zur Planung</a>
     </div>
-    <ul th:unless="${#lists.isEmpty(profiles)}" class="card-list profile-list">
-        <li class="panel profile-card" th:each="profile : ${profiles}">
+    <ul th:unless="${#lists.isEmpty(profiles)}" class="ruled-list" role="list">
+        <li class="profile-entry" th:each="profile : ${profiles}">
             <div>
-                <p class="profile-place" th:text="${profile.locationName ?: 'Ort ' + profile.locationId}"></p>
                 <h2 th:text="${profile.name}"></h2>
-                <p class="muted" th:text="${profile.activity.label + ' · ab ' + profile.minDurationMinutes + ' Min.'}"></p>
+                <p class="profile-place" th:text="${profile.locationName ?: 'Ort ' + profile.locationId}"></p>
+                <p class="muted numeric" th:text="${profile.activity.label + ' ab ' + profile.minDurationMinutes + ' Min.'}"></p>
             </div>
             <dl class="profile-preferences">
                 <div><dt>Temperatur</dt><dd th:text="${profile.temperaturePreference.label}"></dd></div>

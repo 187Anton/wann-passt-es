@@ -2,25 +2,65 @@
 <html lang="de" th:replace="~{layout :: page('Planung', 'planning', ~{::content})}">
 <body>
 <th:block th:fragment="content">
-    <div class="page-intro planning-intro">
-        <h1>Wann passt es draußen?</h1>
-        <p>Finde passende Wetter-Zeitfenster für deine nächste Outdoor-Aktivität.</p>
+    <div class="page-intro">
+        <h1>Wetterfenster finden</h1>
+        <a class="planning-jump" href="#planning-title">Suche anpassen</a>
     </div>
 
     <div class="planner">
-        <form id="planning-form" class="panel planning-form" th:action="@{/}" method="get" aria-labelledby="planning-title">
-            <div class="panel-heading">
-                <h2 id="planning-title">Deine Planung</h2>
-                <div class="place">
-                    <div><span class="muted">Ort</span><strong th:text="${locationName}"></strong></div>
-                    <button class="button secondary" type="submit" th:formaction="@{/locations}" formnovalidate>Ort ändern</button>
-                </div>
+        <section class="results" aria-labelledby="results-title">
+            <header class="results-heading">
+                <h2 id="results-title">Passende Zeitfenster</h2>
+                <p class="results-context">
+                    <strong th:text="${locationName}"></strong>
+                    <span th:text="${selection.activity().label}"></span>
+                </p>
+            </header>
+            <p th:if="${dateError}" class="status error" id="date-error" role="alert" th:text="${dateError}"></p>
+            <p th:if="${weatherError}" class="status error" role="alert" th:text="${weatherError}"></p>
+            <div th:if="${weatherError == null and dateError == null and #lists.isEmpty(suitableWindows)}" class="status empty">
+                <h3>Keine passenden Zeitfenster</h3>
+                <p>Versuche es mit einem anderen Zeitraum, einer kürzeren Mindestdauer oder weniger Wettervorgaben.</p>
             </div>
+            <th:block th:unless="${#lists.isEmpty(suitableWindows)}">
+                <p class="window-note">Uhrzeiten vor Ort</p>
+                <ol class="window-list" role="list">
+                    <li class="window" th:each="window : ${suitableWindows}">
+                        <div class="window-start">
+                            <span class="visually-hidden">Beginn</span>
+                            <time th:datetime="${window.start()}">
+                                <span class="window-date" th:text="${#temporals.format(window.start(), 'EEE, dd.MM.yyyy')}"></span>
+                                <span class="window-time" th:text="${#temporals.format(window.start(), 'HH:mm')}"></span>
+                            </time>
+                        </div>
+                        <div class="window-end">
+                            <span class="visually-hidden">Ende</span>
+                            <time th:datetime="${window.end()}">
+                                <span class="window-date" th:text="${#temporals.format(window.end(), 'EEE, dd.MM.yyyy')}"></span>
+                                <span class="window-time" th:text="${#temporals.format(window.end(), 'HH:mm')}"></span>
+                            </time>
+                        </div>
+                        <div class="window-span">
+                            <span class="visually-hidden">Dauer</span>
+                            <span class="duration" th:text="${window.durationMinutes() + ' Min.'}"></span>
+                        </div>
+                    </li>
+                </ol>
+            </th:block>
+        </section>
 
+        <form id="planning-form" class="planning-form" th:action="@{/}" method="get" aria-labelledby="planning-title">
+            <h2 id="planning-title" tabindex="-1">Einstellungen</h2>
+            <div class="place">
+                <div>
+                    <span class="muted">Ort</span>
+                    <strong th:text="${locationName}"></strong>
+                </div>
+                <button class="button secondary" type="submit" th:formaction="@{/locations}" formnovalidate>Ort ändern</button>
+            </div>
             <input type="hidden" name="locationId" th:value="${selection.locationId()}">
 
-            <p th:if="${dateError}" class="status error" id="date-error" role="alert" th:text="${dateError}"></p>
-            <div class="field-grid">
+            <div class="field-grid date-fields numeric">
                 <div class="field">
                     <label for="startDate">Startdatum</label>
                     <input type="date" id="startDate" name="startDate"
@@ -40,50 +80,23 @@
             <th:block th:replace="~{fields :: preferences(${selection.activity()}, ${selection.minDurationMinutes()},
                       ${selection.temperaturePreference()}, ${selection.windPreference()}, ${selection.precipitationPreference()})}"></th:block>
 
-            <button class="button primary full-width" type="submit" data-loading="Zeitfenster werden gesucht …">Zeitfenster suchen</button>
+            <button class="button primary" type="submit" data-loading="Zeitfenster werden gesucht …">Zeitfenster suchen</button>
             <p class="status loading" data-form-status role="status"></p>
 
             <fieldset class="save-profile">
                 <legend>Suchprofil speichern</legend>
-                <p th:if="${profileError}" class="status error" role="alert" th:text="${profileError}"></p>
+                <p th:if="${profileError}" class="status error" id="profile-name-error" role="alert" th:text="${profileError}"></p>
                 <div class="field">
                     <label for="profileName">Profilname</label>
-                    <input type="text" id="profileName" name="profileName" th:value="${profileName}"
-                           placeholder="Z. B. Meine Fahrradrunde">
+                    <textarea id="profileName" name="profileName" rows="2" wrap="soft" th:text="${profileName}"
+                              th:attr="aria-invalid=${profileError != null ? 'true' : null},
+                                       aria-describedby=${profileError != null ? 'profile-name-error' : null}"></textarea>
                 </div>
                 <button class="button secondary" type="submit" th:formaction="@{/profiles}" formmethod="post">
                     Suchprofil speichern
                 </button>
             </fieldset>
         </form>
-
-        <section class="results" aria-labelledby="results-title">
-            <div class="section-heading">
-                <h2 id="results-title">Passende Zeitfenster</h2>
-                <p class="muted" th:text="${selection.activity().label + ' · Uhrzeiten vor Ort'}"></p>
-            </div>
-            <p th:if="${weatherError}" class="status error" role="alert" th:text="${weatherError}"></p>
-            <div th:if="${weatherError == null and dateError == null and #lists.isEmpty(suitableWindows)}" class="status empty">
-                <h3>Keine passenden Zeitfenster</h3>
-                <p>In diesem Zeitraum passt kein verbleibendes Zeitfenster zu deiner Auswahl.
-                    Mit einer kürzeren Mindestdauer oder anderen Wetterwünschen findest du vielleicht ein passendes Fenster.</p>
-            </div>
-            <ul th:unless="${#lists.isEmpty(suitableWindows)}" class="card-list">
-                <li class="window-card" th:each="window : ${suitableWindows}">
-                    <div>
-                        <p class="window-date" th:text="${#temporals.format(window.start(), 'EEEE, dd.MM.yyyy')}"></p>
-                        <p class="window-time">
-                            <time th:datetime="${window.start()}" th:text="${#temporals.format(window.start(), 'HH:mm')}"></time>
-                            <span> bis </span>
-                            <time th:datetime="${window.end()}"
-                                  th:text="${#temporals.format(window.end(),
-                                  window.start().toLocalDate() == window.end().toLocalDate() ? 'HH:mm' : 'dd.MM.yyyy, HH:mm')}"></time>
-                        </p>
-                    </div>
-                    <span class="duration" th:text="${window.durationMinutes() + ' Min.'}"></span>
-                </li>
-            </ul>
-        </section>
     </div>
 </th:block>
 </body>

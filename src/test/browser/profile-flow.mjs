@@ -19,21 +19,35 @@ async function assertNoOverflow(page) {
 }
 
 async function runScenario(javaScriptEnabled, width) {
-  const page = await browser.newPage({ locale: 'de-DE', javaScriptEnabled, viewport: { width, height: 900 } });
+  const page = await browser.newPage({ locale: 'de-DE', javaScriptEnabled, viewport: { width, height: 800 } });
   const name = javaScriptEnabled ? 'Browser demo profile' : 'No JavaScript demo profile';
   const editedName = `${name} updated`;
-  const profileCard = heading => page.getByRole('listitem').filter({
+  const profileEntry = heading => page.getByRole('listitem').filter({
     has: page.getByRole('heading', { name: heading, exact: true }),
   });
 
   try {
     page.setDefaultTimeout(8000);
-    await page.goto(`${baseUrl}/?startDate=${date}&endDate=${followingDate}`);
+    const planningUrl = `${baseUrl}/?startDate=${date}&endDate=${followingDate}`;
+    await page.goto(planningUrl);
     await assertNoOverflow(page);
     await page.keyboard.press('Tab');
     assert.equal(await page.locator(':focus-visible').textContent(), 'Zum Inhalt');
+
+    const results = page.getByRole('region', { name: 'Passende Zeitfenster' });
+    const window = results.getByRole('listitem').first();
+    assert.match(await window.locator('time').nth(0).getAttribute('datetime'), new RegExp(`^${date}T22:00`));
+    assert.match(await window.locator('time').nth(1).getAttribute('datetime'), new RegExp(`^${followingDate}T01:00`));
+    assert.match(await window.textContent(), /180 Min\./);
+    if (width === 1280) {
+      const bounds = await window.boundingBox();
+      assert.ok(bounds && bounds.y >= 0 && bounds.y + bounds.height <= 800);
+    } else {
+      await page.getByRole('link', { name: 'Suche anpassen' }).click();
+      assert.equal(await page.locator(':focus').textContent(), 'Einstellungen');
+    }
     await page.getByLabel('Aktivität').selectOption('CYCLING');
-    await page.getByLabel('Mindestdauer in Minuten').fill('95');
+    await page.getByLabel('Mindestdauer (Min.)').fill('95');
     await page.getByLabel('Temperatur').selectOption('WARM');
     await page.getByLabel('Wind', { exact: true }).selectOption('MODERATE');
     await page.getByLabel('Niederschlag').selectOption('DRY');
@@ -44,7 +58,7 @@ async function runScenario(javaScriptEnabled, width) {
     await page.getByRole('button', { name: 'Ort übernehmen: Testhafen' }).click();
 
     for (const [label, value] of [
-      ['Aktivität', 'CYCLING'], ['Mindestdauer in Minuten', '95'],
+      ['Aktivität', 'CYCLING'], ['Mindestdauer (Min.)', '95'],
       ['Temperatur', 'WARM'], ['Wind', 'MODERATE'], ['Niederschlag', 'DRY'],
       ['Startdatum', date], ['Enddatum', followingDate],
     ]) {
@@ -53,39 +67,39 @@ async function runScenario(javaScriptEnabled, width) {
     await page.getByLabel('Profilname').fill(name);
     await page.getByRole('button', { name: 'Suchprofil speichern' }).click();
     await page.waitForURL(url => url.pathname.split(';')[0] === '/profiles');
-    await profileCard(name).waitFor();
+    await profileEntry(name).waitFor();
     await assertNoOverflow(page);
 
-    await profileCard(name).getByRole('link', { name: 'Bearbeiten' }).click();
+    await profileEntry(name).getByRole('link', { name: 'Bearbeiten' }).click();
     await assertNoOverflow(page);
     await page.getByLabel('Profilname').fill(editedName);
-    await page.getByLabel('Mindestdauer in Minuten').fill('120');
+    await page.getByLabel('Mindestdauer (Min.)').fill('120');
     await page.getByLabel('Anderen Ort suchen').fill('Testberg');
     await page.getByRole('button', { name: 'Ort suchen', exact: true }).click();
     await page.getByRole('radio', { name: /Testberg/ }).check();
     await page.getByRole('button', { name: 'Änderungen speichern' }).click();
-    await profileCard(editedName).waitFor();
-    assert.match(await profileCard(editedName).textContent(), /Testberg/);
+    await profileEntry(editedName).waitFor();
+    assert.match(await profileEntry(editedName).textContent(), /Testberg/);
     assert.match(await page.getByRole('status').textContent(), /Änderungen wurden gespeichert/);
 
-    await profileCard(editedName).getByRole('link', { name: 'Profil verwenden' }).click();
+    await profileEntry(editedName).getByRole('link', { name: 'Profil verwenden' }).click();
     await page.waitForURL(url => url.pathname === '/');
     assert.equal(await page.getByLabel('Aktivität').inputValue(), 'CYCLING');
-    assert.equal(await page.getByLabel('Mindestdauer in Minuten').inputValue(), '120');
+    assert.equal(await page.getByLabel('Mindestdauer (Min.)').inputValue(), '120');
 
     await page.getByRole('link', { name: 'Suchprofile' }).click();
-    const card = profileCard(editedName);
-    await card.waitFor();
+    const entry = profileEntry(editedName);
+    await entry.waitFor();
     if (javaScriptEnabled) {
       page.once('dialog', dialog => dialog.dismiss());
-      await card.getByRole('button', { name: 'Löschen' }).click();
-      assert.equal(await card.count(), 1);
+      await entry.getByRole('button', { name: 'Löschen' }).click();
+      assert.equal(await entry.count(), 1);
       page.once('dialog', dialog => dialog.accept());
     }
-    await card.getByRole('button', { name: 'Löschen' }).click();
-    await card.waitFor({ state: 'detached' });
+    await entry.getByRole('button', { name: 'Löschen' }).click();
+    await entry.waitFor({ state: 'detached' });
     await page.reload();
-    assert.equal(await card.count(), 0);
+    assert.equal(await entry.count(), 0);
 
     const errorPage = await page.goto(`${baseUrl}/gibt-es-nicht`);
     assert.equal(errorPage.status(), 404);
@@ -97,8 +111,10 @@ async function runScenario(javaScriptEnabled, width) {
 }
 
 try {
-  await runScenario(true, 1280);
-  await runScenario(false, 360);
+  for (const width of [360, 1280]) {
+    await runScenario(true, width);
+    await runScenario(false, width);
+  }
   console.log('PASS: profile and location flow at desktop and mobile widths, with and without JavaScript');
 } finally {
   await browser.close();

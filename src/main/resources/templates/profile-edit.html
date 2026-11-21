@@ -6,11 +6,12 @@
         <h1>Profil bearbeiten</h1>
         <p th:text="${profile.name}"></p>
     </div>
-    <form class="panel edit-form compact" th:action="@{/profiles/{id}/edit(id=${profile.id})}" method="post">
-        <p th:if="${profileError}" class="status error" role="alert" th:text="${profileError}"></p>
+    <form class="edit-form compact" th:action="@{/profiles/{id}/edit(id=${profile.id})}" method="post">
+        <p th:if="${profileError}" class="status error" id="profile-error" role="alert" th:text="${profileError}"></p>
         <div class="field">
             <label for="profileName">Profilname</label>
-            <input type="text" id="profileName" name="profileName" th:value="${profileNameValue}" required>
+            <textarea id="profileName" name="profileName" rows="2" wrap="soft" required th:text="${profileNameValue}"
+                      th:attr="aria-describedby=${profileError != null ? 'profile-error' : null}"></textarea>
         </div>
         <fieldset>
             <legend>Ort</legend>

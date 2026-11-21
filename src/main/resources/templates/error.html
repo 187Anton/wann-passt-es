@@ -7,7 +7,7 @@
         <h1 th:if="${status == 400}">Bitte prüfe deine Eingaben</h1>
         <h1 th:if="${status != 400 and status != 404}">Die Seite konnte nicht geladen werden</h1>
     </div>
-    <div class="panel error-panel compact">
+    <div class="error-content compact">
         <p th:if="${status == 404}">Unter dieser Adresse gibt es keine Seite.</p>
         <p th:if="${status == 400}">Mindestens eine Angabe fehlt oder hat ein ungültiges Format.
             Prüfe Datum, Mindestdauer und die gewählten Optionen.</p>
