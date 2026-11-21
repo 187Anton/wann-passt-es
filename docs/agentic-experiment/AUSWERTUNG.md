@@ -2,6 +2,8 @@
 
 Durchgeführt am 21.11.2026. Aufbau, Start-Prompt und Regeln stehen in [`EXPERIMENT.md`](EXPERIMENT.md), die Aufgabe in `TASK.md` auf dem Branch `agentic/baseline` (Tag `agentic-baseline`).
 
+> **Runde 2** (Design-Skill und visuelle Selbstkontrolle) ist am Ende dieses Dokuments ausgewertet. Kernbefund: Der Skill hat den Einheitslook verhindert, aber nach Urteil des Nutzers ein unstimmigeres Design erzeugt als Runde 1, weil er überwiegend aus Verboten bestand.
+
 ## Kurzfassung
 
 Alle drei Agenten haben die komplette Aufgabe mit vier Arbeitspaketen und 33 Akzeptanzkriterien in einem einzigen autonomen Durchlauf umgesetzt, ohne Nachfragen. Alle Testsuiten sind grün, und die Selbstauskünfte zu den Tests stimmten in der Gegenprobe exakt. Bei den Kriterien liegen die Kandidaten fast gleichauf. Die eigentlichen Unterschiede zeigen sich bei Kosten, Tiefe, Testumfang, Code-Umfang und Frontend:
@@ -267,7 +269,7 @@ Geprüft: R2–R5 im CSS der Branches (Eckenradien, Verläufe, Versalien, Schrif
 
 **Unerwartet: Claude und Hermes sind konzeptionell zusammengelaufen.** Beide haben unabhängig voneinander ein dunkles Zeitband mit warm-orangen „Fenstern“ und fast dieselbe Akzentfarbe gewählt (`#b54708` und `#c2410c`). Wahrscheinlich hat die Formulierung im Skill das gefördert: „Zeit lässt sich räumlich darstellen“, „das richtige Zeitfenster finden“. Claude hatte außerdem schon in Runde 1 eine Zeitleiste. Codex hat als einziger eine andere Richtung gewählt. **Ein Skill verhindert also den Standard-Look, erzeugt aber eine neue, skill-bedingte Ähnlichkeit.** Wer verschiedene Ergebnisse will, sollte im Skill keine Bilder oder Metaphern vorgeben.
 
-Bewertung 1–5 (Runde 1 in Klammern):
+Bewertung durch Claude, 1–5 (Runde 1 in Klammern):
 
 | Kriterium | Codex | Claude | Hermes |
 | --- | --- | --- | --- |
@@ -279,18 +281,31 @@ Bewertung 1–5 (Runde 1 in Klammern):
 
 Diese Noten sind wie in Runde 1 subjektiv und von einem Modell aus derselben Familie wie einer der Kandidaten vergeben (siehe Abschnitt 8).
 
+### Einschätzung des Nutzers (Gegenprobe)
+
+Beim eigenen Durchklicken aller drei Anwendungen fiel das Urteil deutlich schlechter aus als die Noten oben: **Keine der drei Versionen wirkt stimmig, alle sehen „out of place“ aus, und Runde 1 sah insgesamt besser aus.** Die Aufgabe wurde formal erfüllt, das Ergebnis überzeugt optisch aber nicht. Im Einzelnen:
+
+- **Für alle drei:** Der reine weiße Hintergrund sticht stark ins Auge und macht alle Kontraste härter. Es fehlt ein Gleichgewicht zwischen der Darstellung der Ergebnisse und den Auswahlmöglichkeiten. Die Suchprofil-Seiten sind dagegen bei allen drei gut gelungen.
+- **Codex:** Das sehr kräftige Blau springt sofort ins Auge. Zusammen mit dem eckigen Ergebniskasten wirkt der Block deplatziert, als gehöre er nicht auf die Seite. Es gibt kein Gleichgewicht.
+- **Claude:** Das Design war schon in Runde 1 gut. Jetzt steht der Zeitstrahl stärker im Fokus, und es gibt Links zum Anpassen der Suche (Zeitraum verlängern, Mindestdauer verkürzen, Wetterwünsche lockern). Die Auswahl von Temperatur, Wind und Niederschlag über Optionsfelder statt Dropdowns ist sehr gut gelöst, weil man mit einem Klick wählt. Insgesamt ist der Kontrast aber auch hier zu hoch, und Ergebnisdarstellung und Auswahl stehen nicht im Gleichgewicht.
+- **Hermes:** Dasselbe Problem wie bei Codex. Das dunkle Ergebnisfeld ist viel zu groß und zu kontrastreich und wirkt dadurch fremd auf der Seite. Die Linien neben den Überschriften „Zeitraum“, „Aktivität“ und „Wetterwünsche“ wirken merkwürdig.
+
+**Ursache, soweit erkennbar:** Der Design-Skill hat überwiegend festgelegt, was die Agenten **nicht** tun dürfen: keinen getönten Hintergrund, keine Karten, kein Grün, keine Verläufe, eine Akzentfarbe mit großem Abstand zur alten. Dazu kamen Pflichtvorgaben wie reines Weiß und Serifenüberschriften. Die Agenten haben diese Regeln vollständig erfüllt, aber „nicht generisch“ ist nicht dasselbe wie „schön“. Herausgekommen sind regelkonforme Einzelentscheidungen, die nicht zusammenpassen: harter Weißgrund, ein einzelnes sehr kräftiges Element (blauer Kasten bzw. dunkles Band) und kein ausgleichendes Gesamtbild. Der Skill hat also den Einheitslook verhindert, aber kein harmonisches Design hervorgebracht. Die objektiv prüfbaren Kriterien R1–R12 konnten das nicht erfassen, weil sie ebenfalls fast nur Regeln abfragen und kein Gesamturteil.
+
 **Artefakte in den Screenshots:** Die roten Meldungen „Profilname gibt es bereits“ auf den Planungsseiten stammen vom Screenshot-Skript, das bei jedem Lauf erneut ein „Testprofil“ angelegt hat. Das ist kein Fehler der Agenten, zeigt aber nebenbei, dass alle drei Duplikate sauber abfangen. Das Skript ist inzwischen korrigiert. In der 360-px-Aufnahme von Codex zeigt das Formular außerdem andere Wetterwünsche als die tatsächlich abgefragten Ergebnisse. Ob das ein Darstellungsfehler oder ebenfalls ein Skript-Artefakt ist, ist ungeklärt und sollte manuell geprüft werden.
 
 ## R2.5 Fazit Runde 2
 
-1. **Ein Design-Skill wirkt stark.** Alle festen Vorgaben wurden von allen drei eingehalten, und der Einheitslook war weg.
-2. **Visuelle Selbstkontrolle verbessert Ergebnisse messbar.** Am deutlichsten bei Hermes: Alle in Runde 1 gefundenen Gestaltungsfehler sind behoben.
-3. **Robuste Agenten umgehen Werkzeugprobleme selbst.** Das fehlerhaft eingerichtete MCP hat keinen Lauf verhindert.
-4. **Skills können Ergebnisse angleichen.** Bildhafte Formulierungen im Skill werden offenbar wörtlich genommen.
-5. **Kosten blieben stabil:** Hermes erneut 0,16 $, Codex rund 1 $, Claude rund 6 $. Hermes war erneut der schnellste Lauf.
+1. **Ein Design-Skill wirkt stark, aber nicht automatisch gut.** Alle festen Vorgaben wurden von allen drei eingehalten, und der Einheitslook war weg. Optisch waren die Ergebnisse nach Urteil des Nutzers aber schlechter als in Runde 1.
+2. **Verbote erzeugen kein schönes Design.** Ein Skill, der vor allem sagt, was nicht erlaubt ist, führt zu regelkonformen, aber unstimmigen Ergebnissen. Ein Skill sollte positiv beschreiben, wie das Ziel aussieht, idealerweise anhand konkreter Vorbilder, und das Gleichgewicht der Seite als eigenes Kriterium enthalten.
+3. **Visuelle Selbstkontrolle behebt konkrete Fehler.** Am deutlichsten bei Hermes: Alle in Runde 1 gefundenen konkreten Gestaltungsfehler sind behoben. Für ein stimmiges Gesamtbild reicht das allein aber nicht.
+4. **Robuste Agenten umgehen Werkzeugprobleme selbst.** Das fehlerhaft eingerichtete MCP hat keinen Lauf verhindert.
+5. **Skills können Ergebnisse angleichen.** Bildhafte Formulierungen im Skill werden offenbar wörtlich genommen.
+6. **Kosten blieben stabil:** Hermes erneut 0,16 $, Codex rund 1 $, Claude rund 6 $. Hermes war erneut der schnellste Lauf.
 
 ## R2.6 Lessons Learned für den Aufbau
 
+- Design-Vorgaben positiv formulieren (Zielbild, Vorbilder, Palette, Stimmung) statt überwiegend Verbote aufzuzählen, und ein Gesamturteil eines Menschen in die Abnahme aufnehmen. Messbare Regeln allein sagen nichts darüber, ob eine Oberfläche gefällt.
 - Playwright-MCP immer mit `--browser chromium` eintragen oder Google Chrome installieren, und vorher mit einem echten Werkzeugaufruf testen, nicht nur mit der Werkzeugliste.
 - Das Screenshot-Skript darf keine Zustände (wie doppelte Profile) erzeugen, die auf den Bildern sichtbar werden.
 - Laufende Anwendungen der Agenten nach dem Lauf beenden, sonst blockiert die H2-Datei den nächsten Start.
