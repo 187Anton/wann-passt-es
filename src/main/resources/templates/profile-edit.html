@@ -9,130 +9,122 @@
 <main id="main" class="page page--narrow">
 
     <div class="page-head">
-        <p class="eyebrow">
-            <a class="link-quiet" th:href="@{/profiles}">Suchprofile</a>
-            <span aria-hidden="true">›</span>
-            Bearbeiten
-        </p>
         <h1>Profil bearbeiten</h1>
-        <p class="page-head__meta" th:text="${'„' + profileName + '“'}">„Abendrunde“</p>
+        <p class="page-head__meta">
+            <strong th:text="${'„' + profileName + '“'}">„Abendrunde“</strong>
+            <a th:href="@{/profiles}">Zur Übersicht</a>
+        </p>
     </div>
 
-    <p class="alert alert--error" role="alert" th:if="${profileError}">
-        <span class="alert__icon" aria-hidden="true">!</span>
-        <span th:text="${profileError}">Bitte prüfe deine Eingaben.</span>
-    </p>
+    <p class="alert alert--error" role="alert" th:if="${profileError}"
+       th:text="${profileError}">Bitte prüfe deine Eingaben.</p>
 
-    <section class="card" aria-labelledby="edit-title">
-        <h2 id="edit-title" class="card__title">Einstellungen</h2>
+    <form class="form" method="post" th:action="@{/profiles/{id}/edit(id=${profileId})}">
+        <div class="field">
+            <label for="profileName">Profilname</label>
+            <input type="text"
+                   id="profileName"
+                   name="profileName"
+                   maxlength="100"
+                   autocomplete="off"
+                   th:value="${profileName}"
+                   aria-describedby="profileName-hint">
+            <p class="hint" id="profileName-hint">1 bis 100 Zeichen, eindeutiger Name.</p>
+        </div>
 
-        <form class="form" method="post" th:action="@{/profiles/{id}/edit(id=${profileId})}">
-            <div class="field">
-                <label for="profileName">Profilname</label>
-                <input type="text"
-                       id="profileName"
-                       name="profileName"
-                       maxlength="100"
-                       autocomplete="off"
-                       th:value="${profileName}"
-                       aria-describedby="profileName-hint">
-                <p class="hint" id="profileName-hint">1 bis 100 Zeichen, eindeutiger Name.</p>
+        <fieldset class="form-section">
+            <legend>Ort</legend>
+            <input type="hidden" name="locationId" th:value="${locationId}">
+            <input type="hidden" name="locationName" th:value="${locationName}">
+            <div class="place-row">
+                <span class="place">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11Z"
+                              fill="none" stroke="currentColor" stroke-width="2"/>
+                        <circle cx="12" cy="10" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    <span th:if="${locationName != null and !locationName.isBlank()}"
+                          th:text="${locationName}">Berlin</span>
+                    <span th:if="${locationName == null or locationName.isBlank()}"
+                          th:text="${'Ort-ID ' + locationId}">Ort-ID 2950159</span>
+                </span>
+                <a class="btn btn--quiet btn--small"
+                   th:href="@{/locations(profileId=${profileId})}">
+                    Anderen Ort wählen
+                </a>
             </div>
+        </fieldset>
 
-            <fieldset class="fieldset">
-                <legend>Ort</legend>
-                <input type="hidden" name="locationId" th:value="${locationId}">
-                <input type="hidden" name="locationName" th:value="${locationName}">
-                <div class="location-row">
-                    <span class="chip">
-                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="chip__icon">
-                            <path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11Z"
-                                  fill="none" stroke="currentColor" stroke-width="2"/>
-                            <circle cx="12" cy="10" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/>
-                        </svg>
-                        <span th:if="${locationName != null and !locationName.isBlank()}"
-                              th:text="${locationName}">Berlin</span>
-                        <span th:if="${locationName == null or locationName.isBlank()}"
-                              th:text="${'Ort-ID ' + locationId}">Ort-ID 2950159</span>
-                    </span>
-                    <a class="btn btn--secondary btn--small"
-                       th:href="@{/locations(profileId=${profileId})}">
-                        Anderen Ort wählen
-                    </a>
+        <fieldset class="form-section">
+            <legend>Aktivität</legend>
+            <div class="form-grid form-grid--pair">
+                <div class="field">
+                    <label for="activity">Aktivität</label>
+                    <select id="activity" name="activity">
+                        <option th:each="option : ${activities}"
+                                th:value="${option.name()}"
+                                th:text="${option.label}"
+                                th:selected="${option == activity}">
+                        </option>
+                    </select>
                 </div>
-            </fieldset>
 
-            <fieldset class="fieldset">
-                <legend>Aktivität</legend>
-                <div class="form-grid">
-                    <div class="field">
-                        <label for="activity">Aktivität</label>
-                        <select id="activity" name="activity">
-                            <option th:each="option : ${activities}"
-                                    th:value="${option.name()}"
-                                    th:text="${option.label}"
-                                    th:selected="${option == activity}">
-                            </option>
-                        </select>
-                    </div>
-
-                    <div class="field">
-                        <label for="minDurationMinutes">Mindestdauer in Minuten</label>
-                        <input type="number"
-                               id="minDurationMinutes"
-                               name="minDurationMinutes"
-                               min="1"
-                               step="1"
-                               inputmode="numeric"
-                               th:value="${minDurationMinutes}">
-                    </div>
+                <div class="field">
+                    <label for="minDurationMinutes">Mindestdauer in Minuten</label>
+                    <input type="number"
+                           id="minDurationMinutes"
+                           name="minDurationMinutes"
+                           min="1"
+                           step="1"
+                           inputmode="numeric"
+                           th:value="${minDurationMinutes}">
                 </div>
-            </fieldset>
-
-            <fieldset class="fieldset">
-                <legend>Wetterwünsche</legend>
-                <div class="form-grid form-grid--three">
-                    <div class="field">
-                        <label for="temperaturePreference">Temperatur</label>
-                        <select id="temperaturePreference" name="temperaturePreference">
-                            <option th:each="preference : ${temperaturePreferences}"
-                                    th:value="${preference.name()}"
-                                    th:text="${preference.label}"
-                                    th:selected="${preference == temperaturePreference}">
-                            </option>
-                        </select>
-                    </div>
-
-                    <div class="field">
-                        <label for="windPreference">Wind</label>
-                        <select id="windPreference" name="windPreference">
-                            <option th:each="preference : ${windPreferences}"
-                                    th:value="${preference.name()}"
-                                    th:text="${preference.label}"
-                                    th:selected="${preference == windPreference}">
-                            </option>
-                        </select>
-                    </div>
-
-                    <div class="field">
-                        <label for="precipitationPreference">Niederschlag</label>
-                        <select id="precipitationPreference" name="precipitationPreference">
-                            <option th:each="preference : ${precipitationPreferences}"
-                                    th:value="${preference.name()}"
-                                    th:text="${preference.label}"
-                                    th:selected="${preference == precipitationPreference}">
-                            </option>
-                        </select>
-                    </div>
-                </div>
-            </fieldset>
-
-            <div class="form-actions form-actions--split">
-                <button class="btn btn--primary" type="submit">Änderungen speichern</button>
-                <a class="btn btn--ghost" th:href="@{/profiles}">Abbrechen</a>
             </div>
-        </form>
-    </section>
+        </fieldset>
+
+        <fieldset class="form-section">
+            <legend>Wetterwünsche</legend>
+            <div class="form-grid">
+                <div class="field">
+                    <label for="temperaturePreference">Temperatur</label>
+                    <select id="temperaturePreference" name="temperaturePreference">
+                        <option th:each="preference : ${temperaturePreferences}"
+                                th:value="${preference.name()}"
+                                th:text="${preference.label}"
+                                th:selected="${preference == temperaturePreference}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="windPreference">Wind</label>
+                    <select id="windPreference" name="windPreference">
+                        <option th:each="preference : ${windPreferences}"
+                                th:value="${preference.name()}"
+                                th:text="${preference.label}"
+                                th:selected="${preference == windPreference}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="precipitationPreference">Niederschlag</label>
+                    <select id="precipitationPreference" name="precipitationPreference">
+                        <option th:each="preference : ${precipitationPreferences}"
+                                th:value="${preference.name()}"
+                                th:text="${preference.label}"
+                                th:selected="${preference == precipitationPreference}">
+                        </option>
+                    </select>
+                </div>
+            </div>
+        </fieldset>
+
+        <div class="form-actions">
+            <button class="btn btn--primary" type="submit">Änderungen speichern</button>
+            <a class="btn btn--quiet" th:href="@{/profiles}">Abbrechen</a>
+        </div>
+    </form>
 
 </main>
 

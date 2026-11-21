@@ -9,7 +9,6 @@
 <main id="main" class="page page--narrow">
 
     <div class="page-head">
-        <p class="eyebrow">Ortssuche</p>
         <h1>Ort auswählen</h1>
         <p class="page-head__meta" th:if="${profileId != null}">
             Der gewählte Ort wird direkt in das Suchprofil übernommen.
@@ -20,55 +19,48 @@
         </p>
     </div>
 
-    <section class="card" aria-labelledby="search-title">
-        <h2 id="search-title" class="card__title">Ortsname</h2>
+    <form class="form" method="get" th:action="@{/locations}">
+        <input type="hidden" name="activity" th:if="${activity != null}" th:value="${activity}">
+        <input type="hidden" name="minDurationMinutes" th:if="${minDurationMinutes != null}"
+               th:value="${minDurationMinutes}">
+        <input type="hidden" name="temperaturePreference" th:if="${temperaturePreference != null}"
+               th:value="${temperaturePreference}">
+        <input type="hidden" name="windPreference" th:if="${windPreference != null}"
+               th:value="${windPreference}">
+        <input type="hidden" name="precipitationPreference" th:if="${precipitationPreference != null}"
+               th:value="${precipitationPreference}">
+        <input type="hidden" name="startDate" th:if="${startDate != null}" th:value="${startDate}">
+        <input type="hidden" name="endDate" th:if="${endDate != null}" th:value="${endDate}">
+        <input type="hidden" name="profileId" th:if="${profileId != null}" th:value="${profileId}">
 
-        <form class="search-form" method="get" th:action="@{/locations}">
-            <input type="hidden" name="activity" th:if="${activity != null}" th:value="${activity}">
-            <input type="hidden" name="minDurationMinutes" th:if="${minDurationMinutes != null}"
-                   th:value="${minDurationMinutes}">
-            <input type="hidden" name="temperaturePreference" th:if="${temperaturePreference != null}"
-                   th:value="${temperaturePreference}">
-            <input type="hidden" name="windPreference" th:if="${windPreference != null}"
-                   th:value="${windPreference}">
-            <input type="hidden" name="precipitationPreference" th:if="${precipitationPreference != null}"
-                   th:value="${precipitationPreference}">
-            <input type="hidden" name="startDate" th:if="${startDate != null}" th:value="${startDate}">
-            <input type="hidden" name="endDate" th:if="${endDate != null}" th:value="${endDate}">
-            <input type="hidden" name="profileId" th:if="${profileId != null}" th:value="${profileId}">
-
-            <div class="field">
-                <label for="query">Ortsname</label>
-                <div class="search-form__row">
-                    <input type="search"
-                           id="query"
-                           name="query"
-                           minlength="2"
-                           autocomplete="off"
-                           placeholder="Zum Beispiel: Freiburg"
-                           th:value="${query}"
-                           required>
-                    <button class="btn btn--primary" type="submit">Suchen</button>
-                </div>
-                <p class="hint">Bitte mindestens zwei Zeichen eingeben.</p>
+        <div class="field">
+            <label for="query">Ortsname</label>
+            <div class="search-row">
+                <input type="search"
+                       id="query"
+                       name="query"
+                       minlength="2"
+                       autocomplete="off"
+                       placeholder="Zum Beispiel: Freiburg"
+                       th:value="${query}"
+                       required>
+                <button class="btn btn--primary" type="submit">Suchen</button>
             </div>
-        </form>
-    </section>
+            <p class="hint">Bitte mindestens zwei Zeichen eingeben.</p>
+        </div>
+    </form>
 
-    <p class="alert alert--error" role="alert" th:if="${locationError}">
-        <span class="alert__icon" aria-hidden="true">!</span>
-        <span th:text="${locationError}">Die Ortssuche ist gerade nicht verfügbar.</span>
-    </p>
+    <p class="alert alert--error" role="alert" th:if="${locationError}"
+       th:text="${locationError}">Die Ortssuche ist gerade nicht verfügbar.</p>
 
-    <section class="results" aria-labelledby="results-title"
-             th:if="${searchPerformed and locationError == null}">
+    <section th:if="${searchPerformed and locationError == null}" aria-labelledby="results-title">
         <div class="section-head">
             <h2 id="results-title">Treffer</h2>
-            <p class="section-head__meta" th:text="${#lists.size(locations)} + ' Orte'">3 Orte</p>
+            <p class="section-head__meta" th:text="${#lists.size(locations) + ' Orte'}">3 Orte</p>
         </div>
 
-        <div class="empty-state" th:if="${#lists.isEmpty(locations)}">
-            <p class="empty-state__title">Keine passenden Orte gefunden</p>
+        <div class="empty" th:if="${#lists.isEmpty(locations)}">
+            <p class="empty__title">Keine passenden Orte gefunden</p>
             <p>Bitte prüfe die Schreibweise oder versuche einen größeren Ort in der Nähe.</p>
         </div>
 
@@ -77,10 +69,9 @@
                 <a class="result__link" th:href="${option.url()}">
                     <span class="result__name" th:text="${option.location().name()}">Freiburg</span>
                     <span class="result__meta">
-                        <span th:text="${option.location().region()}">Baden-Württemberg</span>
-                        <span th:if="${option.location().region() != null and option.location().country() != null}"
-                              aria-hidden="true">·</span>
-                        <span th:text="${option.location().country()}">Deutschland</span>
+                        <span th:text="${option.location().region()}">Baden-Württemberg</span><span
+                            th:if="${option.location().region() != null and option.location().country() != null}">, </span><span
+                            th:text="${option.location().country()}">Deutschland</span>
                     </span>
                 </a>
             </li>
