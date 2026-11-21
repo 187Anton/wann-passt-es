@@ -3,8 +3,11 @@ package de.anton.wannpasstes;
 import org.junit.jupiter.api.Test;
 import org.springframework.ui.ExtendedModelMap;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -13,6 +16,10 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 
 class MainpageControllerTests {
+
+    private static final ZoneId ZONE = ZoneId.of("Europe/Berlin");
+    private static final Clock CLOCK =
+            Clock.fixed(Instant.parse("2026-11-21T09:00:00Z"), ZoneOffset.UTC);
 
     @Test
     void keepsOnlyWindowsMeetingMinimumDuration() {
@@ -25,17 +32,17 @@ class MainpageControllerTests {
                         "Berlin",
                         52.52,
                         13.405,
-                        "Europe/Berlin",
+                        ZONE.getId(),
                         "Deutschland",
                         "Berlin"));
 
         MainpageController controller = new MainpageController(
                 weatherClient,
                 new TimeWindowService(),
-                geocodingClient);
+                geocodingClient,
+                CLOCK);
 
-        ZoneId zone = ZoneId.of("Europe/Berlin");
-        OffsetDateTime start = OffsetDateTime.now(zone).plusDays(1).withHour(10).withMinute(0).withSecond(0).withNano(0);
+        OffsetDateTime start = OffsetDateTime.parse("2026-11-22T10:00:00+01:00");
 
         List<WeatherHour> hours = List.of(
                 new WeatherHour(18.0, start, 12.0, 0.0, 0),
@@ -46,12 +53,15 @@ class MainpageControllerTests {
                 new WeatherHour(18.0, start.plusHours(5), 12.0, 0.0, 0)
         );
 
-        when(weatherClient.fetchForecast(52.52, 13.405, zone))
+        when(weatherClient.fetchForecast(52.52, 13.405, ZONE))
                 .thenReturn(hours);
 
         ExtendedModelMap model = new ExtendedModelMap();
 
-        String view = controller.mainpage(2950159, 120, PrecipitationPreference.LIGHT_DRIZZLE, TemperaturePreference.MILD, WindPreference.WEAK, Activity.WALKING, start.toLocalDate(), model);
+        String view = controller.mainpage(2950159, 120,
+                PrecipitationPreference.LIGHT_DRIZZLE, TemperaturePreference.MILD,
+                WindPreference.WEAK, Activity.WALKING, start.toLocalDate(), null,
+                null, model);
 
         TimeWindow expected = new TimeWindow(
                 start.plusHours(3),
@@ -61,12 +71,13 @@ class MainpageControllerTests {
         assertEquals(List.of(expected), model.get("suitableWindows"));
         assertEquals(120, model.get("minDurationMinutes"));
     }
+
     @Test
     void usesCoordinatesAndTimezoneOfSelectedLocation() {
         WeatherClient weatherClient = mock(WeatherClient.class);
         GeocodingClient geocodingClient = mock(GeocodingClient.class);
 
-        ZoneId zone = ZoneId.of("America/New_York");
+        ZoneId newYork = ZoneId.of("America/New_York");
 
         when(geocodingClient.getLocation(123))
                 .thenReturn(new GeocodingResponse.Location(
@@ -74,23 +85,26 @@ class MainpageControllerTests {
                         "Testort",
                         40.7,
                         -74.0,
-                        zone.getId(),
+                        newYork.getId(),
                         "Testland",
                         "Testregion"));
 
-        when(weatherClient.fetchForecast(40.7, -74.0, zone))
+        when(weatherClient.fetchForecast(40.7, -74.0, newYork))
                 .thenReturn(List.of());
 
         MainpageController controller = new MainpageController(
                 weatherClient,
                 new TimeWindowService(),
-                geocodingClient);
+                geocodingClient,
+                CLOCK);
 
         ExtendedModelMap model = new ExtendedModelMap();
 
-        String view = controller.mainpage(123, 60, PrecipitationPreference.LIGHT_DRIZZLE, TemperaturePreference.MILD, WindPreference.WEAK, Activity.CYCLING, null, model);
+        String view = controller.mainpage(123, 60,
+                PrecipitationPreference.LIGHT_DRIZZLE, TemperaturePreference.MILD,
+                WindPreference.WEAK, Activity.CYCLING, null, null, null, model);
 
-        verify(weatherClient).fetchForecast(40.7, -74.0, zone);
+        verify(weatherClient).fetchForecast(40.7, -74.0, newYork);
 
         assertEquals("mainpage", view);
         assertEquals(123, model.get("locationId"));
