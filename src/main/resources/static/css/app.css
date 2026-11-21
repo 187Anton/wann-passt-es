@@ -426,14 +426,43 @@ a:hover {
 }
 
 .panel-axis {
-    display: flex;
-    justify-content: space-between;
+    position: relative;
+    height: 2.1rem;
     margin-top: 1.15rem;
     padding-top: 0.55rem;
     border-top: 1px solid var(--night-line);
     color: var(--night-soft);
     font-size: var(--size-1);
     font-variant-numeric: tabular-nums;
+}
+
+.panel-axis span {
+    position: absolute;
+    top: 0.6rem;
+    transform: translateX(-50%);
+}
+
+.panel-axis span:nth-child(1) {
+    left: 0;
+    transform: none;
+}
+
+.panel-axis span:nth-child(2) {
+    left: 25%;
+}
+
+.panel-axis span:nth-child(3) {
+    left: 50%;
+}
+
+.panel-axis span:nth-child(4) {
+    left: 75%;
+}
+
+.panel-axis span:nth-child(5) {
+    right: 0;
+    left: auto;
+    transform: none;
 }
 
 .panel-note {
@@ -446,7 +475,8 @@ a:hover {
     padding: 0.25rem 0 0.5rem;
 }
 
-.panel-empty__title {
+.panel-empty__title,
+.panel-empty p.panel-empty__title {
     margin: 0 0 0.45rem;
     color: #ffffff;
     font-family: var(--font-serif);
@@ -454,7 +484,7 @@ a:hover {
     font-weight: 600;
 }
 
-.panel-empty p {
+.panel-empty p:not(.panel-empty__title) {
     max-width: 46ch;
     margin: 0 0 0.55rem;
     color: var(--night-soft);
@@ -598,6 +628,21 @@ input[type="date"] {
 
 input::placeholder {
     color: #6b6157;
+}
+
+input[type="text"],
+input[type="search"] {
+    text-overflow: ellipsis;
+}
+
+/* On the wide single-column pages a full-width selection field would look
+   stretched; the name field keeps the full width so long names stay readable. */
+.page--narrow .field select {
+    max-width: 24rem;
+}
+
+.page--narrow .field input[type="number"] {
+    max-width: 10rem;
 }
 
 input:hover,
@@ -763,14 +808,15 @@ select:hover {
     border-top: 1px solid var(--line);
 }
 
-.empty__title {
+.empty__title,
+.empty p.empty__title {
     margin: 0 0 0.4rem;
     font-family: var(--font-serif);
     font-size: var(--size-4);
     font-weight: 600;
 }
 
-.empty p {
+.empty p:not(.empty__title) {
     margin: 0 0 0.5rem;
     color: var(--ink-soft);
     font-size: var(--size-2);

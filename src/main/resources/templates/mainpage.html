@@ -40,7 +40,8 @@
             <section class="results-panel" aria-labelledby="results-title">
                 <div class="panel-head">
                     <h2 id="results-title">Passende Zeitfenster</h2>
-                    <p class="panel-head__meta" th:if="${rangeLabel != null and rangeLabel != ''}">
+                    <p class="panel-head__meta"
+                       th:if="${weatherError == null and rangeLabel != null and rangeLabel != ''}">
                         <span th:text="${rangeLabel}">22.11.2026</span>
                         <span th:if="${!#lists.isEmpty(suitableWindows)}"
                               th:text="${#lists.size(suitableWindows) + ' Zeitfenster'}">3 Zeitfenster</span>
