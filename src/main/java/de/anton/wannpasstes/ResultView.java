@@ -114,13 +114,13 @@ public record ResultView(
         OffsetDateTime end = window.end().atZoneSameInstant(zone).toOffsetDateTime();
         LocalDate startDay = start.toLocalDate();
 
-        // A window ending exactly at midnight belongs to its start day ("24:00").
-        boolean endsAtMidnight = end.toLocalTime().equals(LocalTime.MIDNIGHT)
-                && end.toLocalDate().equals(startDay.plusDays(1));
-        boolean spansMidnight = !endsAtMidnight && end.toLocalDate().isAfter(startDay);
+        // A window ending exactly at midnight is shown as "24:00" of the previous day.
+        boolean endsAtMidnight = end.toLocalTime().equals(LocalTime.MIDNIGHT);
+        LocalDate endDisplayDay = endsAtMidnight ? end.toLocalDate().minusDays(1) : end.toLocalDate();
+        boolean spansMidnight = endDisplayDay.isAfter(startDay);
 
         String endTime = endsAtMidnight ? "24:00" : TIME.format(end);
-        String endDayLabel = spansMidnight ? DAY_SHORT.format(end) : "";
+        String endDayLabel = spansMidnight ? DAY_SHORT.format(endDisplayDay) : "";
         String duration = formatDuration(window.durationMinutes());
 
         String accessibleLabel = DAY_SHORT.format(start) + " " + TIME.format(start) + " bis "

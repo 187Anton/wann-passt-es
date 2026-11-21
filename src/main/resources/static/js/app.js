@@ -45,8 +45,8 @@
                 }
             }
         }
+        // Only react to user changes, so values shown with an error message stay untouched.
         startInput.addEventListener('change', sync);
-        sync();
     }
 
     /** Shows a loading state while the weather search is running. */
@@ -54,7 +54,7 @@
         form.addEventListener('submit', function (event) {
             var submitter = event.submitter;
             // Only the main search button triggers the loading state, not "save profile".
-            if (submitter && submitter.formAction && submitter.hasAttribute('formaction')) {
+            if (submitter && submitter.hasAttribute('formaction')) {
                 return;
             }
             var button = form.querySelector('[data-loading-text]');
