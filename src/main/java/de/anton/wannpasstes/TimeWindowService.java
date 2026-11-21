@@ -25,7 +25,14 @@ public class TimeWindowService {
         double maxPrecipitationMm =
                 precipitationPreference.getMaxPrecipitationMm();
 
-        List<WeatherHour> sorted = new ArrayList<>(hours);
+        List<WeatherHour> sorted = new ArrayList<>();
+        if (hours != null) {
+            for (WeatherHour hour : hours) {
+                if (hour != null && hour.getTime() != null) {
+                    sorted.add(hour);
+                }
+            }
+        }
         sorted.sort(Comparator.comparing(hour -> hour.getTime().toInstant()));
 
         List<TimeWindow> intervals = new ArrayList<>();

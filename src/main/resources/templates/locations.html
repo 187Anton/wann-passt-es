@@ -1,62 +1,95 @@
 <!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <title>Ort suchen – Wann passt es?</title>
-</head>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Ort suchen')}"></head>
 <body>
-<h1>Ort suchen</h1>
 
-<form th:action="@{/locations}" method="get">
-    <label for="query">Ortsname:</label>
+<a class="skip-link" href="#main">Zum Inhalt springen</a>
+<header th:replace="~{fragments/layout :: header('locations')}"></header>
 
-    <input type="text"
-           id="query"
-           name="query"
-           minlength="2"
-           th:value="${query}"
-           required>
+<main id="main" class="page page--narrow">
 
-    <button type="submit">Suchen</button>
-</form>
+    <div class="page-head">
+        <p class="eyebrow">Ortssuche</p>
+        <h1>Ort auswählen</h1>
+        <p class="page-head__meta" th:if="${profileId != null}">
+            Der gewählte Ort wird direkt in das Suchprofil übernommen.
+        </p>
+        <p class="page-head__meta" th:if="${profileId == null}">
+            Der gewählte Ort übernimmt deine aktuellen Einstellungen für Zeitraum,
+            Aktivität und Wetterwünsche.
+        </p>
+    </div>
 
-<p>Bitte mindestens zwei Zeichen eingeben.</p>
+    <section class="card" aria-labelledby="search-title">
+        <h2 id="search-title" class="card__title">Ortsname</h2>
 
-<p th:if="${locationError != null}"
-   th:text="${locationError}">
-</p>
+        <form class="search-form" method="get" th:action="@{/locations}">
+            <input type="hidden" name="activity" th:if="${activity != null}" th:value="${activity}">
+            <input type="hidden" name="minDurationMinutes" th:if="${minDurationMinutes != null}"
+                   th:value="${minDurationMinutes}">
+            <input type="hidden" name="temperaturePreference" th:if="${temperaturePreference != null}"
+                   th:value="${temperaturePreference}">
+            <input type="hidden" name="windPreference" th:if="${windPreference != null}"
+                   th:value="${windPreference}">
+            <input type="hidden" name="precipitationPreference" th:if="${precipitationPreference != null}"
+                   th:value="${precipitationPreference}">
+            <input type="hidden" name="startDate" th:if="${startDate != null}" th:value="${startDate}">
+            <input type="hidden" name="endDate" th:if="${endDate != null}" th:value="${endDate}">
+            <input type="hidden" name="profileId" th:if="${profileId != null}" th:value="${profileId}">
 
-<p th:if="${searchPerformed and locationError == null
-        and #lists.isEmpty(locations)}">
-    Keine passenden Orte gefunden.
-</p>
+            <div class="field">
+                <label for="query">Ortsname</label>
+                <div class="search-form__row">
+                    <input type="search"
+                           id="query"
+                           name="query"
+                           minlength="2"
+                           autocomplete="off"
+                           placeholder="Zum Beispiel: Freiburg"
+                           th:value="${query}"
+                           required>
+                    <button class="btn btn--primary" type="submit">Suchen</button>
+                </div>
+                <p class="hint">Bitte mindestens zwei Zeichen eingeben.</p>
+            </div>
+        </form>
+    </section>
 
-<table th:if="${not #lists.isEmpty(locations)}">
-    <thead>
-    <tr>
-        <th>Ort</th>
-        <th>Region</th>
-        <th>Land</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="location : ${locations}">
-        <td>
-            <a th:href="@{/(locationId=${location.id()})}"
-               th:text="${location.name()}">
-            </a>
-        </td>        <td th:text="${location.region()}"></td>
-        <td th:text="${location.country()}"></td>
-    </tr>
-    </tbody>
-</table>
+    <p class="alert alert--error" role="alert" th:if="${locationError}">
+        <span class="alert__icon" aria-hidden="true">!</span>
+        <span th:text="${locationError}">Die Ortssuche ist gerade nicht verfügbar.</span>
+    </p>
 
-<p>
-    Ortsdaten:
-    <a href="https://www.geonames.org/">GeoNames</a>
-    über <a href="https://open-meteo.com/">Open-Meteo</a>.
-</p>
+    <section class="results" aria-labelledby="results-title"
+             th:if="${searchPerformed and locationError == null}">
+        <div class="section-head">
+            <h2 id="results-title">Treffer</h2>
+            <p class="section-head__meta" th:text="${#lists.size(locations)} + ' Orte'">3 Orte</p>
+        </div>
 
-<p><a th:href="@{/}">Zur Wettervorhersage für Berlin</a></p>
+        <div class="empty-state" th:if="${#lists.isEmpty(locations)}">
+            <p class="empty-state__title">Keine passenden Orte gefunden</p>
+            <p>Bitte prüfe die Schreibweise oder versuche einen größeren Ort in der Nähe.</p>
+        </div>
+
+        <ul class="result-list" th:if="${!#lists.isEmpty(locations)}">
+            <li th:each="option : ${locations}" class="result">
+                <a class="result__link" th:href="${option.url()}">
+                    <span class="result__name" th:text="${option.location().name()}">Freiburg</span>
+                    <span class="result__meta">
+                        <span th:text="${option.location().region()}">Baden-Württemberg</span>
+                        <span th:if="${option.location().region() != null and option.location().country() != null}"
+                              aria-hidden="true">·</span>
+                        <span th:text="${option.location().country()}">Deutschland</span>
+                    </span>
+                </a>
+            </li>
+        </ul>
+    </section>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
 </body>
 </html>
