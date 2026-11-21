@@ -3,6 +3,7 @@ package de.anton.wannpasstes;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -56,6 +57,34 @@ public class TimeWindowService {
         }
 
         return mergeWindows(intervals);
+    }
+
+    /**
+     * Finds suitable windows between {@code from} and {@code to} (both inclusive
+     * measurement points) that last at least {@code minDurationMinutes}.
+     * Hours of several days are evaluated as one continuous series, so a window
+     * reaching across midnight stays one window and the minimum duration applies
+     * to the whole window. The per-interval rules of
+     * {@link #findSuitableWindows} are unchanged.
+     */
+    public List<TimeWindow> findSuitableWindows(
+            List<WeatherHour> hours,
+            OffsetDateTime from,
+            OffsetDateTime to,
+            TemperaturePreference temperaturePreference,
+            WindPreference windPreference,
+            PrecipitationPreference precipitationPreference,
+            int minDurationMinutes) {
+
+        List<WeatherHour> inPeriod = hours.stream()
+                .filter(hour -> hour.getTime() != null)
+                .filter(hour -> !hour.getTime().isBefore(from) && !hour.getTime().isAfter(to))
+                .toList();
+
+        return findSuitableWindows(inPeriod, temperaturePreference, windPreference, precipitationPreference)
+                .stream()
+                .filter(window -> window.durationMinutes() >= minDurationMinutes)
+                .toList();
     }
 
     public List<TimeWindow> mergeWindows(List<TimeWindow> windows) {
