@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#f4f7f2">
     <title th:text="${title == 'Planung' ? 'Wann passt es?' : title + ' – Wann passt es?'}">Wann passt es?</title>
     <link rel="stylesheet" th:href="@{/css/app.css}">
     <script defer th:src="@{/js/form-status.js}"></script>
@@ -12,10 +11,7 @@
 <a class="skip-link" href="#main">Zum Inhalt</a>
 <header class="site-header">
     <div class="shell header-inner">
-        <a class="brand" th:href="@{/}">
-            <span class="brand-mark" aria-hidden="true"></span>
-            Wann passt es?
-        </a>
+        <a class="brand" th:href="@{/}">Wann passt es?</a>
         <nav aria-label="Hauptnavigation">
             <a th:unless="${section == 'locations'}" th:href="@{/}"
                th:attr="aria-current=${section == 'planning' ? 'page' : null}">Planung</a>

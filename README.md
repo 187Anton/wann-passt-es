@@ -35,6 +35,7 @@ Zwei Demo-Testklassen sind standardmäßig deaktiviert und werden nur über Syst
 
 - **Ortssuche** (`/locations`) findet ab zwei Zeichen bis zu fünf Orte mit deutschen Bezeichnungen. Beim Ortswechsel bleiben Zeitraum, Aktivität, Mindestdauer und Wetterwünsche erhalten.
 - **Planung** (`/`) durchsucht standardmäßig heute. Start- und Enddatum liegen jeweils zwischen heute und heute + 6 Tagen am gewählten Ort. Ohne Enddatum gilt das Startdatum auch als Ende. Die Ergebnisse stehen chronologisch in Ortszeit. Bestehende Links mit `searchDate` suchen weiterhin genau einen Tag, wenn keine neuen Datumsparameter angegeben sind.
+- **Tageszeilen** zeigen passende Zeitfenster auf einer gemeinsamen Skala von 0 bis 24 Uhr. Ein Fenster über Mitternacht bleibt zusammenhängend beschriftet. Die Wetterwerte stehen in den aufklappbaren Details zum Fenster.
 - **Suchprofile** (`/profiles`) speichern Orts-ID, Ortsname, Aktivität, Mindestdauer und die drei Wetterwünsche. Du kannst Profile verwenden, bearbeiten oder löschen. Profilnamen sind unabhängig von Groß- und Kleinschreibung sowie äußeren Leerzeichen eindeutig. Datumsangaben gehören zur aktuellen Planung.
 - **Ältere Profile** bleiben verfügbar. Beim Start ergänzt die Anwendung bei doppelten Altnamen freie Nummern wie `(2)`. Fehlt der Ortsname, erscheint die Orts-ID als Platzhalter. Beim Bearbeiten kann der Ortsname nachgetragen werden.
 

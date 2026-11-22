@@ -19,7 +19,7 @@ async function assertNoOverflow(page) {
 }
 
 async function runScenario(javaScriptEnabled, width) {
-  const page = await browser.newPage({ locale: 'de-DE', javaScriptEnabled, viewport: { width, height: 900 } });
+  const page = await browser.newPage({ locale: 'de-DE', javaScriptEnabled, viewport: { width, height: 800 } });
   const name = javaScriptEnabled ? 'Browser demo profile' : 'No JavaScript demo profile';
   const editedName = `${name} updated`;
   const profileCard = heading => page.getByRole('listitem').filter({
@@ -32,11 +32,29 @@ async function runScenario(javaScriptEnabled, width) {
     await assertNoOverflow(page);
     await page.keyboard.press('Tab');
     assert.equal(await page.locator(':focus-visible').textContent(), 'Zum Inhalt');
+    const results = page.getByRole('region', { name: 'Passende Zeitfenster' });
+    assert.equal(await results.locator('.timeline-day').count(), 2);
+    assert.equal(await results.locator('.time-band').count(), 2);
+    const window = results.locator('details');
+    assert.equal(await window.count(), 1);
+    assert.match(await window.getByText('3 Std.', { exact: false }).textContent(), /3 Std\./);
+    await window.locator('summary').click();
+    assert.ok(await window.getByText('22 °C', { exact: true }).isVisible());
+    if (width === 360) {
+      await page.getByRole('link', { name: 'Suche anpassen' }).click();
+      assert.equal(await page.locator(':focus').getAttribute('id'), 'planning-form');
+    }
     await page.getByLabel('Aktivität').selectOption('CYCLING');
     await page.getByLabel('Mindestdauer in Minuten').fill('95');
-    await page.getByLabel('Temperatur').selectOption('WARM');
-    await page.getByLabel('Wind', { exact: true }).selectOption('MODERATE');
-    await page.getByLabel('Niederschlag').selectOption('DRY');
+    const choices = [
+      ['Temperatur', /Warm.*20–30 °C/],
+      ['Wind', /Höchstens mäßiger Wind.*bis 30 km\/h/],
+      ['Niederschlag', /Trocken.*bis 0,0 mm\/h/],
+    ];
+    const radio = (group, name) => page.getByRole('group', { name: group, exact: true }).getByRole('radio', { name });
+    for (const [group, name] of choices) {
+      await radio(group, name).check();
+    }
     await page.getByRole('button', { name: 'Ort ändern' }).click();
     await page.getByLabel('Ortsname').fill('Testhafen');
     await page.getByRole('button', { name: 'Suchen', exact: true }).click();
@@ -45,10 +63,12 @@ async function runScenario(javaScriptEnabled, width) {
 
     for (const [label, value] of [
       ['Aktivität', 'CYCLING'], ['Mindestdauer in Minuten', '95'],
-      ['Temperatur', 'WARM'], ['Wind', 'MODERATE'], ['Niederschlag', 'DRY'],
       ['Startdatum', date], ['Enddatum', followingDate],
     ]) {
       assert.equal(await page.getByLabel(label, { exact: true }).inputValue(), value);
+    }
+    for (const [group, name] of choices) {
+      assert.ok(await radio(group, name).isChecked());
     }
     await page.getByLabel('Profilname').fill(name);
     await page.getByRole('button', { name: 'Suchprofil speichern' }).click();

@@ -127,7 +127,7 @@ class SearchProfileHttpTests {
                             + "&temperaturePreference=WARM&windPreference=MODERATE&precipitationPreference=LIGHT_RAIN");
             assertEquals(200, rejectedEdit.statusCode());
             assertTrue(rejectedEdit.body().contains("Diesen Profilnamen gibt es schon."));
-            assertTrue(rejectedEdit.body().contains("value=\" NAME SCHON DA \""));
+            assertTrue(rejectedEdit.body().contains("> NAME SCHON DA </textarea>"));
             assertTrue(rejectedEdit.body().contains("value=\"125\""));
             assertEquals("Edit original", repository.findById(original.getId()).orElseThrow().getName());
 
@@ -135,7 +135,7 @@ class SearchProfileHttpTests {
                     profileForm("Entwurf", 123).replace("minDurationMinutes=60", "minDurationMinutes=abc"));
             assertEquals(400, invalidEdit.statusCode());
             assertTrue(invalidEdit.body().contains("Die Mindestdauer muss mindestens eine Minute betragen."));
-            assertTrue(invalidEdit.body().contains("value=\"Entwurf\""));
+            assertTrue(invalidEdit.body().contains(">Entwurf</textarea>"));
         } finally {
             repository.deleteById(original.getId());
             repository.deleteById(duplicate.getId());

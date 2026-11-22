@@ -20,42 +20,42 @@
                    th:attr="aria-invalid=${invalidFields != null and invalidFields.contains('minDurationMinutes') ? 'true' : null}">
         </div>
     </div>
-    <fieldset>
-        <legend>Wetterwünsche</legend>
-        <div class="field-grid weather-fields">
-            <div class="field">
-                <label for="temperaturePreference">Temperatur</label>
-                <select id="temperaturePreference" name="temperaturePreference" required
-                        th:attr="aria-invalid=${invalidFields != null and invalidFields.contains('temperaturePreference') ? 'true' : null}">
-                    <option value="" th:if="${!(temperature instanceof T(de.anton.wannpasstes.TemperaturePreference))}" selected>Bitte wählen</option>
-                    <option th:each="option : ${T(de.anton.wannpasstes.TemperaturePreference).values()}"
-                            th:value="${option.name()}" th:text="${option.label}"
-                            th:selected="${option.name() == temperature?.toString()}"></option>
-                </select>
-            </div>
-            <div class="field">
-                <label for="windPreference">Wind</label>
-                <select id="windPreference" name="windPreference" required
-                        th:attr="aria-invalid=${invalidFields != null and invalidFields.contains('windPreference') ? 'true' : null}">
-                    <option value="" th:if="${!(wind instanceof T(de.anton.wannpasstes.WindPreference))}" selected>Bitte wählen</option>
-                    <option th:each="option : ${T(de.anton.wannpasstes.WindPreference).values()}"
-                            th:value="${option.name()}" th:text="${option.label}"
-                            th:selected="${option.name() == wind?.toString()}"></option>
-                </select>
-            </div>
-            <div class="field">
-                <label for="precipitationPreference">Niederschlag</label>
-                <select id="precipitationPreference" name="precipitationPreference" required
-                        th:attr="aria-invalid=${invalidFields != null and invalidFields.contains('precipitationPreference') ? 'true' : null}">
-                    <option value="" th:if="${!(precipitation instanceof T(de.anton.wannpasstes.PrecipitationPreference))}" selected>Bitte wählen</option>
-                    <option th:each="option : ${T(de.anton.wannpasstes.PrecipitationPreference).values()}"
-                            th:value="${option.name()}" th:text="${option.label}"
-                            th:selected="${option.name() == precipitation?.toString()}"></option>
-                </select>
-            </div>
-        </div>
-    </fieldset>
+    <div class="weather-fields" role="group" aria-labelledby="weather-title"
+         th:with="temperatureOptions=${T(de.anton.wannpasstes.TemperaturePreference).values()},
+                  windOptions=${T(de.anton.wannpasstes.WindPreference).values()},
+                  precipitationOptions=${T(de.anton.wannpasstes.PrecipitationPreference).values()}">
+        <h3 id="weather-title">Wetterwünsche</h3>
+        <fieldset th:replace="~{fields :: weatherOptions('temperaturePreference', 'Temperatur',
+                  ${temperatureOptions}, ${temperature})}"></fieldset>
+        <fieldset th:replace="~{fields :: weatherOptions('windPreference', 'Wind',
+                  ${windOptions}, ${wind})}"></fieldset>
+        <fieldset th:replace="~{fields :: weatherOptions('precipitationPreference', 'Niederschlag',
+                  ${precipitationOptions}, ${precipitation})}"></fieldset>
+    </div>
 </th:block>
+
+<fieldset th:fragment="weatherOptions(name, title, options, selected)">
+    <legend th:text="${title}"></legend>
+    <div class="option-list">
+        <label class="choice" th:each="option : ${options}">
+            <input type="radio" th:name="${name}" th:value="${option.name()}"
+                   th:checked="${option.name() == selected?.toString()}" required
+                   th:attr="aria-invalid=${invalidFields != null and invalidFields.contains(name) ? 'true' : null}">
+            <span>
+                <span th:text="${option.label}"></span>
+                <th:block th:if="${option.name() != 'ANY'}" th:switch="${name}">
+                    <span class="meta" th:case="'temperaturePreference'"
+                          th:text="|${#numbers.formatInteger(option.minTemperatureCelsius, 1)}–${#numbers.formatInteger(option.maxTemperatureCelsius, 1)} °C|"></span>
+                    <span class="meta" th:case="'windPreference'"
+                          th:text="|bis ${#numbers.formatInteger(option.maxWindKmh, 1)} km/h|"></span>
+                    <span class="meta" th:case="'precipitationPreference'"
+                          th:text="|bis ${#numbers.formatDecimal(option.maxPrecipitationMm, 1, 1, 'COMMA')} mm/h|"></span>
+                </th:block>
+            </span>
+        </label>
+    </div>
+</fieldset>
+
 <th:block th:fragment="hiddenSelection(parameters, locationId)">
     <input type="hidden" name="locationId" th:value="${locationId}">
     <th:block th:each="parameter : ${parameters}">

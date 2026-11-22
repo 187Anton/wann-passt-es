@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="de">
+<body>
+<th:block th:fragment="days(timeline)">
+    <div class="time-scale meta" aria-hidden="true">
+        <span>0</span><span>6</span><span>12</span><span>18</span><span>24 Uhr</span>
+    </div>
+    <ul class="timeline" role="list">
+        <li class="timeline-day" th:each="day : ${timeline}">
+            <h3 class="day-heading">
+                <time th:datetime="${day.date()}" th:text="${day.label()}"></time>
+                <span class="meta past-key" th:if="${day.pastMinutes() > 0}">Vergangene Stunden</span>
+            </h3>
+            <div class="day-track" aria-hidden="true">
+                <span class="past-track" th:if="${day.pastMinutes() > 0}"
+                      th:style="|--past: ${day.pastMinutes()}|"></span>
+                <span class="track-tick"></span><span class="track-tick"></span><span class="track-tick"></span>
+                <span class="time-band" th:each="band : ${day.bands()}"
+                      th:style="|--from: ${band.startMinute()}; --to: ${band.endMinute()}|"></span>
+            </div>
+            <p class="meta" th:if="${day.bands().isEmpty()}">Keine passenden Zeiten</p>
+            <ul class="window-list" role="list" th:unless="${day.entries().isEmpty()}">
+                <li th:each="entry : ${day.entries()}">
+                    <details class="window-entry">
+                        <summary>
+                            <span class="window-time">
+                                <time th:datetime="${entry.window().start()}" th:text="${entry.startLabel()}"></time>
+                                <span>–</span>
+                                <time th:datetime="${entry.window().end()}" th:text="${entry.endLabel()}"></time>
+                                <span class="window-duration meta" th:text="${' · ' + entry.duration()}"></span>
+                            </span>
+                            <span class="detail-label meta">Wetterdetails</span>
+                        </summary>
+                        <dl class="weather-details">
+                            <div><dt>Temperatur</dt><dd th:text="${entry.temperature()}"></dd></div>
+                            <div><dt>Wind</dt><dd th:text="${entry.wind()}"></dd></div>
+                            <div><dt>Niederschlag</dt><dd th:text="${entry.precipitation()}"></dd></div>
+                        </dl>
+                    </details>
+                </li>
+            </ul>
+        </li>
+    </ul>
+</th:block>
+</body>
+</html>

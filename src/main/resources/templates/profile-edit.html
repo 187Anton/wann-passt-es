@@ -7,29 +7,30 @@
         <p th:text="${profile.name}"></p>
     </div>
     <form class="panel edit-form compact" th:action="@{/profiles/{id}/edit(id=${profile.id})}" method="post">
-        <p th:if="${profileError}" class="status error" role="alert" th:text="${profileError}"></p>
+        <p th:if="${profileError}" class="status error" id="profile-error" role="alert" th:text="${profileError}"></p>
         <div class="field">
             <label for="profileName">Profilname</label>
-            <input type="text" id="profileName" name="profileName" th:value="${profileNameValue}" required>
+            <textarea id="profileName" name="profileName" rows="2" th:text="${profileNameValue}" required
+                      th:attr="aria-describedby=${profileError != null ? 'profile-error' : null}"></textarea>
         </div>
         <fieldset>
             <legend>Ort</legend>
             <div class="location-options">
-                <label class="location-option">
+                <label class="choice">
                     <input type="radio" name="locationId" th:value="${profile.locationId}"
                            th:checked="${selectedLocationId == profile.locationId}" required>
                     <span th:text="${profile.locationName ?: 'Ort ' + profile.locationId}"></span>
                 </label>
-                <label class="location-option" th:if="${showSelectedLocation}">
+                <label class="choice" th:if="${showSelectedLocation}">
                     <input type="radio" name="locationId" th:value="${selectedLocationId}" checked>
                     <span th:text="${'Ort ' + selectedLocationId}"></span>
                 </label>
-                <label class="location-option" th:each="location : ${locations}">
+                <label class="choice" th:each="location : ${locations}">
                     <input type="radio" name="locationId" th:value="${location.id()}"
                            th:checked="${selectedLocationId == location.id()}">
                     <span>
                         <strong th:text="${location.name()}"></strong>
-                        <small class="muted" th:text="${location.region() ?: location.country()}"></small>
+                        <small class="meta" th:text="${location.region() ?: location.country()}"></small>
                     </span>
                 </label>
             </div>

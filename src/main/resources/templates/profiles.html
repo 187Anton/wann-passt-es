@@ -13,12 +13,12 @@
         <p>Gib deiner Auswahl in der Planung einen Profilnamen, um sie später wiederzuverwenden.</p>
         <a class="button secondary" th:href="@{/}">Zur Planung</a>
     </div>
-    <ul th:unless="${#lists.isEmpty(profiles)}" class="card-list profile-list">
-        <li class="panel profile-card" th:each="profile : ${profiles}">
+    <ul th:unless="${#lists.isEmpty(profiles)}" class="panel profile-list" role="list">
+        <li class="profile-row" th:each="profile : ${profiles}">
             <div>
                 <p class="profile-place" th:text="${profile.locationName ?: 'Ort ' + profile.locationId}"></p>
                 <h2 th:text="${profile.name}"></h2>
-                <p class="muted" th:text="${profile.activity.label + ' · ab ' + profile.minDurationMinutes + ' Min.'}"></p>
+                <p class="meta" th:text="${profile.activity.label + ' · ab ' + profile.minDurationMinutes + ' Min.'}"></p>
             </div>
             <dl class="profile-preferences">
                 <div><dt>Temperatur</dt><dd th:text="${profile.temperaturePreference.label}"></dd></div>
@@ -35,7 +35,7 @@
                 <a class="button secondary" th:href="@{/profiles/{id}/edit(id=${profile.id})}">Bearbeiten</a>
                 <form th:action="@{/profiles/delete}" method="post" data-confirm="Dieses Profil wirklich löschen?">
                     <input type="hidden" name="id" th:value="${profile.id}">
-                    <button class="button danger" type="submit">Löschen</button>
+                    <button class="text-button" type="submit">Löschen</button>
                 </form>
             </div>
         </li>

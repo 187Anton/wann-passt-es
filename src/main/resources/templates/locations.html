@@ -13,7 +13,7 @@
                 <label for="query">Ortsname</label>
                 <input type="search" id="query" name="query" minlength="2" th:value="${query}"
                        aria-describedby="search-hint" required>
-                <small id="search-hint" class="muted">Mindestens zwei Zeichen</small>
+                <small id="search-hint" class="meta">Mindestens zwei Zeichen</small>
             </div>
             <button class="button primary" type="submit" data-loading="Orte werden gesucht …">Suchen</button>
             <p class="status loading" data-form-status role="status"></p>
@@ -22,11 +22,11 @@
         <p th:if="${searchPerformed and locationError == null and #lists.isEmpty(locations)}" class="status empty">
             Keine passenden Orte gefunden. Versuche es mit einer anderen Schreibweise.
         </p>
-        <ul th:unless="${#lists.isEmpty(locations)}" class="card-list location-list" aria-label="Gefundene Orte">
+        <ul th:unless="${#lists.isEmpty(locations)}" class="card-list location-list" role="list" aria-label="Gefundene Orte">
             <li class="panel location-result" th:each="location : ${locations}">
                 <div>
                     <h2 th:text="${location.name()}"></h2>
-                    <p class="muted">
+                    <p class="meta">
                         <span th:if="${location.region()}" th:text="${location.region()}"></span>
                         <span th:if="${location.region() != null and location.country() != null}"> · </span>
                         <span th:text="${location.country()}"></span>

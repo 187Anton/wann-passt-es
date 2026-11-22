@@ -85,6 +85,7 @@ public class MainpageController {
                     .filter(window -> window.durationMinutes() >= selection.minDurationMinutes())
                     .toList();
             model.addAttribute("suitableWindows", suitableWindows);
+            model.addAttribute("timeline", PlanningTimeline.create(start, end, now, zone, suitableWindows, hours));
         } catch (RestClientException | DateTimeException exception) {
             model.addAttribute("weatherError", "Der Ort oder die Wetterdaten konnten nicht geladen werden. "
                     + "Bitte versuche es später erneut.");

@@ -92,20 +92,26 @@ class PlanningWebTests {
         when(weatherClient.fetchForecast(LOCATION.latitude(), LOCATION.longitude(), ZONE))
                 .thenReturn(List.of(hour(nextAfternoon), hour(nextAfternoon.plusHours(1)), hour(nextAfternoon.plusHours(2)),
                         hour(nextAfternoon.plusHours(3)), hour(evening.plusHours(3)), hour(evening.plusHours(1)),
-                        hour(evening), hour(evening.plusHours(2))));
+                        new WeatherHour(17.5, evening, 8.5, 2, 0), hour(evening.plusHours(2))));
 
         mvc.perform(get("/").param("startDate", start.toString()).param("endDate", start.plusDays(1).toString())
                         .param("minDurationMinutes", "180"))
                 .andExpect(status().isOk())
                 .andExpect(model().attribute("suitableWindows", List.of(crossMidnight, afternoon)))
-                .andExpect(content().string(containsString("180 Min.")))
-                .andExpect(content().string(containsString("01:00")));
+                .andExpect(content().string(containsString("3 Std.")))
+                .andExpect(content().string(containsString("01:00")))
+                .andExpect(content().string(containsString("--from: 1320; --to: 1440")))
+                .andExpect(content().string(containsString("--from: 0; --to: 60")))
+                .andExpect(content().string(containsString("17,5–18 °C")))
+                .andExpect(content().string(containsString("8,5–10 km/h")))
+                .andExpect(content().string(containsString("<dd>0 mm/h</dd>")));
 
         mvc.perform(get("/").param("searchDate", start.toString()))
                 .andExpect(status().isOk())
                 .andExpect(model().attribute("startDate", start))
                 .andExpect(model().attribute("endDate", start))
-                .andExpect(model().attribute("suitableWindows", List.of(new TimeWindow(evening, evening.plusHours(2)))));
+                .andExpect(model().attribute("suitableWindows", List.of(new TimeWindow(evening, evening.plusHours(2)))))
+                .andExpect(content().string(containsString(">24:00</time>")));
     }
 
     @Test
