@@ -89,6 +89,7 @@ public class MainpageController {
                 precipitationPreference);
 
         model.addAttribute("suitableWindows", plan.windows());
+        model.addAttribute("resultDays", plan.days());
         model.addAttribute("weatherError", plan.error());
         model.addAttribute("minDurationMinutes", minDurationMinutes);
         model.addAttribute("locationId", locationId);
@@ -156,7 +157,7 @@ public class MainpageController {
         String rangeError = validateRange(start, end, today, lastDate);
         if (rangeError != null) {
             return new Plan(location.name(), today, lastDate, start, end,
-                    List.of(), rangeError);
+                    List.of(), List.of(), rangeError);
         }
 
         OffsetDateTime rangeBegin = start.atStartOfDay(zone).toOffsetDateTime();
@@ -168,7 +169,7 @@ public class MainpageController {
                     location.latitude(), location.longitude(), zone));
         } catch (RestClientException exception) {
             return new Plan(location.name(), today, lastDate, start, end,
-                    List.of(), WEATHER_UNAVAILABLE);
+                    List.of(), List.of(), WEATHER_UNAVAILABLE);
         }
 
         hours.removeIf(hour -> hour == null
@@ -186,7 +187,10 @@ public class MainpageController {
 
         windows.removeIf(window -> window.durationMinutes() < minDurationMinutes);
 
-        return new Plan(location.name(), today, lastDate, start, end, windows, null);
+        List<PlanningTimeline.Day> days = PlanningTimeline.build(
+                windows, start, end, zone, hours, now);
+
+        return new Plan(location.name(), today, lastDate, start, end, windows, days, null);
     }
 
     private ZoneId parseZone(GeocodingResponse.Location location) {
@@ -217,10 +221,11 @@ public class MainpageController {
             LocalDate start,
             LocalDate end,
             List<TimeWindow> windows,
+            List<PlanningTimeline.Day> days,
             String error) {
 
         static Plan failed(LocalDate start, LocalDate end, String error) {
-            return new Plan(null, null, null, start, end, List.of(), error);
+            return new Plan(null, null, null, start, end, List.of(), List.of(), error);
         }
     }
 }
