@@ -176,6 +176,36 @@ class MainpageWebMvcTests {
     }
 
     @Test
+    void rendersDayRowsWeatherDetailsAndWishesAsRadioButtons() throws Exception {
+        // tomorrow 22:00 until the day after tomorrow 02:00; the third day has no window
+        when(weatherClient.fetchForecast(anyDouble(), anyDouble(), any()))
+                .thenReturn(forecast(Set.of(22, 23, 24, 25, 26)));
+
+        String html = mvc.perform(get("/")
+                        .param("startDate", today.plusDays(1).toString())
+                        .param("endDate", today.plusDays(3).toString())
+                        .param("windPreference", "MODERATE"))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        // One row per day of the period, the window is listed once and continued once.
+        assertEquals(3, html.split("class=\"day\"", -1).length - 1);
+        assertEquals(1, html.split("<details class=\"window\"", -1).length - 1);
+        assertEquals(1, html.split("window--continued", -1).length - 1);
+        assertEquals(2, html.split("class=\"band__window", -1).length - 1);
+        org.hamcrest.MatcherAssert.assertThat(html, allOf(
+                containsString("Fortsetzung"),
+                containsString("Kein passendes Zeitfenster"),
+                containsString("4 Std."),
+                containsString("18 °C"),
+                containsString("5 km/h"),
+                containsString("0,0 mm/h"),
+                containsString("<input type=\"radio\" name=\"windPreference\" value=\"MODERATE\" checked=\"checked\">"),
+                containsString("<input type=\"radio\" name=\"windPreference\" value=\"WEAK\">"),
+                containsString("bis 30 km/h")));
+    }
+
+    @Test
     void explainsWhenNoWindowMatches() throws Exception {
         when(weatherClient.fetchForecast(anyDouble(), anyDouble(), any())).thenReturn(forecast(Set.of()));
 

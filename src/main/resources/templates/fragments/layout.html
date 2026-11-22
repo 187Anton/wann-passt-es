@@ -15,16 +15,17 @@
     <header class="site-header">
         <div class="container site-header__inner">
             <a class="brand" th:href="@{/}">
-                <svg class="brand__icon" aria-hidden="true" viewBox="0 0 32 32" width="28" height="28">
-                    <circle cx="12" cy="13" r="6" fill="#f2b233"/>
-                    <path d="M10 25h14a5 5 0 0 0 0-10 7 7 0 0 0-13.3 2.2A4 4 0 0 0 10 25z" fill="#1a56a8"/>
+                <!-- Brand mark: a day band with one suitable window, the app's signature element. -->
+                <svg class="brand__mark" aria-hidden="true" viewBox="0 0 32 32" width="32" height="32">
+                    <rect class="brand__band" x="2" y="10" width="28" height="12" rx="4"/>
+                    <rect class="brand__window" x="13.5" y="12.5" width="11" height="7" rx="2"/>
                 </svg>
                 <span>Wann passt es?</span>
             </a>
             <nav class="site-nav" aria-label="Hauptnavigation">
                 <ul>
                     <li><a th:href="@{/}" th:attr="aria-current=${active == 'planning'} ? 'page' : null">Planung</a></li>
-                    <li><a th:href="@{/locations}" th:attr="aria-current=${active == 'locations'} ? 'page' : null">Ort suchen</a></li>
+                    <li><a th:href="@{/locations}" th:attr="aria-current=${active == 'locations'} ? 'page' : null">Ortssuche</a></li>
                     <li><a th:href="@{/profiles}" th:attr="aria-current=${active == 'profiles'} ? 'page' : null">Suchprofile</a></li>
                 </ul>
             </nav>
@@ -33,7 +34,7 @@
 </th:block>
 
 <footer th:fragment="footer" class="site-footer">
-    <div class="container">
+    <div class="container site-footer__inner">
         <p>
             Wetterdaten: <a href="https://open-meteo.com/">Open-Meteo</a>.
             Ortsdaten: <a href="https://www.geonames.org/">GeoNames</a>
@@ -45,6 +46,21 @@
         </p>
     </div>
 </footer>
+
+<!--
+  One weather wish as a group of radio buttons with the visible limit next to
+  each option, e.g. "Höchstens mäßiger Wind · bis 30 km/h".
+-->
+<fieldset th:fragment="choices(legend, name, options, selected)" class="choices">
+    <legend class="label" th:text="${legend}">Wind</legend>
+    <label class="choice" th:each="option : ${options}">
+        <input type="radio" th:name="${name}" th:value="${option.name()}" th:checked="${option == selected}">
+        <span class="choice__text">
+            <span class="choice__name" th:text="${option.label}">Höchstens schwacher Wind</span>
+            <span class="choice__limit" th:text="${option.description}">bis 15 km/h</span>
+        </span>
+    </label>
+</fieldset>
 
 </body>
 </html>
