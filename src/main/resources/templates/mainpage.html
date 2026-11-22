@@ -80,6 +80,8 @@
                     <p class="results-panel__meta"
                        th:if="${weatherError == null and rangeLabel != null and rangeLabel != ''}">
                         <span th:text="${rangeLabel}">22.11.2026</span>
+                        <span class="meta__separator" aria-hidden="true"
+                              th:if="${#lists.size(suitableWindows) > 0}">·</span>
                         <span th:if="${#lists.size(suitableWindows) == 1}">1 Zeitfenster</span>
                         <span th:if="${#lists.size(suitableWindows) > 1}"
                               th:text="${#lists.size(suitableWindows)} + ' Zeitfenster'">3 Zeitfenster</span>

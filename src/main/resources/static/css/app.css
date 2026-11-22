@@ -404,6 +404,7 @@ svg {
     color: var(--text-secondary);
     font-size: var(--fs-meta);
     line-height: var(--lh-meta);
+    font-weight: 500;
 }
 
 .search-summary__facts dd {
@@ -871,12 +872,6 @@ input::placeholder {
     font-variant-numeric: tabular-nums;
 }
 
-.results-panel__meta > span + span::before {
-    content: "·";
-    margin-right: var(--s2);
-    color: var(--text-secondary);
-}
-
 .legend {
     display: flex;
     flex-wrap: wrap;
@@ -1119,6 +1114,7 @@ input::placeholder {
 
 .weather-details__list dt {
     color: var(--text-secondary);
+    font-weight: 500;
 }
 
 .weather-details__list dd {
@@ -1295,6 +1291,7 @@ input::placeholder {
     color: var(--text-secondary);
     font-size: var(--fs-meta);
     line-height: var(--lh-meta);
+    font-weight: 500;
 }
 
 .profile-row__facts dd {
