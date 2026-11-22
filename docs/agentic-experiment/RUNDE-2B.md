@@ -194,24 +194,32 @@ Die Aufgabe ist abgeschlossen. Pushe jetzt ausschließlich deinen aktuellen Bran
 
 | Kriterium | Codex | Claude | Hermes |
 | --- | --- | --- | --- |
-| Gesamteindruck | | | |
-| Gleichgewicht (nichts springt grell heraus) | | | |
-| Ergebnisse schnell erfassbar | | | |
-| Formular angenehm bedienbar | | | |
-| Mobilansicht | | | |
-| Passt zum Zielbild „Himmel & Schiefer“ | | | |
-| Schöner als Runde 1? (ja/nein) | | | |
+| Gesamteindruck | 2,8 | 3,4 | 3,7 |
+| Gleichgewicht (nichts springt grell heraus) | 3,6 | 4 | 4 |
+| Ergebnisse schnell erfassbar | 3 | 4,5 | 4 |
+| Formular angenehm bedienbar | 4 | 4 | 4 |
+| Mobilansicht | 4,2 | 4 | 4,5 |
+| Passt zum Zielbild „Himmel & Schiefer“ | 4 | 4 | 4 |
+| Schöner als Runde 1? | ja | ja | ja |
+| Mittelwert der sechs Noten | 3,6 | 4,0 | 4,0 |
 
-Freitext: Was gefällt, was stört?
+Freitext des Nutzers (sinngemäß): Die Anwendung hat wenig Funktion und damit wenig darzustellen, nur eine Eingabe und eine Ausgabe, keine Bilder oder sonstigen Inhalte. Die Gestaltungsmöglichkeiten sind dadurch begrenzt, im Grunde geht es um ein Farbdesign, und das wurde jetzt getroffen. Die Eingabe ist einfach durchzuführen. Ansonsten gibt es nichts mehr auszusetzen.
 
 ## 8. Messwerte Runde 2b
 
 | Messgröße | Codex | Claude Code | Hermes + DeepSeek |
 | --- | --- | --- | --- |
-| Arbeitszeit | | | |
-| Tokens Input / Cache / Output | | | |
-| Kosten | | | |
-| Eingriffe / Freigaben | | | |
-| MCP tatsächlich genutzt | | | |
-| Commits | | | |
-| Z1–Z12 erfüllt | | | |
+| Modell | gpt-6.2-sol, reasoning high | claude-opus-5-5, high effort | deepseek-flash |
+| Arbeitszeit | 31:00 min | 17:08 min (Wallzeit 31:21) | ca. 31 min |
+| Tokens Input / Cache / Output | 190.665 / 6.558.720 / 31.224 (7.181 Reasoning) | 274 / 17,0 Mio. Read + 237,9k Write / 104,2k | 210.976 / Prompt gesamt 74.152.992 / 176.007 (97.456 Reasoning) |
+| Tokens gesamt | 6.780.609 | ca. 17,3 Mio. | 74.328.999 |
+| API-Aufrufe | – | 84 | 317 |
+| Kosten | 1,35 $ (Schätzung ccusage) | 7,39 $ (Schätzung Claude Code) | 0,39 $ (echte Abrechnung) |
+| Eingriffe / Freigaben | 0 / 0 | 0 / 0 | 0 / 0 |
+| MCP tatsächlich genutzt | ja | ja | ja |
+| Commits (ohne Aufgaben-Commit) | 2 | 4 | 4 |
+| Geänderte Zeilen (ohne Aufgaben-Commit) | +757 / −261 | +1.789 / −1.001 | +2.150 / −686 |
+| Tests laut Report | 66 (63 bestanden, 3 übersprungen) | 123 (0 Fehler, 3 übersprungen) | grün laut Report |
+| Z1–Z12 erfüllt | 12/12 laut Report | 12/12 laut Report | 12/12 laut Report |
+
+Vorbereitung: Beim MCP-Test vor dem Lauf haben Claude und Hermes das passende Chromium (Build 1252) selbst nachinstalliert; bei Hermes war zusätzlich `hermes gateway restart` nötig, weil das Gateway noch die alte MCP-Konfiguration ohne `--browser chromium` im Speicher hatte.

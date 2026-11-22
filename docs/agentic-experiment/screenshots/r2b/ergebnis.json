@@ -1,0 +1,356 @@
+{
+  "round": "r2b",
+  "date": "2026-11-22",
+  "targets": [
+    [
+      "codex",
+      "8081"
+    ],
+    [
+      "claude",
+      "8082"
+    ],
+    [
+      "hermes",
+      "8083"
+    ]
+  ],
+  "results": [
+    {
+      "agent": "codex",
+      "page": "planung",
+      "width": 360,
+      "status": 200,
+      "horizontalOverflow": false,
+      "file": "codex-planung-360.png"
+    },
+    {
+      "agent": "codex",
+      "page": "leer",
+      "width": 360,
+      "status": 200,
+      "horizontalOverflow": false,
+      "file": "codex-leer-360.png"
+    },
+    {
+      "agent": "codex",
+      "page": "fehler",
+      "width": 360,
+      "status": 400,
+      "horizontalOverflow": false,
+      "file": "codex-fehler-360.png"
+    },
+    {
+      "agent": "codex",
+      "page": "ortssuche",
+      "width": 360,
+      "status": 200,
+      "horizontalOverflow": false,
+      "file": "codex-ortssuche-360.png"
+    },
+    {
+      "agent": "codex",
+      "page": "profile",
+      "width": 360,
+      "status": 200,
+      "horizontalOverflow": false,
+      "file": "codex-profile-360.png"
+    },
+    {
+      "agent": "codex",
+      "page": "bearbeiten",
+      "width": 360,
+      "status": 200,
+      "horizontalOverflow": false,
+      "file": "codex-bearbeiten-360.png"
+    },
+    {
+      "agent": "codex",
+      "page": "404",
+      "width": 360,
+      "status": 404,
+      "horizontalOverflow": false,
+      "file": "codex-404-360.png"
+    },
+    {
+      "agent": "codex",
+      "page": "planung",
+      "width": 1280,
+      "status": 200,
+      "horizontalOverflow": false,
+      "file": "codex-planung-1280.png"
+    },
+    {
+      "agent": "codex",
+      "page": "leer",
+      "width": 1280,
+      "status": 200,
+      "horizontalOverflow": false,
+      "file": "codex-leer-1280.png"
+    },
+    {
+      "agent": "codex",
+      "page": "fehler",
+      "width": 1280,
+      "status": 400,
+      "horizontalOverflow": false,
+      "file": "codex-fehler-1280.png"
+    },
+    {
+      "agent": "codex",
+      "page": "ortssuche",
+      "width": 1280,
+      "status": 200,
+      "horizontalOverflow": false,
+      "file": "codex-ortssuche-1280.png"
+    },
+    {
+      "agent": "codex",
+      "page": "profile",
+      "width": 1280,
+      "status": 200,
+      "horizontalOverflow": false,
+      "file": "codex-profile-1280.png"
+    },
+    {
+      "agent": "codex",
+      "page": "bearbeiten",
+      "width": 1280,
+      "status": 200,
+      "horizontalOverflow": false,
+      "file": "codex-bearbeiten-1280.png"
+    },
+    {
+      "agent": "codex",
+      "page": "404",
+      "width": 1280,
+      "status": 404,
+      "horizontalOverflow": false,
+      "file": "codex-404-1280.png"
+    },
+    {
+      "agent": "claude",
+      "page": "planung",
+      "width": 360,
+      "status": 200,
+      "horizontalOverflow": false,
+      "file": "claude-planung-360.png"
+    },
+    {
+      "agent": "claude",
+      "page": "leer",
+      "width": 360,
+      "status": 200,
+      "horizontalOverflow": false,
+      "file": "claude-leer-360.png"
+    },
+    {
+      "agent": "claude",
+      "page": "fehler",
+      "width": 360,
+      "status": 400,
+      "horizontalOverflow": false,
+      "file": "claude-fehler-360.png"
+    },
+    {
+      "agent": "claude",
+      "page": "ortssuche",
+      "width": 360,
+      "status": 200,
+      "horizontalOverflow": false,
+      "file": "claude-ortssuche-360.png"
+    },
+    {
+      "agent": "claude",
+      "page": "profile",
+      "width": 360,
+      "status": 200,
+      "horizontalOverflow": false,
+      "file": "claude-profile-360.png"
+    },
+    {
+      "agent": "claude",
+      "page": "bearbeiten",
+      "width": 360,
+      "status": 200,
+      "horizontalOverflow": false,
+      "file": "claude-bearbeiten-360.png"
+    },
+    {
+      "agent": "claude",
+      "page": "404",
+      "width": 360,
+      "status": 404,
+      "horizontalOverflow": false,
+      "file": "claude-404-360.png"
+    },
+    {
+      "agent": "claude",
+      "page": "planung",
+      "width": 1280,
+      "status": 200,
+      "horizontalOverflow": false,
+      "file": "claude-planung-1280.png"
+    },
+    {
+      "agent": "claude",
+      "page": "leer",
+      "width": 1280,
+      "status": 200,
+      "horizontalOverflow": false,
+      "file": "claude-leer-1280.png"
+    },
+    {
+      "agent": "claude",
+      "page": "fehler",
+      "width": 1280,
+      "status": 400,
+      "horizontalOverflow": false,
+      "file": "claude-fehler-1280.png"
+    },
+    {
+      "agent": "claude",
+      "page": "ortssuche",
+      "width": 1280,
+      "status": 200,
+      "horizontalOverflow": false,
+      "file": "claude-ortssuche-1280.png"
+    },
+    {
+      "agent": "claude",
+      "page": "profile",
+      "width": 1280,
+      "status": 200,
+      "horizontalOverflow": false,
+      "file": "claude-profile-1280.png"
+    },
+    {
+      "agent": "claude",
+      "page": "bearbeiten",
+      "width": 1280,
+      "status": 200,
+      "horizontalOverflow": false,
+      "file": "claude-bearbeiten-1280.png"
+    },
+    {
+      "agent": "claude",
+      "page": "404",
+      "width": 1280,
+      "status": 404,
+      "horizontalOverflow": false,
+      "file": "claude-404-1280.png"
+    },
+    {
+      "agent": "hermes",
+      "page": "planung",
+      "width": 360,
+      "status": 200,
+      "horizontalOverflow": false,
+      "file": "hermes-planung-360.png"
+    },
+    {
+      "agent": "hermes",
+      "page": "leer",
+      "width": 360,
+      "status": 200,
+      "horizontalOverflow": false,
+      "file": "hermes-leer-360.png"
+    },
+    {
+      "agent": "hermes",
+      "page": "fehler",
+      "width": 360,
+      "status": 200,
+      "horizontalOverflow": false,
+      "file": "hermes-fehler-360.png"
+    },
+    {
+      "agent": "hermes",
+      "page": "ortssuche",
+      "width": 360,
+      "status": 200,
+      "horizontalOverflow": false,
+      "file": "hermes-ortssuche-360.png"
+    },
+    {
+      "agent": "hermes",
+      "page": "profile",
+      "width": 360,
+      "status": 200,
+      "horizontalOverflow": false,
+      "file": "hermes-profile-360.png"
+    },
+    {
+      "agent": "hermes",
+      "page": "bearbeiten",
+      "width": 360,
+      "status": 200,
+      "horizontalOverflow": false,
+      "file": "hermes-bearbeiten-360.png"
+    },
+    {
+      "agent": "hermes",
+      "page": "404",
+      "width": 360,
+      "status": 404,
+      "horizontalOverflow": false,
+      "file": "hermes-404-360.png"
+    },
+    {
+      "agent": "hermes",
+      "page": "planung",
+      "width": 1280,
+      "status": 200,
+      "horizontalOverflow": false,
+      "file": "hermes-planung-1280.png"
+    },
+    {
+      "agent": "hermes",
+      "page": "leer",
+      "width": 1280,
+      "status": 200,
+      "horizontalOverflow": false,
+      "file": "hermes-leer-1280.png"
+    },
+    {
+      "agent": "hermes",
+      "page": "fehler",
+      "width": 1280,
+      "status": 200,
+      "horizontalOverflow": false,
+      "file": "hermes-fehler-1280.png"
+    },
+    {
+      "agent": "hermes",
+      "page": "ortssuche",
+      "width": 1280,
+      "status": 200,
+      "horizontalOverflow": false,
+      "file": "hermes-ortssuche-1280.png"
+    },
+    {
+      "agent": "hermes",
+      "page": "profile",
+      "width": 1280,
+      "status": 200,
+      "horizontalOverflow": false,
+      "file": "hermes-profile-1280.png"
+    },
+    {
+      "agent": "hermes",
+      "page": "bearbeiten",
+      "width": 1280,
+      "status": 200,
+      "horizontalOverflow": false,
+      "file": "hermes-bearbeiten-1280.png"
+    },
+    {
+      "agent": "hermes",
+      "page": "404",
+      "width": 1280,
+      "status": 404,
+      "horizontalOverflow": false,
+      "file": "hermes-404-1280.png"
+    }
+  ]
+}

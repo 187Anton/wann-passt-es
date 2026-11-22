@@ -3,6 +3,8 @@
 Durchgeführt am 21.11.2026. Aufbau, Start-Prompt und Regeln stehen in [`EXPERIMENT.md`](EXPERIMENT.md), die Aufgabe in `TASK.md` auf dem Branch `agentic/baseline` (Tag `agentic-baseline`).
 
 > **Runde 2** (Design-Skill und visuelle Selbstkontrolle) ist am Ende dieses Dokuments ausgewertet. Kernbefund: Der Skill hat den Einheitslook verhindert, aber nach Urteil des Nutzers ein unstimmigeres Design erzeugt als Runde 1, weil er überwiegend aus Verboten bestand.
+>
+> **Runde 2b** (Community-Skill und positives Zielbild) folgt ganz am Ende. Kernbefund: Mit einem konkreten Designsystem wurden alle drei Oberflächen stimmig und nach Urteil des Nutzers schöner als Runde 1, gleichzeitig aber einander sehr ähnlich.
 
 ## Kurzfassung
 
@@ -309,3 +311,68 @@ Beim eigenen Durchklicken aller drei Anwendungen fiel das Urteil deutlich schlec
 - Playwright-MCP immer mit `--browser chromium` eintragen oder Google Chrome installieren, und vorher mit einem echten Werkzeugaufruf testen, nicht nur mit der Werkzeugliste.
 - Das Screenshot-Skript darf keine Zustände (wie doppelte Profile) erzeugen, die auf den Bildern sichtbar werden.
 - Laufende Anwendungen der Agenten nach dem Lauf beenden, sonst blockiert die H2-Datei den nächsten Start.
+
+---
+
+# Runde 2b: Community-Skill und positives Zielbild
+
+Durchgeführt am 22.11.2026, Aufbau und alle Messwerte in [`RUNDE-2B.md`](RUNDE-2B.md). Anlass war das Ergebnis von Runde 2: Der Verbots-Skill hatte regelkonforme, aber unstimmige Oberflächen erzeugt. In Runde 2b starteten alle drei Agenten wieder **vom Stand aus Runde 1** und bekamen den erprobten Community-Skill `interface-design` (MIT, unverändert) sowie ein gemeinsames, positiv beschriebenes Designsystem `.interface-design/system.md` in der Richtung „Himmel & Schiefer“: exakte Palette, Systemschrift mit Größen, Abstandsskala, zwei Radien, Seitenaufbau, Darstellung der Zeitfenster und eine Prüffrage zum Gleichgewicht. Die Richtung stammt aus einer ChatGPT-Recherche und wurde vom Nutzer ausgewählt. Das Playwright-MCP war diesmal korrekt eingerichtet (`--browser chromium`) und vor dem Lauf mit einem echten Aufruf getestet. Screenshots: [`screenshots/r2b/`](screenshots/r2b/), Gegenüberstellungen in [`screenshots/vergleich-r2b/`](screenshots/vergleich-r2b/).
+
+## R2b.1 Messwerte (Kurzfassung)
+
+| | Codex | Claude Code | Hermes + DeepSeek |
+| --- | --- | --- | --- |
+| Arbeitszeit | 31:00 min | 17:08 min | ca. 31 min |
+| Tokens gesamt | 6,78 Mio. | ca. 17,3 Mio. | 74,3 Mio. |
+| Kosten | 1,35 $ | 7,39 $ | 0,39 $ |
+| MCP genutzt | ja | ja | ja |
+| Geänderte Zeilen | +757 / −261 | +1.789 / −1.001 | +2.150 / −686 |
+
+Hermes hat gegenüber Runde 2 fast viermal so viele Tokens verbraucht (74 statt 19 Mio.) und kostete trotzdem nur 0,39 $, rund ein Neunzehntel von Claude. Claude war mit 17 Minuten der schnellste Lauf.
+
+## R2b.2 Prüfung der Vorgaben
+
+Im CSS aller drei Branches stehen alle neun Farbwerte aus `system.md` als Variablen, es gibt genau zwei Eckenradien (bei Hermes zusätzlich 50 % für runde Punkte), die vorgegebene Systemschrift und keine Verläufe. Die automatische Messung des Screenshot-Skripts ergab auf 0 von 42 Seiten horizontales Scrollen. Alle drei Agenten melden Z1–Z12 als erfüllt und haben alle sieben Seiten bei 360 und 1280 px über das Playwright-MCP geprüft und dabei selbst gefundene Probleme behoben.
+
+Unterschiede in der Arbeitsweise:
+
+- **Codex** arbeitete mit simulierten Orts- und Wetterdaten und einer Datenbank im Speicher. Das ist reproduzierbar und lässt keine Testdaten zurück.
+- **Claude** prüfte mit echten Wetterdaten und ergänzte eine automatische Prüfung auf Überlauf und abgeschnittenen Text. Es nennt offen drei Abweichungen: eine minimale Controller-Anpassung, damit die Wetterdetails Daten bekommen, eine Tab-Reihenfolge, die am Desktop zuerst zu den Ergebnissen springt, und einen Eckenradius von 0 an den Mitternachtskanten.
+- **Hermes** kann mit `deepseek-flash` keine Bilder ansehen. Es hat die Screenshots deshalb wie in Runde 2 pixelweise ausgewertet (Flächenfarben, Textzeilen, Bandpositionen) und mit DOM-Messungen abgeglichen. Nach dem Abschluss meldete Hermes zusätzlich eine „Bildprüfung“, die verspätet zurückkam, und ergänzte daraufhin seinen Bericht. **Die Hermes-Logs des Laufs belegen, dass dabei kein anderes Modell im Spiel war:** Alle Hilfsaufrufe liefen über `deepseek-flash` direkt bei DeepSeek, darunter 41 Freigabeprüfungen für Befehle („Auxiliary approval“) und zwei Aufrufe des Bildwerkzeugs („Vision auto-detect: using main provider deepseek (deepseek-flash)“). Hermes hatte also kein zusätzliches Bildmodell, und alle Kosten stecken in den 0,39 $ der DeepSeek-Abrechnung. Wie viel `deepseek-flash` bei diesen zwei Bildaufrufen tatsächlich erkennen konnte, ist offen; laut Bericht beruhte die Prüfung im Wesentlichen auf der Pixelauswertung.
+
+## R2b.3 Bewertung durch den Nutzer
+
+| Kriterium (1–5) | Codex | Claude | Hermes |
+| --- | --- | --- | --- |
+| Gesamteindruck | 2,8 | 3,4 | **3,7** |
+| Gleichgewicht | 3,6 | 4 | 4 |
+| Ergebnisse schnell erfassbar | 3 | **4,5** | 4 |
+| Formular angenehm bedienbar | 4 | 4 | 4 |
+| Mobilansicht | 4,2 | 4 | **4,5** |
+| Passt zum Zielbild | 4 | 4 | 4 |
+| Schöner als Runde 1? | ja | ja | ja |
+| Mittelwert | 3,6 | 4,0 | 4,0 |
+
+**Alle drei Versionen sind nach Urteil des Nutzers schöner als Runde 1**, in Runde 2 war es keine. Hermes hat den besten Gesamteindruck und die beste Mobilansicht, Claude die am schnellsten erfassbaren Ergebnisse. Codex liegt beim Gesamteindruck und bei der Ergebnisdarstellung zurück.
+
+Freitext des Nutzers (sinngemäß): Die Anwendung hat wenig Funktion und damit wenig darzustellen, nur eine Eingabe und eine Ausgabe. Die Gestaltungsmöglichkeiten sind dadurch begrenzt, im Grunde geht es um ein Farbdesign, und das wurde jetzt getroffen. Die Eingabe ist einfach durchzuführen, ansonsten gibt es nichts mehr auszusetzen.
+
+## R2b.4 Beobachtungen
+
+**Die drei Ergebnisse sehen sich jetzt sehr ähnlich.** Gleiche Farben, gleiche Schrift, gleicher Aufbau mit Suchspalte links und Tageszeilen auf einer 0–24-Uhr-Skala rechts. Das ist gewollt: Ein konkretes Designsystem legt fast alles fest, die Agenten setzen es nur noch um. Unterschiede zeigen sich in Details: wie die Fenster beschriftet sind, wie die Wetterwünsche angeordnet sind (bei Codex als umrandete Kacheln, bei Claude und Hermes als ruhige Optionsliste) und wie ausführlich die Zusatzangaben ausfallen. Bei einer so kleinen Anwendung mit nur Eingabe und Ausgabe bleibt, wie der Nutzer anmerkt, ohnehin vor allem das Farbdesign als Gestaltungsspielraum.
+
+**Vergleich der drei Design-Ansätze:**
+
+| | Runde 1 | Runde 2 | Runde 2b |
+| --- | --- | --- | --- |
+| Vorgabe | keine | Verbots-Skill (eigener) | Community-Skill und positives Zielbild |
+| Ergebnis | generischer KI-Look, Codex und Hermes fast gleich | eigenständig, aber unstimmig; Claude und Hermes konzeptionell gleich | stimmig, alle drei sehr ähnlich |
+| Urteil des Nutzers | Ausgangspunkt | schlechter als Runde 1 | alle drei schöner als Runde 1 |
+
+## R2b.5 Fazit Runde 2b
+
+1. **Ein positives Zielbild wirkt, Verbote nicht.** Mit konkreter Palette, Maßen und Aufbau wurden alle drei Oberflächen stimmig und nach Urteil des Nutzers schöner als in Runde 1.
+2. **Je genauer die Vorgabe, desto austauschbarer die Agenten beim Design.** Die gestalterische Leistung lag hier zum großen Teil im Designsystem, nicht bei den Agenten. Unterschiede blieben in Details, Gründlichkeit und Dokumentation.
+3. **Der Mensch bleibt Teil der Abnahme.** Erst das Gesamturteil des Nutzers hat in Runde 2 das Problem sichtbar gemacht und in Runde 2b die Verbesserung bestätigt. Die messbaren Kriterien waren in beiden Runden erfüllt.
+4. **Werkzeuge vor dem Lauf echt testen.** Mit korrekt eingerichtetem und vorab erprobtem MCP haben alle drei das vorgesehene Werkzeug benutzt.
+5. **Kosten:** Hermes 0,39 $, Codex 1,35 $, Claude 7,39 $. Bei gleicher Nutzerbewertung von Hermes und Claude (Mittelwert 4,0) ist Hermes auch in dieser Runde das mit Abstand günstigste Ergebnis.
