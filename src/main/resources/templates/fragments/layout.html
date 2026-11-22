@@ -3,8 +3,9 @@
 <head th:fragment="head(pageTitle)">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#0f5f57">
+    <meta name="theme-color" content="#2F5E92">
     <title th:text="${pageTitle} + ' – Wann passt es?'">Wann passt es?</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/img/favicon.svg}">
     <link rel="stylesheet" th:href="@{/css/app.css}">
     <script th:src="@{/js/app.js}" defer></script>
 </head>
@@ -16,14 +17,17 @@
     <div class="site-header__inner">
         <a class="brand" th:href="@{/}">
             <svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
-                <circle cx="21" cy="11" r="6" fill="#e8b84b"/>
-                <path d="M8.5 25h15a5 5 0 0 0 .4-10 7.5 7.5 0 0 0-14.2-1.6A5.8 5.8 0 0 0 8.5 25Z"
-                      fill="#ffffff" stroke="#0f5f57" stroke-width="2" stroke-linejoin="round"/>
+                <rect x="2.5" y="12.5" width="27" height="9" rx="4.5"
+                      fill="var(--surface-inset)" stroke="var(--accent)" stroke-width="1.5"/>
+                <rect x="12" y="12.5" width="11" height="9" rx="4.5"
+                      fill="var(--window)" stroke="var(--accent)" stroke-width="1.5"/>
+                <path d="M12.5 9.5v-3M19.5 9.5v-3" stroke="var(--accent)" stroke-width="1.5"
+                      stroke-linecap="round"/>
             </svg>
-            <span class="brand__name">Wann passt es?</span>
+            <span>Wann passt es?</span>
         </a>
-        <nav class="site-nav" aria-label="Hauptnavigation">
-            <ul>
+        <nav aria-label="Hauptnavigation">
+            <ul class="nav">
                 <li>
                     <a th:href="@{/}"
                        th:classappend="${active == 'plan'} ? 'is-active'"
@@ -47,14 +51,13 @@
 <footer th:fragment="footer" class="site-footer">
     <div class="site-footer__inner">
         <p>
-            Wetterdaten von
-            <a href="https://open-meteo.com/">Open-Meteo</a>,
+            Wetterdaten von <a href="https://open-meteo.com/">Open-Meteo</a>,
             Ortsdaten von <a href="https://www.geonames.org/">GeoNames</a>
-            über <a href="https://open-meteo.com/">Open-Meteo</a>.
+            über Open-Meteo.
         </p>
         <p>
-            Die Bewertung verwendet vorläufige Beispielgrenzen und ist keine
-            Wettergarantie für deine Outdoor-Aktivität.
+            Vorläufige Beispielgrenzen, stündliche Näherung – keine Wettergarantie
+            für deine Outdoor-Aktivität.
         </p>
     </div>
 </footer>

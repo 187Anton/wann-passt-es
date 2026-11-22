@@ -8,8 +8,8 @@
 
 <main id="main" class="page page--narrow">
 
-    <section class="card error-card" aria-labelledby="error-title">
-        <p class="error-card__status">
+    <section class="panel error-panel" aria-labelledby="error-title">
+        <p class="status">
             Fehler <span th:text="${status}">404</span>
         </p>
         <h1 id="error-title"
@@ -17,17 +17,17 @@
             Es ist ein Fehler aufgetreten
         </h1>
 
-        <p th:if="${message != null and message != ''}" th:text="${message}">
+        <p class="error-panel__text" th:if="${message != null and message != ''}" th:text="${message}">
             Bitte gehe zurück zur Planung.
         </p>
-        <p th:if="${message == null or message == ''}">
+        <p class="error-panel__text" th:if="${message == null or message == ''}">
             Diesen Schritt konnten wir nicht abschließen. Bitte gehe zurück zur
             Planung und versuche es erneut.
         </p>
 
-        <div class="form-actions form-actions--split">
+        <div class="form-actions">
             <a class="btn btn--primary" th:href="@{/}">Zur Planung</a>
-            <a class="btn btn--ghost" th:href="@{/profiles}">Zu den Suchprofilen</a>
+            <a class="btn btn--quiet" th:href="@{/profiles}">Zu den Suchprofilen</a>
         </div>
     </section>
 

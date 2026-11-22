@@ -17,29 +17,32 @@
         </p>
     </div>
 
-    <div class="alerts" th:insert="~{fragments/layout :: flash}"></div>
+    <div class="alerts" th:if="${profileSuccess != null or profileError != null}"
+         th:insert="~{fragments/layout :: flash}"></div>
 
-    <div class="empty-state" th:if="${#lists.isEmpty(profiles)}">
-        <p class="empty-state__title">Noch keine Suchprofile gespeichert</p>
-        <p>
-            Stelle deine Auswahl auf der Planungsseite zusammen und speichere sie
-            dort unter einem Namen.
+    <div class="state" th:if="${#lists.isEmpty(profiles)}">
+        <p class="state__title">Noch keine Suchprofile gespeichert</p>
+        <p class="state__text">
+            Stelle deine Auswahl auf der Planungsseite zusammen und speichere sie dort
+            unter einem Namen.
         </p>
-        <p><a class="btn btn--primary" th:href="@{/}">Zur Planung</a></p>
+        <p class="state__action">
+            <a class="btn btn--primary" th:href="@{/}">Zur Planung</a>
+        </p>
     </div>
 
-    <section th:if="${!#lists.isEmpty(profiles)}" aria-labelledby="profiles-title">
-        <div class="section-head">
+    <section class="panel profiles-panel" th:if="${!#lists.isEmpty(profiles)}" aria-labelledby="profiles-title">
+        <div class="panel__head">
             <h2 id="profiles-title">Deine Profile</h2>
-            <p class="section-head__meta" th:text="${#lists.size(profiles)} + ' Einträge'">2 Einträge</p>
+            <p class="panel__meta" th:text="${#lists.size(profiles)} + ' Einträge'">2 Einträge</p>
         </div>
 
         <ul class="profile-list">
-            <li class="profile-card" th:each="profile : ${profiles}">
-                <div class="profile-card__head">
-                    <h3 class="profile-card__name" th:text="${profile.name}">Abendrunde</h3>
-                    <p class="profile-card__location">
-                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="chip__icon">
+            <li class="profile-row" th:each="profile : ${profiles}">
+                <div class="profile-row__ident">
+                    <h3 class="profile-row__name" th:text="${profile.name}">Abendrunde</h3>
+                    <p class="profile-row__place">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="profile-row__icon">
                             <path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11Z"
                                   fill="none" stroke="currentColor" stroke-width="2"/>
                             <circle cx="12" cy="10" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/>
@@ -55,14 +58,14 @@
                     </p>
                 </div>
 
-                <dl class="profile-card__facts">
+                <dl class="profile-row__facts">
                     <div>
                         <dt>Aktivität</dt>
                         <dd th:text="${profile.activity.label}">Radfahren</dd>
                     </div>
                     <div>
                         <dt>Mindestdauer</dt>
-                        <dd><span th:text="${profile.minDurationMinutes}">90</span> Minuten</dd>
+                        <dd><span th:text="${profile.minDurationMinutes}">90</span> Min.</dd>
                     </div>
                     <div>
                         <dt>Temperatur</dt>
@@ -78,7 +81,7 @@
                     </div>
                 </dl>
 
-                <div class="profile-card__actions">
+                <div class="profile-row__actions">
                     <a class="btn btn--primary btn--small"
                        th:href="@{/(locationId=${profile.locationId},
                                  activity=${profile.activity.name()},
@@ -94,7 +97,7 @@
                     </a>
                     <form class="inline-form" th:action="@{/profiles/delete}" method="post">
                         <input type="hidden" name="id" th:value="${profile.id}">
-                        <button class="btn btn--danger btn--small"
+                        <button class="btn btn--quiet btn--small btn--danger"
                                 type="submit"
                                 th:attr="data-confirm=${'Suchprofil „' + profile.name + '“ wirklich löschen?'}">
                             Löschen

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!--
+    Weather wishes as visible radio options. The limit values are read from the
+    enums so the labels cannot drift away from the rules.
+-->
+<th:block th:fragment="choices">
+    <div class="choice-group">
+        <p class="choice-group__label" id="temperature-label">Temperatur</p>
+        <div class="choices" role="radiogroup" aria-labelledby="temperature-label">
+            <label class="choice" th:each="preference : ${temperaturePreferences}">
+                <input type="radio"
+                       name="temperaturePreference"
+                       th:id="${'temperature-' + preference.name()}"
+                       th:value="${preference.name()}"
+                       th:checked="${preference == temperaturePreference}">
+                <span class="choice__text">
+                    <span class="choice__label" th:text="${preference.label}">Mild</span>
+                    <span class="choice__detail" th:if="${preference.name() != 'ANY'}"
+                          th:text="${#numbers.formatDecimal(preference.minTemperatureCelsius, 1, 0)
+                              + ' bis '
+                              + #numbers.formatDecimal(preference.maxTemperatureCelsius, 1, 0)
+                              + ' °C'}">15 bis 25 °C</span>
+                    <span class="choice__detail" th:if="${preference.name() == 'ANY'}">ohne Grenze</span>
+                </span>
+            </label>
+        </div>
+    </div>
+
+    <div class="choice-group">
+        <p class="choice-group__label" id="wind-label">Wind</p>
+        <div class="choices" role="radiogroup" aria-labelledby="wind-label">
+            <label class="choice" th:each="preference : ${windPreferences}">
+                <input type="radio"
+                       name="windPreference"
+                       th:id="${'wind-' + preference.name()}"
+                       th:value="${preference.name()}"
+                       th:checked="${preference == windPreference}">
+                <span class="choice__text">
+                    <span class="choice__label" th:text="${preference.label}">Höchstens mäßiger Wind</span>
+                    <span class="choice__detail" th:if="${preference.name() == 'ANY'}">ohne Grenze</span>
+                    <span class="choice__detail" th:unless="${preference.name() == 'ANY'}"
+                          th:text="${'bis ' + #numbers.formatDecimal(preference.maxWindKmh, 1, 0) + ' km/h'}">bis 30 km/h</span>
+                </span>
+            </label>
+        </div>
+    </div>
+
+    <div class="choice-group">
+        <p class="choice-group__label" id="precipitation-label">Niederschlag</p>
+        <div class="choices" role="radiogroup" aria-labelledby="precipitation-label">
+            <label class="choice" th:each="preference : ${precipitationPreferences}">
+                <input type="radio"
+                       name="precipitationPreference"
+                       th:id="${'precipitation-' + preference.name()}"
+                       th:value="${preference.name()}"
+                       th:checked="${preference == precipitationPreference}">
+                <span class="choice__text">
+                    <span class="choice__label" th:text="${preference.label}">Trocken</span>
+                    <span class="choice__detail" th:if="${preference.name() == 'ANY'}">ohne Grenze</span>
+                    <span class="choice__detail"
+                          th:if="${preference.name() != 'ANY' and preference.maxPrecipitationMm < 0.05}">kein Niederschlag</span>
+                    <span class="choice__detail"
+                          th:if="${preference.name() != 'ANY' and preference.maxPrecipitationMm >= 0.05}"
+                          th:text="${'bis ' + #numbers.formatDecimal(preference.maxPrecipitationMm, 1, 1) + ' mm/h'}">bis 0,2 mm/h</span>
+                </span>
+            </label>
+        </div>
+    </div>
+</th:block>
+
+</body>
+</html>

@@ -20,8 +20,8 @@
         </p>
     </div>
 
-    <section class="card" aria-labelledby="search-title">
-        <h2 id="search-title" class="card__title">Ortsname</h2>
+    <section class="panel locations-panel" aria-labelledby="search-title">
+        <h2 id="search-title" class="panel__title">Ortsname</h2>
 
         <form class="search-form" method="get" th:action="@{/locations}">
             <input type="hidden" name="activity" th:if="${activity != null}" th:value="${activity}">
@@ -39,7 +39,7 @@
 
             <div class="field">
                 <label for="query">Ortsname</label>
-                <div class="search-form__row">
+                <div class="search-row">
                     <input type="search"
                            id="query"
                            name="query"
@@ -60,19 +60,21 @@
         <span th:text="${locationError}">Die Ortssuche ist gerade nicht verfügbar.</span>
     </p>
 
-    <section class="results" aria-labelledby="results-title"
+    <section class="locations-results" aria-labelledby="results-title"
              th:if="${searchPerformed and locationError == null}">
         <div class="section-head">
             <h2 id="results-title">Treffer</h2>
             <p class="section-head__meta" th:text="${#lists.size(locations)} + ' Orte'">3 Orte</p>
         </div>
 
-        <div class="empty-state" th:if="${#lists.isEmpty(locations)}">
-            <p class="empty-state__title">Keine passenden Orte gefunden</p>
-            <p>Bitte prüfe die Schreibweise oder versuche einen größeren Ort in der Nähe.</p>
+        <div class="state" th:if="${#lists.isEmpty(locations)}">
+            <p class="state__title">Keine passenden Orte gefunden</p>
+            <p class="state__text">
+                Bitte prüfe die Schreibweise oder versuche einen größeren Ort in der Nähe.
+            </p>
         </div>
 
-        <ul class="result-list" th:if="${!#lists.isEmpty(locations)}">
+        <ul class="panel result-list" th:if="${!#lists.isEmpty(locations)}">
             <li th:each="option : ${locations}" class="result">
                 <a class="result__link" th:href="${option.url()}">
                     <span class="result__name" th:text="${option.location().name()}">Freiburg</span>

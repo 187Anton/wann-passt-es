@@ -23,8 +23,8 @@
         <span th:text="${profileError}">Bitte prüfe deine Eingaben.</span>
     </p>
 
-    <section class="card" aria-labelledby="edit-title">
-        <h2 id="edit-title" class="card__title">Einstellungen</h2>
+    <section class="panel edit-panel" aria-labelledby="edit-title">
+        <h2 id="edit-title" class="panel__title">Einstellungen</h2>
 
         <form class="form" method="post" th:action="@{/profiles/{id}/edit(id=${profileId})}">
             <div class="field">
@@ -39,8 +39,8 @@
                 <p class="hint" id="profileName-hint">1 bis 100 Zeichen, eindeutiger Name.</p>
             </div>
 
-            <fieldset class="fieldset">
-                <legend>Ort</legend>
+            <fieldset class="form-group">
+                <legend class="form-group__legend">Ort</legend>
                 <input type="hidden" name="locationId" th:value="${locationId}">
                 <input type="hidden" name="locationName" th:value="${locationName}">
                 <div class="location-row">
@@ -62,9 +62,9 @@
                 </div>
             </fieldset>
 
-            <fieldset class="fieldset">
-                <legend>Aktivität</legend>
-                <div class="form-grid">
+            <fieldset class="form-group">
+                <legend class="form-group__legend">Aktivität</legend>
+                <div class="form-group__body">
                     <div class="field">
                         <label for="activity">Aktivität</label>
                         <select id="activity" name="activity">
@@ -85,51 +85,25 @@
                                step="1"
                                inputmode="numeric"
                                th:value="${minDurationMinutes}">
+                        <p class="hint">Zum Beispiel 90 für eineinhalb Stunden.</p>
                     </div>
                 </div>
             </fieldset>
 
-            <fieldset class="fieldset">
-                <legend>Wetterwünsche</legend>
-                <div class="form-grid form-grid--three">
-                    <div class="field">
-                        <label for="temperaturePreference">Temperatur</label>
-                        <select id="temperaturePreference" name="temperaturePreference">
-                            <option th:each="preference : ${temperaturePreferences}"
-                                    th:value="${preference.name()}"
-                                    th:text="${preference.label}"
-                                    th:selected="${preference == temperaturePreference}">
-                            </option>
-                        </select>
-                    </div>
-
-                    <div class="field">
-                        <label for="windPreference">Wind</label>
-                        <select id="windPreference" name="windPreference">
-                            <option th:each="preference : ${windPreferences}"
-                                    th:value="${preference.name()}"
-                                    th:text="${preference.label}"
-                                    th:selected="${preference == windPreference}">
-                            </option>
-                        </select>
-                    </div>
-
-                    <div class="field">
-                        <label for="precipitationPreference">Niederschlag</label>
-                        <select id="precipitationPreference" name="precipitationPreference">
-                            <option th:each="preference : ${precipitationPreferences}"
-                                    th:value="${preference.name()}"
-                                    th:text="${preference.label}"
-                                    th:selected="${preference == precipitationPreference}">
-                            </option>
-                        </select>
-                    </div>
+            <fieldset class="form-group">
+                <legend class="form-group__legend">Wetterwünsche</legend>
+                <div class="form-group__body">
+                    <div th:replace="~{fragments/preferences :: choices}"></div>
+                    <p class="hint">
+                        Grenzen sind einschließlich gemeint. „Egal“ lässt das jeweilige
+                        Kriterium unberücksichtigt.
+                    </p>
                 </div>
             </fieldset>
 
-            <div class="form-actions form-actions--split">
+            <div class="form-actions">
                 <button class="btn btn--primary" type="submit">Änderungen speichern</button>
-                <a class="btn btn--ghost" th:href="@{/profiles}">Abbrechen</a>
+                <a class="btn btn--quiet" th:href="@{/profiles}">Abbrechen</a>
             </div>
         </form>
     </section>
