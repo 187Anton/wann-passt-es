@@ -116,10 +116,14 @@ Dann Messwerte und Zusammenfassungen der Agenten in den Chat geben. Die Befunde 
 
 | Messgröße | Codex (prüft Claude) | Claude (prüft Hermes) | Hermes (prüft Codex) |
 | --- | --- | --- | --- |
-| Arbeitszeit | | | |
-| Tokens | | | |
-| Kosten | | | |
-| Eingriffe / Freigaben | | | |
-| Gesamturteil | | | |
-| Befunde (kritisch / hoch / mittel / niedrig) | | | |
-| davon bestätigt / falsch / unbelegt | | | |
+| Arbeitszeit | 8:37 min | 5:35 min (API 5:10, Wallzeit 8:53) | ca. 13 min |
+| Tokens | 4.602.443 (Input 135.129, Cache-Read 4.450.560, Output 16.754, davon 2.816 Reasoning) | Input 108, Cache-Read 6,3 Mio., Cache-Write 134,3k, Output 31,4k | 15.507.316 (Input 132.169, Output 76.715, davon 51.979 Reasoning) |
+| API-Aufrufe | – | 53 | 130 |
+| Kosten | 0,88 $ (Schätzung ccusage, dazu 0,01 $ für eine kleine Nebensession) | 2,97 $ (Schätzung Claude Code) | 0,10 $ (echte Abrechnung) |
+| Eingriffe / Freigaben | 0 / 3 (Prozess beenden, Worktree entfernen, Commit) | 0 / 0 | 0 / 0 |
+| Gesamturteil | nicht merge-fähig | merge-fähig nach kleinen Änderungen | merge-fähig nach kleinen Änderungen |
+| Befunde (kritisch / hoch / mittel / niedrig) | 0 / 1 / 4 / 1 | 0 / 0 / 4 / 4 | 0 / 1 / 0 / 4 |
+| davon bestätigt / falsch / unbelegt | 6 / 0 / 0 (C4 plausibel, nicht selbst nachgestellt) | 8 / 0 / 0 (H8 im Kern richtig, Nachweis ungenau) | 5 / 0 / 0 (X1 im Code bestätigt, Browserverhalten nicht selbst nachgestellt) |
+| Übersehen (in anderen Reviews gefunden) | – | gleichzeitiges Speichern doppelter Profilnamen (keine Eindeutigkeit in der Datenbank) | – |
+
+Hinweis: Die Codex-Session aus Runde 2b weist inzwischen 7.998.445 Tokens und 1,49 $ aus, weil nach dem Abschluss noch der Push-Auftrag in derselben Session lief. In `RUNDE-2B.md` stehen die Werte zum Zeitpunkt des Abschlusses (6.780.609 Tokens, 1,35 $).

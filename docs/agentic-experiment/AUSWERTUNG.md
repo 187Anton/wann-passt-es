@@ -5,6 +5,8 @@ Durchgeführt am 21.11.2026. Aufbau, Start-Prompt und Regeln stehen in [`EXPERIM
 > **Runde 2** (Design-Skill und visuelle Selbstkontrolle) ist am Ende dieses Dokuments ausgewertet. Kernbefund: Der Skill hat den Einheitslook verhindert, aber nach Urteil des Nutzers ein unstimmigeres Design erzeugt als Runde 1, weil er überwiegend aus Verboten bestand.
 >
 > **Runde 2b** (Community-Skill und positives Zielbild) folgt ganz am Ende. Kernbefund: Mit einem konkreten Designsystem wurden alle drei Oberflächen stimmig und nach Urteil des Nutzers schöner als Runde 1, gleichzeitig aber einander sehr ähnlich.
+>
+> **Runde 3** (gegenseitiges Review) und das **Gesamtfazit** stehen ganz am Ende. Kernbefund: Alle 19 Befunde der drei Reviews ließen sich bestätigen, keiner war falsch. Ein wichtiger Befund wurde aber in einem Review übersehen.
 
 ## Kurzfassung
 
@@ -376,3 +378,66 @@ Freitext des Nutzers (sinngemäß): Die Anwendung hat wenig Funktion und damit w
 3. **Der Mensch bleibt Teil der Abnahme.** Erst das Gesamturteil des Nutzers hat in Runde 2 das Problem sichtbar gemacht und in Runde 2b die Verbesserung bestätigt. Die messbaren Kriterien waren in beiden Runden erfüllt.
 4. **Werkzeuge vor dem Lauf echt testen.** Mit korrekt eingerichtetem und vorab erprobtem MCP haben alle drei das vorgesehene Werkzeug benutzt.
 5. **Kosten:** Hermes 0,39 $, Codex 1,35 $, Claude 7,39 $. Bei gleicher Nutzerbewertung von Hermes und Claude (Mittelwert 4,0) ist Hermes auch in dieser Runde das mit Abstand günstigste Ergebnis.
+
+---
+
+# Runde 3: Gegenseitiges Review
+
+Durchgeführt am 22.11.2026, Aufbau und Messwerte in [`RUNDE-3.md`](RUNDE-3.md). Jeder Agent begutachtete den Endstand eines anderen (Runde 1 plus Runde 2b) im Ringtausch, gegen den Tag `agentic-baseline` und ohne den geprüften Code zu verändern. Die Reviews liegen als `REVIEW-R3.md` auf den Branches `agent/codex-r3`, `agent/claude-opus-r3` und `agent/hermes-deepseek-r3`.
+
+## R3.1 Messwerte und Urteile
+
+| | Codex prüft Claude | Claude prüft Hermes | Hermes prüft Codex |
+| --- | --- | --- | --- |
+| Arbeitszeit | 8:37 min | 5:35 min | ca. 13 min |
+| Kosten | 0,88 $ | 2,97 $ | 0,10 $ |
+| Freigaben | 3 | 0 | 0 |
+| Tests im Ziel-Branch selbst ausgeführt | 123, davon 120 bestanden, 3 übersprungen | 89, davon 86 bestanden, 3 übersprungen | 66, davon 63 bestanden, 3 übersprungen |
+| Gesamturteil | nicht merge-fähig | merge-fähig nach kleinen Änderungen | merge-fähig nach kleinen Änderungen |
+| Befunde (hoch / mittel / niedrig) | 1 / 4 / 1 | 0 / 4 / 4 | 1 / 0 / 4 |
+
+Alle drei haben den Ziel-Branch wie verlangt in einem temporären Worktree geprüft, die Tests tatsächlich ausgeführt, die Anwendung gestartet, mit dem Playwright-MCP bei 360 und 1280 px geprüft und den temporären Worktree wieder entfernt. Keiner hat den Ziel-Branch verändert.
+
+## R3.2 Prüfung der Befunde
+
+Alle 19 Befunde wurden anschließend im Code der Ziel-Branches nachgeprüft:
+
+- **Kein einziger Befund war falsch.** Jeder Befund ließ sich im Code bestätigen oder ist mit dem Code zumindest stimmig. Nicht selbst nachgestellt wurden zwei Befunde, die nur im Browser sichtbar werden: Codex' Befund zu überlangen Ortsnamen und Hermes' Befund zur Tastaturreihenfolge. Bei beiden ist die verursachende Stelle im Code vorhanden.
+- **Die Agenten haben sauber zwischen Nachweis und Vermutung getrennt.** Claude kennzeichnete einen Befund ausdrücklich als Vermutung. Bei einem anderen war der Nachweis ungenau: Es gibt durchaus Tests auf „Fortsetzung“, allerdings nur für die Datenklasse und nicht für das gerenderte HTML. Der eigentliche Punkt, dass die Ergebnisansicht nie gerendert getestet wird, stimmt.
+- **Nachweise auf hohem Niveau:** Codex feuerte zwölf parallele Speicheranfragen ab und stellte die Zeitumstellung mit einem Java-Probelauf nach. Claude stellte zwei Logikfehler mit `jshell` direkt gegen die kompilierten Klassen nach und probierte rund 20 Eingaben per `curl` durch. Hermes setzte für einen Test einen Ortsnamen per H2-Shell auf `NULL` und prüfte die Fokusreihenfolge mit 30 Tabulator-Schritten.
+
+**Die wichtigsten bestätigten Befunde je Branch:**
+
+- **Claude-Branch (geprüft von Codex):** Profilnamen sind nur im Code, nicht in der Datenbank eindeutig. Gleichzeitige Speichervorgänge erzeugen deshalb Duplikate. Ohne JavaScript gehen beim Ortswechsel die aktuellen Eingaben verloren. Die doppelte Stunde bei der Zeitumstellung erscheint im Band mit Breite 0, weil mit Uhrzeit statt mit Zeitpunkt gerechnet wird. Die klebende Suchleiste verdeckt mobil den Fokus.
+- **Hermes-Branch (geprüft von Claude):** Ein Enddatum ohne Startdatum wird stillschweigend verworfen. Ein fehlender `weather_code` löscht ganze Stunden, obwohl der Wert gar nicht ausgewertet wird. Die Wetterdetails zählen den Niederschlag der Stunde vor dem Fenster mit. Beim Ortswechsel im Profil-Editor gehen Änderungen verloren.
+- **Codex-Branch (geprüft von Hermes):** Am Desktop ist das gesamte Planungsformular per Tastatur nicht erreichbar, weil die neue CSS-Eigenschaft `reading-flow` mit `tabindex="-1"` am Formular kollidiert. Die übrigen Befunde sind klein: zu schwache Trennlinien, ein Fenster am Zeitraumende wird mit dem Folgetag beschriftet, gleichlautende Bedienelemente in der Ortssuche, eine Testlücke.
+
+**Ein Befund wurde übersehen:** Der Hermes-Branch hat dasselbe Problem wie der Claude-Branch, nämlich keine Eindeutigkeit der Profilnamen in der Datenbank. Claude hat das in seinem Review nicht bemerkt und die Namensprüfung von Hermes sogar zur Übernahme empfohlen. Nur der Codex-Branch sichert die Eindeutigkeit über eine eindeutige Datenbankspalte ab. Hermes hob genau das in seinem Review als Stärke hervor.
+
+## R3.3 Beobachtungen
+
+1. **Die Strenge der Urteile hängt an einem einzigen Befund.** Codex urteilte „nicht merge-fähig“, die anderen „merge-fähig nach kleinen Änderungen“. Der Unterschied liegt fast nur am Doppelnamen-Problem, das Codex als einziger gezielt testete, vermutlich weil es dasselbe Problem in Runde 1 selbst gelöst hatte. Inhaltlich hätte dasselbe Urteil auch den Hermes-Branch getroffen.
+2. **Die Reviews ergänzen sich.** Jeder Agent fand Fehler, die der Autor in seinem eigenen Bericht nicht genannt hatte. Kein Branch ist ohne Befunde mittlerer oder hoher Schwere. Ein einzelnes Review ist also nützlich, aber keine Garantie, wie der übersehene Befund zeigt.
+3. **Reviews sind billiger als Umsetzungen.** 5 bis 13 Minuten und zusammen knapp 4 $ für drei gründliche Reviews mit 19 belegten Befunden. Hermes lieferte für 10 Cent ein Review auf demselben Niveau wie die anderen.
+4. **Viele Befunde betreffen Ränder, die keine Aufgabe ausdrücklich verlangt hatte:** Nebenläufigkeit, Bedienung ohne JavaScript, Zeitumstellung, Tastaturbedienung am Desktop. Genau dort helfen Reviews am meisten.
+
+## R3.4 Empfehlung für den endgültigen Stand
+
+Kein Branch ist ohne Änderungen übernahmefähig. Sinnvoll wäre ein letzter Schritt „Zusammenführen“: einen Branch als Grundlage wählen, die Datenbank-Eindeutigkeit aus dem Codex-Branch übernehmen und die bestätigten Befunde mittlerer und hoher Schwere beheben, jeweils mit Regressionstest. Für die Wahl der Grundlage sprechen:
+
+- **Claude:** die meisten Tests (123), beste Ergebnisdarstellung in der Nutzerbewertung, Mittelwert 4,0.
+- **Hermes:** bester Gesamteindruck und beste Mobilansicht in der Nutzerbewertung, Mittelwert 4,0, saubere Darstellungsschicht.
+- **Codex:** fachlich am robustesten (Datenbank-Eindeutigkeit, Zeitumstellung getestet, vollständig ohne JavaScript nutzbar), aber die schwächste Nutzerbewertung (3,6) und der Tastaturfehler am Desktop.
+
+# Gesamtfazit des Experiments
+
+| | Codex | Claude Code | Hermes + DeepSeek |
+| --- | --- | --- | --- |
+| Kosten gesamt (R1, R2, R2b, R3) | ca. 4,59 $ | ca. 24,22 $ | ca. 0,81 $ |
+| Stärke | robuste Fachlogik, schlanker Code, Datenbank-Eindeutigkeit | Gründlichkeit, Testumfang, offene Dokumentation | Preis-Leistung, solide Ergebnisse, beste Nutzerwertung im Design |
+| Schwäche | Freigaben nötig, schwächste Gestaltung | höchste Kosten, Kontingent schnell erschöpft | hoher Tokenverbrauch, sieht keine Bilder |
+
+1. **Alle drei Agenten haben jede Aufgabe ohne Eingriff vollständig erledigt.** Die Unterschiede liegen in Gründlichkeit, Robustheit an den Rändern und Kosten, nicht in der Grundfähigkeit.
+2. **Der Preisunterschied ist enorm, der Qualitätsunterschied nicht.** Hermes mit DeepSeek kostete über alle Runden rund ein Dreißigstel von Claude, bei vergleichbarer Nutzerbewertung und gleich belastbaren Reviews.
+3. **Die Vorgaben entscheiden mehr als das Modell.** Ohne Designvorgabe entstand Einheitslook, mit Verboten Unstimmigkeit, mit positivem Zielbild ein stimmiges, aber austauschbares Ergebnis. Gute Aufgaben, Skills und Werkzeuge haben das Ergebnis stärker geprägt als die Wahl des Agenten.
+4. **Der Mensch bleibt unverzichtbar:** als Auftraggeber, der Ziele positiv beschreibt, als Gutachter des Gesamteindrucks und als letzte Instanz über Reviews, die sich gegenseitig ergänzen, aber auch etwas übersehen.
