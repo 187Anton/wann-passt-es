@@ -16,8 +16,9 @@ try {
   const page = await browser.newPage();
   page.setDefaultTimeout(8000);
 
-  // Save the current selection as a profile.
+  // Save the current selection as a profile. Weather wishes are radio buttons.
   await page.goto(`${baseUrl}/?startDate=${date}&endDate=${date}`);
+  await page.getByRole('group', { name: 'Wind' }).getByRole('radio', { name: /mäßiger Wind/ }).check();
   await page.getByLabel(/Profilname/).fill(name);
   await page.getByRole('button', { name: 'Suchprofil speichern' }).click();
   await page.waitForURL(url => url.pathname.split(';')[0] === '/profiles');
@@ -32,6 +33,8 @@ try {
   await page.waitForURL(url => url.pathname === '/');
   assert.equal(await page.getByLabel('Aktivität').inputValue(), 'WALKING');
   assert.equal(await page.getByLabel(/Mindestdauer/).inputValue(), '60');
+  assert.ok(await page.getByRole('group', { name: 'Wind' })
+    .getByRole('radio', { name: /mäßiger Wind/ }).isChecked());
 
   // Edit the profile.
   await page.getByRole('navigation').getByRole('link', { name: 'Suchprofile' }).click();
@@ -39,10 +42,12 @@ try {
   await card.getByRole('link', { name: 'Bearbeiten' }).click();
   await page.waitForURL(url => /\/profiles\/\d+\/edit$/.test(url.pathname));
   await page.getByLabel(/Mindestdauer/).fill('90');
+  await page.getByRole('group', { name: 'Niederschlag' }).getByRole('radio', { name: /^Trocken/ }).check();
   await page.getByRole('button', { name: 'Änderungen speichern' }).click();
   await page.waitForURL(url => url.pathname.split(';')[0] === '/profiles');
   card = profileCard(page);
   assert.match(await card.innerText(), /90 Min\./);
+  assert.match(await card.innerText(), /Trocken/);
 
   // Cancel the deletion first, then confirm it.
   page.once('dialog', dialog => dialog.dismiss());
