@@ -140,7 +140,7 @@ public class MainpageController {
                                     + "Bitte versuche es später erneut oder wähle einen anderen Zeitraum.");
                 }
 
-                model.addAttribute("result", ResultView.of(suitableWindows, period, zone, now));
+                model.addAttribute("result", ResultView.of(suitableWindows, period, zone, now, hours));
                 model.addAttribute("periodLabel", periodLabel(period));
                 searchPerformed = true;
             }
